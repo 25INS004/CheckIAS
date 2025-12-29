@@ -1,0 +1,5 @@
+{
+  "name": "CheckIAS",
+  "description": "A scalable React application setup with TypeScript, Tailwind CSS, and React Router.",
+  "requestFramePermissions": []
+}
