@@ -8,12 +8,13 @@ const LandingPage = () => {
   return (
     <div className="bg-white dark:bg-black transition-colors duration-200">
       {/* Hero Section */}
-      <section id="hero" className="relative pt-24 pb-20 overflow-hidden bg-white dark:bg-black transition-all duration-300">
+      <section id="hero" className="relative min-h-[90vh] flex flex-col justify-between pt-32 md:pt-48 overflow-hidden bg-white dark:bg-black transition-all duration-300">
         {/* Background Pattern */}
-        <div className="absolute inset-0 bg-[url('/images/hero-background-light.png')] dark:bg-[url('/images/hero-background-dark.png')] bg-cover bg-top bg-no-repeat opacity-10 dark:opacity-25 pointer-events-none transition-all duration-500"></div>
+        <div className="absolute inset-0 bg-[url('/images/hero-background-light.png')] dark:bg-[url('/images/hero-background-dark.png')] bg-[length:100%_100%] bg-top bg-no-repeat md:bg-cover md:bg-center opacity-10 dark:opacity-25 pointer-events-none transition-all duration-500"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white dark:to-black pointer-events-none"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <div data-aos="fade-up" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-sm font-medium mb-8">
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center flex-1 flex flex-col justify-center">
+          <div data-aos="fade-up" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-sm font-medium mb-8 mx-auto">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
@@ -21,7 +22,7 @@ const LandingPage = () => {
             Accepting New Submissions
           </div>
           
-          <h1 data-aos="fade-up" data-aos-delay="100" className="text-4xl md:text-7xl font-bold text-gray-900 dark:text-white tracking-tight mb-6 leading-tight">
+          <h1 data-aos="fade-up" data-aos-delay="100" className="text-3xl md:text-7xl font-bold text-gray-900 dark:text-white tracking-tight mb-6 leading-tight">
             Expert Evaluation for <br className="hidden md:block"/>
             <span className="text-indigo-600 dark:text-indigo-500">UPSC Answer Copies</span>
           </h1>
@@ -39,6 +40,10 @@ const LandingPage = () => {
             </Link>
           </div>
         </div>
+
+        <div className="relative z-10 w-full">
+           <SectionSeparator />
+        </div>
       </section>
 
       {/* Reviews Section */}
@@ -47,8 +52,6 @@ const LandingPage = () => {
           <ReviewCarousel />
         </div>
       </section>
-
-      <SectionSeparator />
 
       {/* Features Grid */}
       <section id="features" className="py-24 bg-white dark:bg-black transition-colors duration-200">
@@ -205,7 +208,7 @@ const LandingPage = () => {
 };
 
 const FeatureCard = ({ icon, iconBg = "bg-indigo-600", title, description }: { icon: React.ReactNode, iconBg?: string, title: string, description: string }) => (
-  <div className="group relative p-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-300 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-black dark:hover:border-indigo-500 transition-all duration-300 hover:-translate-y-1 overflow-hidden h-full">
+  <div className="group relative p-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-300 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-black dark:hover:border-indigo-500 transition-all duration-500 ease-out hover:-translate-y-1 overflow-hidden h-full">
     <div className={`
       absolute top-0 right-0 w-32 h-32 bg-gray-50 dark:bg-gray-700/50 rounded-bl-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-110 group-hover:bg-gray-100 dark:group-hover:bg-gray-700
     `} />
@@ -237,7 +240,7 @@ const PricingCard = ({
   buttonStyles = "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
 }: any) => (
   <div className={`
-    p-8 rounded-[2rem] flex flex-col transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden h-full
+    p-8 rounded-[2rem] flex flex-col transition-all duration-500 ease-out transform hover:-translate-y-1 relative overflow-hidden h-full
     ${customStyles}
   `}>
     

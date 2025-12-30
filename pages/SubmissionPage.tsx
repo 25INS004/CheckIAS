@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileUp, AlertCircle, Crown, CheckCircle, ChevronDown } from 'lucide-react';
+import { FileUp, AlertCircle, Crown, CheckCircle, ChevronDown, Lock } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { Link } from 'react-router-dom';
 
@@ -10,15 +10,22 @@ const subjects = [
   'General Studies IV (Ethics)',
   'Essay',
   'Optional Paper I',
-  'Optional Paper II'
+  'Optional Paper II',
+  'Other'
 ];
 
 const years = ['2025', '2024', '2023', '2022', '2021', '2020'];
 
 const SubmissionPage = () => {
-  const { submissionsRemaining, userTier, userId, decrementSubmissions } = useUser();
+  const { user, decrementSubmissions } = useUser();
+  
+  // Derived state from user object
+  const submissionsRemaining = user?.submissionsLeft || 0;
+  const isUnlimited = user?.plan !== 'Free';
+  const userId = user?.email || 'guest';
   
   const [subject, setSubject] = useState('');
+  const [customSubject, setCustomSubject] = useState('');
   const [year, setYear] = useState('');
   const [paperCode, setPaperCode] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -30,7 +37,7 @@ const SubmissionPage = () => {
   const [isYearOpen, setIsYearOpen] = useState(false);
 
   // FR-SUB 04: Premium users have unlimited submissions
-  const hasCredits = userTier === 'premium' || submissionsRemaining > 0;
+  const hasCredits = isUnlimited || submissionsRemaining > 0;
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -67,7 +74,8 @@ const SubmissionPage = () => {
     const uniqueFilename = `CheckIAS_${userId}_${timestamp}_${randomString}.pdf`;
 
     console.log('Submitting file with unique name:', uniqueFilename);
-    console.log('Metadata:', { subject, year, paperCode });
+    const finalSubject = subject === 'Other' ? customSubject : subject;
+    console.log('Metadata:', { subject: finalSubject, year, paperCode });
 
     // Simulate API call
     setTimeout(() => {
@@ -75,13 +83,14 @@ const SubmissionPage = () => {
       setIsSubmitted(true);
       // Reset form
       setSubject('');
+      setCustomSubject('');
       setYear('');
       setPaperCode('');
       setFile(null);
     }, 1500);
   };
 
-  const isFormValid = subject && year && paperCode && file;
+  const isFormValid = (subject === 'Other' ? customSubject : subject) && year && paperCode && file;
 
   if (isSubmitted) {
     return (
@@ -120,7 +129,7 @@ const SubmissionPage = () => {
           <div className="z-10 flex-1">
             <h3 className="text-lg font-bold text-indigo-900 dark:text-indigo-100">Limit Reached</h3>
             <p className="text-indigo-700 dark:text-indigo-200 mt-1 leading-relaxed">
-              You've used all your free submissions. Upgrade to Premium for <strong>unlimited submissions</strong> and faster evaluation times.
+              You've reached your plan's submission limit. Upgrade to Premium for <strong>unlimited submissions</strong> and priority evaluation.
             </p>
             <Link 
               to="/pricing" 
@@ -175,6 +184,21 @@ const SubmissionPage = () => {
                 </div>
               </div>
             </div>
+
+            {/* Custom Subject Input */}
+            {subject === 'Other' && (
+              <div className="animate-fade-in relative z-0">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Custom Subject Name</label>
+                <input
+                  type="text"
+                  value={customSubject}
+                  onChange={(e) => setCustomSubject(e.target.value)}
+                  required
+                  placeholder="Enter subject name"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                />
+              </div>
+            )}
 
             {/* Year Dropdown */}
             <div>
@@ -291,7 +315,7 @@ const SubmissionPage = () => {
 
         <div className="text-center">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-             {userTier === 'premium' ? (
+             {isUnlimited ? (
                 <span className="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-medium">
                   <Crown className="w-4 h-4" /> Premium Plan Active (Unlimited Submissions)
                 </span>
@@ -299,7 +323,7 @@ const SubmissionPage = () => {
                <>
                  You have <span className={`font-semibold ${hasCredits ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                   {submissionsRemaining}
-                </span> free submission(s) remaining
+                </span> submission(s) remaining
                </>
              )}
           </p>

@@ -45,7 +45,7 @@ const Footer = () => {
               Platform
             </h4>
             <ul className="space-y-4">
-              {['Home', 'Features', 'Pricing', 'About Us', 'Success Stories'].map((item) => (
+              {['Home', 'Features', 'Pricing', 'About Us'].map((item) => (
                 <li key={item}>
                   <Link 
                     to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} 
@@ -64,7 +64,7 @@ const Footer = () => {
               Resources
             </h4>
             <ul className="space-y-4">
-              {['Blog', 'Help Center', 'Privacy Policy', 'Terms of Service', 'Refund Policy'].map((item) => (
+              {['Help Center', 'Privacy Policy', 'Terms of Service', 'Refund Policy'].map((item) => (
                 <li key={item}>
                   <Link 
                     to={`/${item.toLowerCase().replace(' ', '-')}`} 

@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { Search, Plus, Minus, X, Calendar, Filter, Download, History, ChevronDown } from 'lucide-react';
 import DatePicker from '../../components/DatePicker';
 
-// Mock user data with more fields
+// Mock user data with updated plan names
 const mockUsers = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', plan: 'Premium', credits: 10, status: 'Active', registrationDate: '2024-12-01' },
+  { id: 1, name: 'John Doe', email: 'john@example.com', plan: 'Pro', credits: 10, status: 'Active', registrationDate: '2024-12-01' },
   { id: 2, name: 'Jane Smith', email: 'jane@example.com', plan: 'Free', credits: 2, status: 'Active', registrationDate: '2024-12-05' },
-  { id: 3, name: 'Mike Johnson', email: 'mike@example.com', plan: 'Premium', credits: 5, status: 'Active', registrationDate: '2024-11-15' },
+  { id: 3, name: 'Mike Johnson', email: 'mike@example.com', plan: 'Achiever', credits: 5, status: 'Active', registrationDate: '2024-11-15' },
   { id: 4, name: 'Sarah Wilson', email: 'sarah@example.com', plan: 'Free', credits: 0, status: 'Inactive', registrationDate: '2024-10-20' },
-  { id: 5, name: 'David Brown', email: 'david@example.com', plan: 'Premium', credits: 15, status: 'Active', registrationDate: '2024-12-10' },
+  { id: 5, name: 'David Brown', email: 'david@example.com', plan: 'Starter', credits: 15, status: 'Active', registrationDate: '2024-12-10' },
 ];
+
+// ... (existing code)
 
 // Mock audit log
 const mockAuditLog: Array<{id: number; adminId: string; action: string; userId: number; timestamp: string; ip: string}> = [];
@@ -44,7 +46,10 @@ const UserManagement = () => {
     const matchesSearch = user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
-    const matchesPlan = planFilter === 'all' || user.plan === planFilter;
+    const matchesPlan = 
+      planFilter === 'all' || 
+      (planFilter === 'paid' && user.plan !== 'Free') ||
+      user.plan === planFilter;
     const matchesDateFrom = !dateFrom || new Date(user.registrationDate) >= new Date(dateFrom);
     const matchesDateTo = !dateTo || new Date(user.registrationDate) <= new Date(dateTo);
     
@@ -113,6 +118,12 @@ const UserManagement = () => {
     a.href = url;
     a.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
+  };
+
+  const getPlanLabel = (plan: string) => {
+    if (plan === 'all') return 'All Plans';
+    if (plan === 'paid') return 'All Paid Plans';
+    return plan;
   };
 
   return (
@@ -205,12 +216,12 @@ const UserManagement = () => {
                   onBlur={() => setTimeout(() => setIsPlanOpen(false), 200)}
                   className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none text-left flex items-center justify-between"
                 >
-                  <span className="capitalize">{planFilter === 'all' ? 'All Plans' : planFilter}</span>
+                  <span className="capitalize">{getPlanLabel(planFilter)}</span>
                   <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isPlanOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
                 <div className={`absolute top-full left-0 w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg z-20 overflow-hidden transition-all origin-top ${isPlanOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-                  {['all', 'Free', 'Premium'].map((plan) => (
+                  {['all', 'Free', 'paid', 'Starter', 'Pro', 'Achiever'].map((plan) => (
                     <button
                       key={plan}
                       onClick={() => {
@@ -219,7 +230,7 @@ const UserManagement = () => {
                       }}
                       className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-800 ${planFilter === plan ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400' : 'text-gray-700 dark:text-gray-300'}`}
                     >
-                      {plan === 'all' ? 'All Plans' : plan}
+                      {getPlanLabel(plan)}
                     </button>
                   ))}
                 </div>

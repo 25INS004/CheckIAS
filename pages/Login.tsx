@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import HardcodedUsers from '../components/HardcodedUsers';
+import { useUser } from '../context/UserContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -12,6 +15,19 @@ const Login = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Login:', { email, password, rememberMe });
+    
+    // Simple mock authentication logic
+    let plan: 'Free' | 'Starter' | 'Pro' | 'Achiever' = 'Free';
+    if (email.includes('pro') || email === 'pro@checkias.com') {
+        plan = 'Pro';
+    } else if (email.includes('starter') || email === 'starter@checkias.com') {
+        plan = 'Starter';
+    } else if (email.includes('achiever') || email === 'achiever@checkias.com') {
+        plan = 'Achiever';
+    }
+    
+    login(email, plan);
+    navigate('/dashboard');
   };
 
   return (
@@ -118,6 +134,9 @@ const Login = () => {
             Register
           </Link>
         </p>
+
+        {/* Test Credentials - Dev Only */}
+        <HardcodedUsers />
       </div>
     </div>
   );

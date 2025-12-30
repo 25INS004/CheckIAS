@@ -16,10 +16,15 @@ import AdminOverview from './pages/admin/AdminOverview';
 import UserManagement from './pages/admin/UserManagement';
 import AdminTickets from './pages/admin/AdminTickets';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminGuidanceCalls from './pages/admin/AdminGuidanceCalls';
+import AdminSubmissions from './pages/admin/AdminSubmissions';
 import { AppProvider } from './context/AppProvider';
 import { ThemeProvider } from './context/ThemeContext';
 import { UserProvider } from './context/UserContext';
+import SupportPage from './pages/SupportPage';
+import GuidanceCallsPage from './pages/GuidanceCallsPage';
 import ProfileSettings from './pages/ProfileSettings';
+import AboutUs from './pages/AboutUs';
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -44,6 +49,7 @@ const App: React.FC = () => {
               {/* Public Routes */}
               <Route element={<PublicLayout><Outlet /></PublicLayout>}>
                 <Route path="/" element={<LandingPage />} />
+                <Route path="/about" element={<AboutUs />} />
               </Route>
 
               {/* Dashboard Routes */}
@@ -51,15 +57,18 @@ const App: React.FC = () => {
                 <Route index element={<DashboardHome />} />
                 <Route path="submit" element={<SubmissionPage />} />
                 <Route path="history" element={<HistoryPage />} />
-                <Route path="support" element={<div className="p-6">Support Center</div>} />
-                <Route path="settings" element={<ProfileSettings />} />
+                <Route path="support" element={<SupportPage />} />
+                <Route path="guidance-calls" element={<GuidanceCallsPage />} />
+                <Route path="settings/:tab?" element={<ProfileSettings />} />
               </Route>
 
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminLayout><Outlet /></AdminLayout>}>
                 <Route index element={<AdminOverview />} />
                 <Route path="users" element={<UserManagement />} />
+                <Route path="submissions" element={<AdminSubmissions />} />
                 <Route path="tickets" element={<AdminTickets />} />
+                <Route path="guidance-calls" element={<AdminGuidanceCalls />} />
                 <Route path="settings" element={<AdminSettings />} />
               </Route>
             </Routes>

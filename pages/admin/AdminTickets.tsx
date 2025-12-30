@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, MessageSquare, CheckCircle, Clock, AlertCircle, ChevronDown } from 'lucide-react';
+import { Search, MessageSquare, CheckCircle, Clock, AlertCircle, ChevronDown } from 'lucide-react';
 
 // Mock Ticket Data
 const mockTickets = [
@@ -24,7 +24,6 @@ const AdminTickets = () => {
 
   const handleResolve = (id: string) => {
     alert(`Marking ticket ${id} as resolved`);
-    // In real app, API call here
   };
 
   return (
@@ -32,8 +31,10 @@ const AdminTickets = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Support Tickets</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage and resolve user support requests</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage user support requests</p>
         </div>
+        
+        {/* Filters */}
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -168,3 +169,4 @@ const AdminTickets = () => {
 };
 
 export default AdminTickets;
+
