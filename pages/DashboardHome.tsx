@@ -2,9 +2,88 @@ import React from 'react';
 import { Megaphone, FileText, Crown, Clock, Phone, Lock } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { Link } from 'react-router-dom';
+import { usePayment } from '../hooks/usePayment';
+import { useProfile } from '../hooks/useProfile';
+import { supabase } from '../lib/supabase';
+import { formatDistanceToNow } from 'date-fns';
 
 const DashboardHome = () => {
-  const { user } = useUser();
+  const { user, updateUser } = useUser();
+  const { openPaymentModal } = usePayment();
+  const { updateProfile } = useProfile();
+
+  React.useEffect(() => {
+    const checkPendingPlan = async () => {
+      const pendingPlan = sessionStorage.getItem('pendingPlan');
+      if (pendingPlan && user) {
+        // Clear it immediately to prevent re-trigger
+        sessionStorage.removeItem('pendingPlan');
+        
+        // Map plan IDs to amounts (in paise)
+        const PLAN_DETAILS: Record<string, number> = {
+          starter: 99900,
+          pro: 249900,
+          achiever: 499900
+        };
+
+        const amount = PLAN_DETAILS[pendingPlan];
+        
+        if (amount && user.plan !== pendingPlan) {
+            // Small delay to ensure UI renders
+            setTimeout(() => {
+                openPaymentModal({
+                    planId: pendingPlan,
+                    amount,
+                    onSuccess: async (response) => {
+                        console.log('Auto-upgrade success', response);
+                        const { success } = await updateProfile({ plan: pendingPlan as any });
+                        if (success) {
+                            updateUser({ plan: pendingPlan as any });
+                            alert(`Welcome to ${pendingPlan}! Your account has been upgraded.`);
+                        }
+                    }
+                });
+            }, 500);
+        }
+      }
+    };
+    
+    checkPendingPlan();
+    checkPendingPlan();
+  }, [user]);
+
+  // Fetch Recent Activity
+  const [recentActivity, setRecentActivity] = React.useState<any[]>([]);
+  const [loadingActivity, setLoadingActivity] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchActivity = async () => {
+      if (!user) return;
+      
+      try {
+        const [submissions, tickets, calls] = await Promise.all([
+          supabase.from('submissions').select('id, paper_type, status, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(3),
+          supabase.from('support_tickets').select('id, subject, status, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(3),
+          supabase.from('guidance_calls').select('id, topic, status, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(3)
+        ]);
+
+        const combined = [
+          ...(submissions.data || []).map(i => ({ ...i, type: 'submission', title: i.paper_type, icon: FileText, color: 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400' })),
+          ...(tickets.data || []).map(i => ({ ...i, type: 'ticket', title: i.subject, icon: Megaphone, color: 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' })),
+          ...(calls.data || []).map(i => ({ ...i, type: 'call', title: i.topic, icon: Clock, color: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400' }))
+        ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+         .slice(0, 3);
+         
+        setRecentActivity(combined);
+      } catch (err) {
+        console.error('Error fetching activity:', err);
+      } finally {
+        setLoadingActivity(false);
+      }
+    };
+    
+    fetchActivity();
+  }, [user]);
   
   if (!user) return null;
 
@@ -178,24 +257,28 @@ const DashboardHome = () => {
       <div className="bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Activity</h3>
         <div className="space-y-4">
-          {[
-            { id: 1, type: 'submission', title: 'GS Paper 1 Evaluation', status: 'Completed', time: '2 hours ago', icon: FileText, color: 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400' },
-            { id: 2, type: 'ticket', title: 'Support Ticket #204', status: 'Resolved', time: '1 day ago', icon: Megaphone, color: 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' },
-            { id: 3, type: 'submission', title: 'Essay Mock Test', status: 'Pending', time: '2 days ago', icon: Clock, color: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400' },
-          ].map((activity) => (
-            <div key={activity.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-800">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${activity.color}`}>
-                  <activity.icon className="w-5 h-5" />
+          {loadingActivity ? (
+            <div className="text-center py-4 text-gray-500 text-sm">Loading activity...</div>
+          ) : recentActivity.length > 0 ? (
+            recentActivity.map((activity) => (
+              <div key={`${activity.type}-${activity.id}`} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${activity.color}`}>
+                    <activity.icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">{activity.title}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{activity.status}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{activity.title}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{activity.status}</p>
-                </div>
+                <span className="text-sm text-gray-400 whitespace-nowrap ml-2">
+                  {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
+                </span>
               </div>
-              <span className="text-sm text-gray-400">{activity.time}</span>
-            </div>
-          ))}
+            ))
+          ) : (
+            <div className="text-center py-4 text-gray-500 text-sm">No recent activity</div>
+          )}
         </div>
       </div>
     </div>

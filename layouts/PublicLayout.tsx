@@ -3,8 +3,10 @@ import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
 import ThemeToggle from '../components/ThemeToggle';
+import { useTheme } from '../context/ThemeContext';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
+  const { theme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
 
@@ -49,9 +51,16 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           <div className="h-20 flex justify-between lg:grid lg:grid-cols-3 items-center">
             
             {/* Left: Logo */}
-            <div className="flex justify-start">
-              <Link to="/" className="text-2xl font-black tracking-tight text-gray-900 dark:text-white hover:opacity-80 transition-opacity">
-                CHECKIAS
+            <div className="flex justify-start items-center">
+              <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <img 
+                  src={theme === 'dark' ? '/images/logo-dark.png' : '/images/logo-light.png'}
+                  alt="CheckIAS Logo"
+                  className="h-14 w-auto"
+                />
+                <span className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">
+                  CHECKIAS
+                </span>
               </Link>
             </div>
 

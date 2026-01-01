@@ -153,8 +153,9 @@ const LandingPage = () => {
                 period="/ month"
                 billingNote="Billed Monthly"
                 buttonText="Get Started"
+                link="/signup?plan=starter"
                 features={[
-                  { text: '2 Submissions / month', included: true },
+                  { text: 'Unlimited Submissions', included: true },
                   { text: 'Basic Feedback', included: true },
                   { text: '24h Turnaround', included: true },
                   { text: '2 calls per month', included: true }
@@ -171,6 +172,7 @@ const LandingPage = () => {
                 period="/ 3 months"
                 billingNote="Billed Quarterly"
                 buttonText="Get Started"
+                link="/signup?plan=pro"
                 isPopular
                 features={[
                   { text: 'Unlimited Submissions', included: true },
@@ -192,7 +194,9 @@ const LandingPage = () => {
                 period="/ 6 months"
                 billingNote="Billed Biannually"
                 buttonText="Get Started"
+                link="/signup?plan=achiever"
                 features={[
+                  { text: 'Unlimited Submissions', included: true },
                   { text: 'Personal Mentor', included: true },
                   { text: 'Daily Targets', included: true },
                   { text: 'Live Evaluation', included: true },
@@ -234,6 +238,7 @@ const PricingCard = ({
   period,
   billingNote, 
   buttonText, 
+  link,
   features, 
   isPopular = false,
   customStyles = "bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 shadow-lg shadow-gray-200/50 dark:shadow-none hover:shadow-xl hover:border-gray-900 dark:hover:border-gray-500",
@@ -263,12 +268,12 @@ const PricingCard = ({
        <p className="text-[10px] mt-2 text-gray-400">*{billingNote}</p>
     </div>
 
-    <button className={`
-      w-full py-3 rounded-xl font-semibold text-sm transition-all mb-8 relative z-10
+    <Link to={link || '/signup'} className={`
+      block w-full py-3 rounded-xl font-semibold text-sm transition-all mb-8 relative z-10 text-center
       ${buttonStyles}
     `}>
       {buttonText}
-    </button>
+    </Link>
 
     <div className="mt-auto relative z-10">
       <p className="text-sm font-medium mb-4 text-gray-900 dark:text-gray-200">What's included:</p>

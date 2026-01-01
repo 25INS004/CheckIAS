@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { FileUp, AlertCircle, Crown, CheckCircle, ChevronDown, Lock } from 'lucide-react';
+import { FileUp, AlertCircle, Crown, CheckCircle, ChevronDown, Lock, Loader2 } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { Link } from 'react-router-dom';
+import { useSubmissions } from '../hooks/useSubmissions';
+import { useFileUpload } from '../hooks/useFileUpload';
 
 const subjects = [
   'General Studies I',
@@ -18,10 +20,12 @@ const years = ['2025', '2024', '2023', '2022', '2021', '2020'];
 
 const SubmissionPage = () => {
   const { user, decrementSubmissions } = useUser();
+  const { createSubmission } = useSubmissions();
+  const { uploadFile, uploading } = useFileUpload();
   
   // Derived state from user object
   const submissionsRemaining = user?.submissionsLeft || 0;
-  const isUnlimited = user?.plan !== 'Free';
+  const isUnlimited = user?.plan !== 'free';
   const userId = user?.email || 'guest';
   
   const [subject, setSubject] = useState('');
@@ -31,6 +35,8 @@ const SubmissionPage = () => {
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
   
   // Dropdown states
   const [isSubjectOpen, setIsSubjectOpen] = useState(false);
@@ -63,22 +69,40 @@ const SubmissionPage = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!file) return;
+    
+    setIsSubmitting(true);
+    setError('');
 
-    // FR-SUB 06: Unique filename generation
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const randomString = Math.random().toString(36).substring(2, 8);
-    const uniqueFilename = `CheckIAS_${userId}_${timestamp}_${randomString}.pdf`;
+    try {
+      // 1. Upload file to Supabase Storage
+      const { url, error: uploadError } = await uploadFile(file);
+      
+      if (uploadError || !url) {
+        setError(uploadError || 'Failed to upload file');
+        setIsSubmitting(false);
+        return;
+      }
 
-    console.log('Submitting file with unique name:', uniqueFilename);
-    const finalSubject = subject === 'Other' ? customSubject : subject;
-    console.log('Metadata:', { subject: finalSubject, year, paperCode });
+      // 2. Create submission record in database
+      const finalSubject = subject === 'Other' ? customSubject : subject;
+      const { success, error: createError } = await createSubmission({
+        paper_type: finalSubject,
+        question_number: paperCode,
+        file_url: url,
+        file_name: file.name,
+      });
 
-    // Simulate API call
-    setTimeout(() => {
+      if (!success) {
+        setError(createError || 'Failed to save submission');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // 3. Success!
       decrementSubmissions();
       setIsSubmitted(true);
       // Reset form
@@ -87,7 +111,11 @@ const SubmissionPage = () => {
       setYear('');
       setPaperCode('');
       setFile(null);
-    }, 1500);
+    } catch (err: any) {
+      setError(err.message || 'An error occurred');
+    }
+    
+    setIsSubmitting(false);
   };
 
   const isFormValid = (subject === 'Other' ? customSubject : subject) && year && paperCode && file;
@@ -300,17 +328,34 @@ const SubmissionPage = () => {
           </div>
         </div>
 
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+          </div>
+        )}
+
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={!hasCredits || !isFormValid}
-          className={`w-full py-4 rounded-xl font-semibold text-white transition-all ${
-            hasCredits && isFormValid
+          disabled={!hasCredits || !isFormValid || isSubmitting || uploading}
+          className={`w-full py-4 rounded-xl font-semibold text-white transition-all flex items-center justify-center gap-2 ${
+            hasCredits && isFormValid && !isSubmitting && !uploading
               ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer shadow-lg shadow-indigo-200'
               : 'bg-gray-400 cursor-not-allowed'
           }`}
         >
-          {hasCredits ? 'Submit for Evaluation' : 'Upgrade to Continue'}
+          {isSubmitting || uploading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              {uploading ? 'Uploading PDF...' : 'Saving submission...'}
+            </>
+          ) : hasCredits ? (
+            'Submit for Evaluation'
+          ) : (
+            'Upgrade to Continue'
+          )}
         </button>
 
         <div className="text-center">

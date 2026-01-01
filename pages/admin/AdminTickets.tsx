@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, MessageSquare, CheckCircle, Clock, AlertCircle, ChevronDown } from 'lucide-react';
+import ConfirmationModal from '../../components/ConfirmationModal';
 
 // Mock Ticket Data
 const mockTickets = [
@@ -11,11 +12,13 @@ const mockTickets = [
 ];
 
 const AdminTickets = () => {
+  const [tickets, setTickets] = useState(mockTickets);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
+  const [confirmResolveId, setConfirmResolveId] = useState<string | null>(null);
 
-  const filteredTickets = mockTickets.filter(ticket => 
+  const filteredTickets = tickets.filter(ticket => 
     (filterStatus === 'All' || ticket.status === filterStatus) &&
     (ticket.user.toLowerCase().includes(searchTerm.toLowerCase()) || 
      ticket.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -23,7 +26,7 @@ const AdminTickets = () => {
   );
 
   const handleResolve = (id: string) => {
-    alert(`Marking ticket ${id} as resolved`);
+    setTickets(tickets.map(t => t.id === id ? { ...t, status: 'Resolved' } : t));
   };
 
   return (
@@ -145,7 +148,7 @@ const AdminTickets = () => {
                   <td className="px-6 py-4 text-right">
                     {ticket.status !== 'Resolved' && (
                       <button 
-                        onClick={() => handleResolve(ticket.id)}
+                        onClick={() => setConfirmResolveId(ticket.id)}
                         className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium text-xs bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 px-3 py-1.5 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-800"
                       >
                         Resolve
@@ -164,6 +167,18 @@ const AdminTickets = () => {
           )}
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={!!confirmResolveId}
+        onClose={() => setConfirmResolveId(null)}
+        onConfirm={() => {
+          if (confirmResolveId) handleResolve(confirmResolveId);
+        }}
+        title="Resolve Ticket?"
+        message="Are you sure you want to mark this ticket as resolved?"
+        confirmText="Resolve Ticket"
+        confirmStyle="bg-green-600 hover:bg-green-700 text-white"
+      />
     </div>
   );
 };

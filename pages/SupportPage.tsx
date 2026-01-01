@@ -3,6 +3,21 @@ import { LifeBuoy, MessageSquare, Plus, Minus, Send, HelpCircle, Calendar, Flag,
 import DatePicker from '../components/DatePicker';
 import { useUser } from '../context/UserContext';
 
+// Helper to get access token
+const getAccessToken = () => {
+  try {
+    const localData = localStorage.getItem('supabase.auth.token');
+    const sessionData = sessionStorage.getItem('supabase.auth.token');
+    const data = localData || sessionData;
+    if (data) {
+      return JSON.parse(data).currentSession?.access_token;
+    }
+  } catch (e) {
+    console.error('Error getting access token:', e);
+  }
+  return null;
+};
+
 const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
   const { user } = useUser();
   const [activeTab, setActiveTab] = useState<'support' | 'faq'>('support');
@@ -10,9 +25,41 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
   // Ticket State
-  const [tickets, setTickets] = useState([
-    { id: 'TKT-1024', subject: 'Payment Issue', category: 'Billing', date: '2024-12-29', priority: 'High', status: 'Open', description: 'Transaction failed but amount deducted.' },
-  ]);
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Fetch tickets on mount
+  React.useEffect(() => {
+    if (user?.id) {
+      fetchTickets();
+    }
+  }, [user]);
+
+  const fetchTickets = async () => {
+    try {
+      setLoading(true);
+      const token = getAccessToken();
+      if (!token) return;
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/support_tickets?user_id=eq.${user?.id}&select=*&order=created_at.desc`,
+        {
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+        
+      if (!response.ok) throw new Error('Failed to fetch tickets');
+      const data = await response.json();
+      setTickets(data || []);
+    } catch (err) {
+      console.error('Error fetching tickets:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
   const [showTicketForm, setShowTicketForm] = useState(false);
   const [newTicket, setNewTicket] = useState({
     subject: '',
@@ -41,20 +88,54 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
 
   const priorities = ["Low", "Medium", "High"];
 
-  const handleCreateTicket = (e: React.FormEvent) => {
+  const handleCreateTicket = async (e: React.FormEvent) => {
     e.preventDefault();
-    const ticket = {
-      id: `TKT-${Math.floor(1000 + Math.random() * 9000)}`,
-      subject: newTicket.subject,
-      category: newTicket.category,
-      priority: newTicket.priority,
-      date: new Date(newTicket.date).toLocaleDateString(),
-      status: 'Open',
-      description: newTicket.description
-    };
-    setTickets([ticket, ...tickets]);
-    setNewTicket({ subject: '', category: 'General', priority: 'Medium', date: new Date().toISOString().split('T')[0], description: '' });
-    setShowTicketForm(false);
+    if (!user) return;
+
+    try {
+      const token = getAccessToken();
+      if (!token) {
+        alert('Authentication error. Please login again.');
+        return;
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/support_tickets`,
+        {
+          method: 'POST',
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({
+            user_id: user.id,
+            subject: newTicket.subject,
+            category: newTicket.category,
+            priority: newTicket.priority,
+            description: newTicket.description,
+            status: 'Open'
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || 'Failed to create ticket');
+      }
+
+      const data = await response.json();
+
+      if (data && data.length > 0) {
+        setTickets([data[0], ...tickets]);
+        setNewTicket({ subject: '', category: 'General', priority: 'Medium', date: new Date().toISOString().split('T')[0], description: '' });
+        setShowTicketForm(false);
+      }
+    } catch (err: any) {
+      console.error('Error creating ticket:', err);
+      alert(`Failed to create ticket: ${err.message}`);
+    }
   };
 
   return (
@@ -168,7 +249,9 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
                               </span>
                             </h4>
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{ticket.description}</p>
-                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">ID: {ticket.id} • Raised on {ticket.date}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                              ID: {ticket.ticket_number} • Raised on {new Date(ticket.created_at).toLocaleDateString()}
+                            </p>
                           </div>
                         </div>
                         <span className={`self-start sm:self-center px-3 py-1 rounded-full text-xs font-medium border ${

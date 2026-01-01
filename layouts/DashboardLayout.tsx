@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Upload, 
@@ -7,12 +7,17 @@ import {
   Phone,
   Settings, 
   Menu, 
-  LogOut 
+  LogOut,
+  CreditCard
 } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import Sidebar from '../components/Sidebar';
+import ProfileCompletionModal from '../components/ProfileCompletionModal';
+import { useUser } from '../context/UserContext';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
+  const { user, logout } = useUser();
   const [isSidebarOpen, setSidebarOpen] = useState(false); // Default to closed for mobile-first
   const location = useLocation();
 
@@ -35,6 +40,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'New Submission', icon: Upload, path: '/dashboard/submit' },
     { name: 'History', icon: Clock, path: '/dashboard/history' },
     { name: 'Guidance Calls', icon: Phone, path: '/dashboard/guidance-calls' },
+    { name: 'Subscription Plans', icon: CreditCard, path: '/dashboard/plans' },
     { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
   ];
 
@@ -69,7 +75,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex items-center gap-4 ml-auto">
             <ThemeToggle />
             <div className="h-8 w-px bg-slate-200 dark:bg-gray-800 mx-2"></div>
-            <button className="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 text-sm font-medium transition-colors">
+            <button 
+              onClick={() => { logout(); navigate('/login'); }}
+              className="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 text-sm font-medium transition-colors"
+            >
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Sign Out</span>
             </button>
@@ -83,6 +92,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </main>
       </div>
+
+      {/* Profile Completion Modal - blocks usage until complete */}
+      <ProfileCompletionModal isOpen={!!user && !user.isProfileComplete} />
     </div>
   );
 }

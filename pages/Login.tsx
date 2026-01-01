@@ -1,33 +1,100 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import HardcodedUsers from '../components/HardcodedUsers';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useUser();
+  const location = useLocation();
+  const { refreshUser } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Login:', { email, password, rememberMe });
-    
-    // Simple mock authentication logic
-    let plan: 'Free' | 'Starter' | 'Pro' | 'Achiever' = 'Free';
-    if (email.includes('pro') || email === 'pro@checkias.com') {
-        plan = 'Pro';
-    } else if (email.includes('starter') || email === 'starter@checkias.com') {
-        plan = 'Starter';
-    } else if (email.includes('achiever') || email === 'achiever@checkias.com') {
-        plan = 'Achiever';
+  // Get success message from registration redirect
+  const successMessage = location.state?.message;
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const plan = params.get('plan');
+    if (plan) {
+      sessionStorage.setItem('pendingPlan', plan);
     }
-    
-    login(email, plan);
-    navigate('/dashboard');
+  }, [location]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      // Use direct fetch for login to avoid SDK promise issues
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/token?grant_type=password`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+
+      const data = await response.json();
+      console.log('Login response:', data);
+
+      if (!response.ok) {
+        setError(data.error_description || data.msg || 'Invalid email or password');
+        setIsLoading(false);
+        return;
+      }
+
+      // Store session based on Remember Me setting
+      if (data.access_token) {
+        // Calculate expiry: 90 days if Remember Me, otherwise use token's natural expiry
+        const expiresAt = rememberMe 
+          ? Math.floor(Date.now() / 1000) + (90 * 24 * 60 * 60) // 90 days
+          : data.expires_at;
+
+        const session = {
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+          expires_at: expiresAt,
+          expires_in: data.expires_in,
+          token_type: data.token_type,
+          user: data.user,
+        };
+        
+        const sessionData = JSON.stringify({ currentSession: session, rememberMe });
+        
+        if (rememberMe) {
+          // Persist in localStorage for 90 days
+          localStorage.setItem('supabase.auth.token', sessionData);
+        } else {
+          // Use sessionStorage - clears when browser/tab closes
+          sessionStorage.setItem('supabase.auth.token', sessionData);
+          // Also remove any old localStorage session
+          localStorage.removeItem('supabase.auth.token');
+        }
+        
+        console.log('Session stored, refreshing user...');
+        
+        // Refresh user context to pick up the new session
+        await refreshUser();
+        console.log('User refreshed, navigating to dashboard...');
+      }
+
+      setIsLoading(false);
+      navigate('/dashboard');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || 'Login failed. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -58,6 +125,20 @@ const Login = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="p-8 space-y-5">
+            {/* Success Message */}
+            {successMessage && (
+              <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-600 dark:text-green-400 text-sm">
+                {successMessage}
+              </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
+                {error}
+              </div>
+            )}
+
             {/* Email */}
             <div className="relative">
               <div className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-800 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100 dark:focus-within:ring-indigo-900/30 transition-all bg-gray-50 dark:bg-black/50">
@@ -104,12 +185,21 @@ const Login = () => {
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded-full border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 accent-indigo-600 bg-white dark:bg-gray-700"
-                />
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600 peer-checked:border-indigo-600 peer-checked:bg-indigo-600 transition-all flex items-center justify-center">
+                    {rememberMe && (
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
                 <span className="text-sm text-gray-500 dark:text-gray-400">Remember me</span>
               </label>
               <Link to="/forgot-password" className="text-sm text-indigo-600 dark:text-indigo-400 font-medium hover:text-indigo-700 dark:hover:text-indigo-300">
@@ -120,9 +210,17 @@ const Login = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold transition-all shadow-lg hover:shadow-indigo-200 dark:shadow-none"
+              disabled={isLoading}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-semibold transition-all shadow-lg hover:shadow-indigo-200 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              Login
+              {isLoading ? (
+                <>
+                  <RefreshCw className="w-5 h-5 animate-spin" />
+                  Logging in...
+                </>
+              ) : (
+                'Login'
+              )}
             </button>
           </form>
         </div>
@@ -134,9 +232,6 @@ const Login = () => {
             Register
           </Link>
         </p>
-
-        {/* Test Credentials - Dev Only */}
-        <HardcodedUsers />
       </div>
     </div>
   );

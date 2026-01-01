@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Search, Phone, CheckCircle, Clock, ChevronDown, AlertCircle } from 'lucide-react';
+import { Search, Phone, Calendar, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, Video } from 'lucide-react';
+import ConfirmationModal from '../../components/ConfirmationModal';
 
 // Mock Call Data
 const initialCalls = [
@@ -13,6 +14,7 @@ const AdminGuidanceCalls = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<{ type: 'confirm' | 'cancel', id: string } | null>(null);
 
   const filteredCalls = calls.filter(call => 
     (filterStatus === 'All' || call.status === filterStatus) &&
@@ -148,13 +150,13 @@ const AdminGuidanceCalls = () => {
                       {call.status === 'Requested' && (
                         <>
                           <button 
-                            onClick={() => handleConfirmCall(call.id)}
+                            onClick={() => setConfirmAction({ type: 'confirm', id: call.id })}
                             className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-medium text-xs bg-green-50 dark:bg-green-900/40 hover:bg-green-100 dark:hover:bg-green-900/60 px-3 py-1.5 rounded-lg transition-colors border border-green-100 dark:border-green-800"
                           >
                             Confirm
                           </button>
                           <button 
-                            onClick={() => handleCancelCall(call.id)}
+                            onClick={() => setConfirmAction({ type: 'cancel', id: call.id })}
                             className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium text-xs bg-red-50 dark:bg-red-900/40 hover:bg-red-100 dark:hover:bg-red-900/60 px-3 py-1.5 rounded-lg transition-colors border border-red-100 dark:border-red-800"
                           >
                             Cancel
@@ -175,6 +177,21 @@ const AdminGuidanceCalls = () => {
           )}
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={!!confirmAction}
+        onClose={() => setConfirmAction(null)}
+        onConfirm={() => {
+          if (confirmAction?.type === 'confirm') handleConfirmCall(confirmAction.id);
+          else if (confirmAction?.type === 'cancel') handleCancelCall(confirmAction.id);
+        }}
+        title={confirmAction?.type === 'confirm' ? "Confirm Call?" : "Cancel Call?"}
+        message={confirmAction?.type === 'confirm' 
+          ? "Are you sure you want to confirm this mentorship call?" 
+          : "Are you sure you want to cancel this mentorship call request?"}
+        confirmText={confirmAction?.type === 'confirm' ? "Confirm Call" : "Cancel Call"}
+        confirmStyle={confirmAction?.type === 'confirm' ? "bg-green-600 hover:bg-green-700 text-white" : "bg-red-600 hover:bg-red-700 text-white"}
+      />
     </div>
   );
 };

@@ -24,7 +24,11 @@ import { UserProvider } from './context/UserContext';
 import SupportPage from './pages/SupportPage';
 import GuidanceCallsPage from './pages/GuidanceCallsPage';
 import ProfileSettings from './pages/ProfileSettings';
+import PlansPage from './pages/PlansPage';
 import AboutUs from './pages/AboutUs';
+import TosPage from './pages/TosPage';
+import PrivacyPage from './pages/PrivacyPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -52,13 +56,22 @@ const App: React.FC = () => {
                 <Route path="/about" element={<AboutUs />} />
               </Route>
 
-              {/* Dashboard Routes */}
-              <Route path="/dashboard" element={<DashboardLayout><Outlet /></DashboardLayout>}>
+              {/* Legal Pages (standalone, no layout) */}
+              <Route path="/terms-of-service" element={<TosPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPage />} />
+
+              {/* Dashboard Routes (Protected) */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <DashboardLayout><Outlet /></DashboardLayout>
+                </ProtectedRoute>
+              }>
                 <Route index element={<DashboardHome />} />
                 <Route path="submit" element={<SubmissionPage />} />
                 <Route path="history" element={<HistoryPage />} />
                 <Route path="support" element={<SupportPage />} />
                 <Route path="guidance-calls" element={<GuidanceCallsPage />} />
+                <Route path="plans" element={<PlansPage />} />
                 <Route path="settings/:tab?" element={<ProfileSettings />} />
               </Route>
 

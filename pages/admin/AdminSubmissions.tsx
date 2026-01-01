@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Search, FileText, CheckCircle, Clock, ChevronDown, AlertCircle, Download, Eye, X, Upload } from 'lucide-react';
+import ConfirmationModal from '../../components/ConfirmationModal';
 
 // Mock Submission Data
 const initialSubmissions = [
@@ -73,6 +74,7 @@ const AdminSubmissions = () => {
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
   const [isPlanDropdownOpen, setIsPlanDropdownOpen] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState<typeof initialSubmissions[0] | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ type: 'review' | 'evaluate', id: string } | null>(null);
 
   const filteredSubmissions = submissions.filter(sub => 
     (filterStatus === 'All' || sub.status === filterStatus) &&
@@ -291,7 +293,7 @@ const AdminSubmissions = () => {
                       </button>
                       {sub.status === 'Pending' && (
                         <button 
-                          onClick={() => handleStatusChange(sub.id, 'Under Review')}
+                          onClick={() => setConfirmAction({ type: 'review', id: sub.id })}
                           className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium text-xs bg-blue-50 dark:bg-blue-900/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-800"
                         >
                           Start Review
@@ -299,7 +301,7 @@ const AdminSubmissions = () => {
                       )}
                       {sub.status === 'Under Review' && (
                         <button 
-                          onClick={() => handleStatusChange(sub.id, 'Evaluated')}
+                          onClick={() => setConfirmAction({ type: 'evaluate', id: sub.id })}
                           className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-medium text-xs bg-green-50 dark:bg-green-900/40 hover:bg-green-100 dark:hover:bg-green-900/60 px-3 py-1.5 rounded-lg transition-colors border border-green-100 dark:border-green-800"
                         >
                           Mark Evaluated
@@ -426,10 +428,7 @@ const AdminSubmissions = () => {
             <div className="flex items-center justify-end gap-3 p-5 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 shrink-0">
               {selectedSubmission.status === 'Pending' && (
                 <button 
-                  onClick={() => {
-                    handleStatusChange(selectedSubmission.id, 'Under Review');
-                    setSelectedSubmission({...selectedSubmission, status: 'Under Review'});
-                  }}
+                  onClick={() => setConfirmAction({ type: 'review', id: selectedSubmission.id })}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-sm"
                 >
                   Start Review
@@ -437,10 +436,7 @@ const AdminSubmissions = () => {
               )}
               {selectedSubmission.status === 'Under Review' && (
                 <button 
-                  onClick={() => {
-                    handleStatusChange(selectedSubmission.id, 'Evaluated');
-                    setSelectedSubmission({...selectedSubmission, status: 'Evaluated'});
-                  }}
+                  onClick={() => setConfirmAction({ type: 'evaluate', id: selectedSubmission.id })}
                   className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm"
                 >
                   Mark Evaluated
@@ -456,6 +452,30 @@ const AdminSubmissions = () => {
           </div>
         </div>
       )}
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={!!confirmAction}
+        onClose={() => setConfirmAction(null)}
+        onConfirm={() => {
+          if (confirmAction?.type === 'review') {
+            handleStatusChange(confirmAction.id, 'Under Review');
+            if (selectedSubmission && selectedSubmission.id === confirmAction.id) {
+               setSelectedSubmission({...selectedSubmission, status: 'Under Review'});
+            }
+          } else if (confirmAction?.type === 'evaluate') {
+            handleStatusChange(confirmAction.id, 'Evaluated');
+             if (selectedSubmission && selectedSubmission.id === confirmAction.id) {
+               setSelectedSubmission({...selectedSubmission, status: 'Evaluated'});
+            }
+          }
+        }}
+        title={confirmAction?.type === 'review' ? "Start Review?" : "Mark as Evaluated?"}
+        message={confirmAction?.type === 'review' 
+          ? "Are you sure you want to start reviewing this submission? This will change the status to 'Under Review'." 
+          : "Are you sure you want to mark this submission as evaluated? This will notify the student."}
+        confirmText={confirmAction?.type === 'review' ? "Start Review" : "Mark Evaluated"}
+        confirmStyle={confirmAction?.type === 'review' ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-green-600 hover:bg-green-700 text-white"}
+      />
     </div>
   );
 };

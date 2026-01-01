@@ -1,34 +1,73 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Download, FileText, Plus, Phone, MessageSquare, Clock, CheckCircle, AlertCircle, Calendar } from 'lucide-react';
+import { Download, FileText, Plus, Phone, MessageSquare, Clock, CheckCircle, AlertCircle, Calendar, RefreshCw } from 'lucide-react';
+import { useSubmissions } from '../hooks/useSubmissions';
+import { useGuidanceCalls } from '../hooks/useGuidanceCalls';
+import NotesModal from '../components/NotesModal';
 
-// Mock submission data
-const mockSubmissions = [
-  { id: 'SUB001', subject: 'General Studies I', year: '2024', paperCode: 'GS1-24-01', submittedOn: '2024-12-28', status: 'Evaluated' },
-  { id: 'SUB002', subject: 'General Studies II', year: '2024', paperCode: 'GS2-24-02', submittedOn: '2024-12-27', status: 'Pending' },
-  { id: 'SUB003', subject: 'Essay', year: '2023', paperCode: 'ESS-23-01', submittedOn: '2024-12-25', status: 'Under Review' },
-  { id: 'SUB004', subject: 'Optional - Geography', year: '2024', paperCode: 'OPT-24-01', submittedOn: '2024-12-24', status: 'Evaluated' },
-  { id: 'SUB005', subject: 'GS Paper 4 Ethics', year: '2024', paperCode: 'GS4-24-01', submittedOn: '2024-12-20', status: 'Under Review' },
-];
+// Helper to get access token
+const getAccessToken = () => {
+  try {
+    const localData = localStorage.getItem('supabase.auth.token');
+    const sessionData = sessionStorage.getItem('supabase.auth.token');
+    const data = localData || sessionData;
+    if (data) {
+      return JSON.parse(data).currentSession?.access_token;
+    }
+  } catch (e) {
+    console.error('Error getting access token:', e);
+  }
+  return null;
+};
+import { useUser } from '../context/UserContext';
 
-// Mock Guidance Call Data
-const mockGuidanceCalls = [
-  { id: 'CALL-001', topic: 'Essay Strategy', mentor: 'Dr. Sarah Wilson', date: '2025-12-30', time: '10:00 AM - 11:00 AM', status: 'Confirmed' },
-  { id: 'CALL-002', topic: 'Optional Subject Stats', mentor: 'Prof. Rajesh Kumar', date: '2025-12-25', time: '02:00 PM - 03:00 PM', status: 'Completed' },
-  { id: 'CALL-003', topic: 'GS Paper 4 Ethics', mentor: 'Dr. Sarah Wilson', date: '2025-12-20', time: '11:00 AM - 12:00 PM', status: 'Cancelled' },
-];
-
-// Mock Support Ticket Data
-const mockSupportTickets = [
-  { id: 'TKT-1024', subject: 'Payment Issue', category: 'Billing', date: '2024-12-29', status: 'Open', priority: 'High' },
-  { id: 'TKT-1023', subject: 'PDF Upload Error', category: 'Technical', date: '2024-12-26', status: 'Resolved', priority: 'Medium' },
-  { id: 'TKT-1022', subject: 'Evaluation Delay', category: 'General', date: '2024-12-20', status: 'Closed', priority: 'Low' },
-];
 
 type TabType = 'submissions' | 'guidance' | 'support';
 
 const HistoryPage = () => {
+  const { user } = useUser();
   const [activeTab, setActiveTab] = useState<TabType>('submissions');
+  
+  // Use real hooks for data
+  const { submissions, loading: submissionsLoading } = useSubmissions();
+  const { calls: guidanceCalls, loading: callsLoading, updateCall } = useGuidanceCalls();
+
+  // Support Tickets State
+  const [supportTickets, setSupportTickets] = useState<any[]>([]);
+  const [ticketsLoading, setTicketsLoading] = useState(true);
+  const [activeNoteCallId, setActiveNoteCallId] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    const fetchTickets = async () => {
+      if (!user) return;
+      try {
+        const token = getAccessToken();
+        if (!token) return;
+
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/support_tickets?user_id=eq.${user.id}&select=*&order=created_at.desc`,
+          {
+            headers: {
+              'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        
+        if (!response.ok) throw new Error('Failed to fetch tickets');
+        const data = await response.json();
+        setSupportTickets(data || []);
+      } catch (err) {
+        console.error('Error fetching tickets:', err);
+      } finally {
+        setTicketsLoading(false);
+      }
+    };
+
+    if (activeTab === 'support') {
+      fetchTickets();
+    }
+  }, [user, activeTab]);
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -132,42 +171,34 @@ const HistoryPage = () => {
         {/* Submissions Tab */}
         {activeTab === 'submissions' && (
           <div className="overflow-x-auto custom-scrollbar">
-            {mockSubmissions.length > 0 ? (
+            {submissionsLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <RefreshCw className="w-8 h-8 text-indigo-500 animate-spin" />
+              </div>
+            ) : submissions.length > 0 ? (
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
                   <tr>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Subject</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Year</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Paper Type</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Question #</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Submitted On</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Action</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Score</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                  {mockSubmissions.map((submission) => (
+                  {submissions.map((submission) => (
                     <tr key={submission.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{submission.id}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{submission.subject}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{submission.year}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{submission.submittedOn}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{submission.paper_type}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{submission.question_number}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{new Date(submission.created_at).toLocaleDateString()}</td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusColor(submission.status)}`}>
                           {submission.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
-                        <button
-                          disabled={submission.status !== 'Evaluated'}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                            submission.status === 'Evaluated'
-                              ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 cursor-pointer'
-                              : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                          }`}
-                        >
-                          <Download className="w-4 h-4" />
-                          Download
-                        </button>
+                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
+                        {submission.score !== null ? `${submission.score}/15` : '-'}
                       </td>
                     </tr>
                   ))}
@@ -182,33 +213,35 @@ const HistoryPage = () => {
         {/* Guidance Calls Tab */}
         {activeTab === 'guidance' && (
           <div className="overflow-x-auto custom-scrollbar">
-            {mockGuidanceCalls.length > 0 ? (
+            {callsLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <RefreshCw className="w-8 h-8 text-indigo-500 animate-spin" />
+              </div>
+            ) : guidanceCalls.length > 0 ? (
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
                   <tr>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Topic</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mentor</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date & Time</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                  {mockGuidanceCalls.map((call) => (
+                  {guidanceCalls.map((call) => (
                     <tr key={call.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{call.topic}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">ID: {call.id}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">ID: {call.id.slice(0, 8)}...</div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{call.mentor}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-1.5 text-sm text-gray-900 dark:text-white">
                           <Calendar className="w-4 h-4 text-gray-400" />
-                          {call.date}
+                          {call.requested_date}
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mt-1">
                           <Clock className="w-3 h-3" />
-                          {call.time}
+                          {call.requested_time}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -217,14 +250,13 @@ const HistoryPage = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        {call.status === 'Confirmed' && (
-                          <button className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium hover:underline">
-                            Join Meeting
-                          </button>
-                        )}
-                        {call.status === 'Completed' && (
-                          <span className="text-gray-400 dark:text-gray-500 text-sm">--</span>
-                        )}
+                        <button
+                          onClick={() => setActiveNoteCallId(call.id)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-800"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          {call.notes ? 'View Notes' : 'Add Notes'}
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -239,7 +271,11 @@ const HistoryPage = () => {
         {/* Support Tickets Tab */}
         {activeTab === 'support' && (
           <div className="overflow-x-auto custom-scrollbar">
-            {mockSupportTickets.length > 0 ? (
+            {ticketsLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <RefreshCw className="w-8 h-8 text-indigo-500 animate-spin" />
+              </div>
+            ) : supportTickets.length > 0 ? (
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
                   <tr>
@@ -252,12 +288,12 @@ const HistoryPage = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                  {mockSupportTickets.map((ticket) => (
+                  {supportTickets.map((ticket) => (
                     <tr key={ticket.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white uppercase">{ticket.id}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white uppercase">{ticket.ticket_number}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{ticket.subject}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{ticket.category}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{ticket.date}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{new Date(ticket.created_at).toLocaleDateString()}</td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                           ticket.priority === 'High' 
@@ -284,6 +320,19 @@ const HistoryPage = () => {
           </div>
         )}
       </div>
+      
+      {/* Notes Modal */}
+      <NotesModal
+        isOpen={activeNoteCallId !== null}
+        onClose={() => setActiveNoteCallId(null)}
+        initialNotes={guidanceCalls.find(c => c.id === activeNoteCallId)?.notes || ''}
+        onSave={async (newNotes) => {
+          if (activeNoteCallId) {
+            await updateCall(activeNoteCallId, { notes: newNotes });
+          }
+        }}
+        title={`Notes: ${guidanceCalls.find(c => c.id === activeNoteCallId)?.topic || 'Call'}`}
+      />
     </div>
   );
 };

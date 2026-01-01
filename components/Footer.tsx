@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Mail, Phone, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const Footer = () => {
+  const { theme } = useTheme();
+  
   return (
     <footer data-aos="fade-up" className="bg-white dark:bg-black border-t border-gray-100 dark:border-gray-900 transition-colors duration-200">
       {/* Main Footer Content */}
@@ -11,9 +14,15 @@ const Footer = () => {
           
           {/* Brand Column (Span 2 on mobile, 4 on desktop) */}
           <div className="col-span-2 lg:col-span-4">
-            <Link to="/" className="text-2xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">C</div>
-              CheckIAS
+            <Link to="/" className="inline-flex items-center gap-3">
+              <img 
+                src={theme === 'dark' ? '/images/logo-dark.png' : '/images/logo-light.png'}
+                alt="CheckIAS Logo"
+                className="h-16 w-auto"
+              />
+              <span className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">
+                CheckIAS
+              </span>
             </Link>
             <p className="mt-6 text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-sm">
               Empowering UPSC aspirants with expert evaluation, detailed analytics, and personalized mentorship to crack the Civil Services Examination.
@@ -45,16 +54,39 @@ const Footer = () => {
               Platform
             </h4>
             <ul className="space-y-4">
-              {['Home', 'Features', 'Pricing', 'About Us'].map((item) => (
-                <li key={item}>
-                  <Link 
-                    to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} 
-                    className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-medium transition-colors"
-                  >
-                    {item}
-                  </Link>
-                </li>
-              ))}
+              <li>
+                <a 
+                  href="/#hero" 
+                  className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-medium transition-colors"
+                >
+                  Home
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="/#features" 
+                  className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-medium transition-colors"
+                >
+                  Features
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="/#pricing" 
+                  className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-medium transition-colors"
+                >
+                  Pricing
+                </a>
+              </li>
+              <li>
+                <Link 
+                  to="/about"
+                  onClick={() => window.scrollTo(0, 0)}
+                  className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-medium transition-colors"
+                >
+                  About Us
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -67,7 +99,7 @@ const Footer = () => {
               {['Help Center', 'Privacy Policy', 'Terms of Service', 'Refund Policy'].map((item) => (
                 <li key={item}>
                   <Link 
-                    to={`/${item.toLowerCase().replace(' ', '-')}`} 
+                    to={`/${item.toLowerCase().replaceAll(' ', '-')}`} 
                     className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-medium transition-colors"
                   >
                     {item}
