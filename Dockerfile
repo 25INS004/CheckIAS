@@ -7,9 +7,11 @@ RUN npm run build
 
 FROM node:22-slim
 WORKDIR /app
-RUN npm install -g serve
+
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/package*.json ./
+RUN npm install
 
 EXPOSE 3000
-CMD ["serve", "-s", "dist", "-l", "3000"]
+CMD ["npm", "run", "preview", "--", "--port", "3000", "--host"]
