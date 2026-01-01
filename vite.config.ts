@@ -8,13 +8,12 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        allowedHosts: 'all',
       },
     preview: {
       port: 3000,
       host: '0.0.0.0',
-      allowedHosts: [
-        'cs4w4440ogw48wggo8s084kw.72.60.102.111.sslip.io'
-      ],
+     allowedHosts: 'all',
     },
       plugins: [react()],
       define: {
