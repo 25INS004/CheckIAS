@@ -24,4 +24,4 @@ RUN npm install --production
 
 EXPOSE 4173
 
-CMD ["npm", "preview"]
+CMD ["npm","run", "preview"]
