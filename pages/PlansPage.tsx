@@ -102,8 +102,11 @@ const PlansPage = () => {
         onSuccess: async (response) => {
           console.log('Payment success', response);
           
-          // Update DB
-          const { success, error } = await updateProfile({ plan: plan.id as any });
+          // Update DB with plan and start date
+          const { success, error } = await updateProfile({ 
+            plan: plan.id as any,
+            plan_started_at: new Date().toISOString()
+          });
           
           if (success) {
             updateUser({ plan: plan.id as any });

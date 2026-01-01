@@ -9,11 +9,15 @@ export interface UserData {
   role: 'user' | 'admin';
   submissionsLeft: number;
   totalSubmissions: number;
+  submissionsCompleted: number;
+  submissionsPending: number;
+  submissionsUnderReview: number;
   daysLeft: number;
   announcement?: string;
   guidanceCallsLeft: number;
   totalGuidanceCalls: number;
   callsCompletedThisMonth: number;
+  callsPending: number;
   isProfileComplete: boolean;
   // Profile fields for pre-filling
   phone?: string;
@@ -38,9 +42,9 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 // Plan-specific limits
 const planLimits = {
   free: { submissions: 2, guidanceCalls: 0, days: 0 },
-  starter: { submissions: 999, guidanceCalls: 2, days: 30 },
-  pro: { submissions: 999, guidanceCalls: 6, days: 30 },
-  achiever: { submissions: 999, guidanceCalls: 12, days: 365 },
+  starter: { submissions: 999, guidanceCalls: 999, days: 30 },   // 1 month
+  pro: { submissions: 999, guidanceCalls: 999, days: 90 },       // 3 months
+  achiever: { submissions: 999, guidanceCalls: 999, days: 180 }, // 6 months
 };
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -117,11 +121,14 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         console.log('Profile fetch failed, using defaults', err);
       }
 
-      // Fetch submission count from DB
+      // Fetch submission count and status breakdown from DB
       let submissionCount = 0;
+      let submissionsCompleted = 0;
+      let submissionsPending = 0;
+      let submissionsUnderReview = 0;
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/submissions?user_id=eq.${authUser.id}&select=id`,
+          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/submissions?user_id=eq.${authUser.id}&select=id,status`,
           {
             headers: {
               'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
@@ -133,16 +140,21 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (response.ok) {
           const submissions = await response.json();
           submissionCount = submissions.length;
+          submissionsCompleted = submissions.filter((s: any) => s.status === 'completed' || s.status === 'graded').length;
+          submissionsPending = submissions.filter((s: any) => s.status === 'pending').length;
+          submissionsUnderReview = submissions.filter((s: any) => s.status === 'under_review' || s.status === 'reviewing').length;
         }
       } catch (err) {
         console.log('Submission count fetch failed');
       }
 
-      // Fetch guidance calls count
+      // Fetch guidance calls count and status breakdown
       let guidanceCallsCount = 0;
+      let callsCompleted = 0;
+      let callsPending = 0;
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/guidance_calls?user_id=eq.${authUser.id}&select=id`,
+          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/guidance_calls?user_id=eq.${authUser.id}&select=id,status`,
           {
             headers: {
               'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
@@ -154,6 +166,11 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (response.ok) {
           const calls = await response.json();
           guidanceCallsCount = calls.length;
+          callsCompleted = calls.filter((c: any) => c.status?.toLowerCase() === 'completed').length;
+          callsPending = calls.filter((c: any) => {
+            const status = c.status?.toLowerCase();
+            return status === 'pending' || status === 'scheduled' || status === 'confirmed';
+          }).length;
         }
       } catch (err) {
          console.log('Guidance call count fetch failed');
@@ -169,6 +186,19 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const guidanceCallsLeft = Math.max(0, limits.guidanceCalls - guidanceCallsCount);
       
+      // Calculate days left based on plan_started_at from database
+      let daysLeft = 0;
+      if (plan !== 'free' && profile?.plan_started_at) {
+        const planStartDate = new Date(profile.plan_started_at);
+        const planDuration = limits.days; // 30 for starter/pro, 365 for achiever
+        const expiryDate = new Date(planStartDate);
+        expiryDate.setDate(expiryDate.getDate() + planDuration);
+        
+        const today = new Date();
+        const diffTime = expiryDate.getTime() - today.getTime();
+        daysLeft = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+      }
+      
       setUser({
         id: authUser.id,
         name: profile?.full_name || authUser.email?.split('@')[0] || 'User',
@@ -177,10 +207,14 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         role: (profile?.role || 'user') as 'user' | 'admin',
         submissionsLeft,
         totalSubmissions: plan === 'free' ? 2 : 999,
-        daysLeft: limits.days,
+        submissionsCompleted,
+        submissionsPending,
+        submissionsUnderReview,
+        daysLeft,
         guidanceCallsLeft: guidanceCallsLeft,
         totalGuidanceCalls: limits.guidanceCalls,
-        callsCompletedThisMonth: guidanceCallsCount,
+        callsCompletedThisMonth: callsCompleted,
+        callsPending: callsPending,
         isProfileComplete: !!(profile?.full_name && profile?.phone),
         // Store profile data for pre-filling
         phone: profile?.phone || '',

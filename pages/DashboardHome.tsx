@@ -36,7 +36,10 @@ const DashboardHome = () => {
                     amount,
                     onSuccess: async (response) => {
                         console.log('Auto-upgrade success', response);
-                        const { success } = await updateProfile({ plan: pendingPlan as any });
+                        const { success } = await updateProfile({ 
+                          plan: pendingPlan as any,
+                          plan_started_at: new Date().toISOString()
+                        });
                         if (success) {
                             updateUser({ plan: pendingPlan as any });
                             alert(`Welcome to ${pendingPlan}! Your account has been upgraded.`);
@@ -89,13 +92,17 @@ const DashboardHome = () => {
 
   const { 
     submissionsLeft, 
-    totalSubmissions, 
+    totalSubmissions,
+    submissionsCompleted,
+    submissionsPending,
+    submissionsUnderReview,
     plan: activePlan, 
     daysLeft, 
     announcement, 
     guidanceCallsLeft, 
     totalGuidanceCalls, 
-    callsCompletedThisMonth 
+    callsCompletedThisMonth,
+    callsPending 
   } = user;
 
   return (
@@ -113,21 +120,49 @@ const DashboardHome = () => {
 
       {/* Stats Cards */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Submissions Left */}
+        {/* Submissions Card */}
         <div className="bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all group hover:border-black dark:hover:border-indigo-500">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Submissions Left</span>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              {activePlan.toLowerCase() === 'free' ? 'Submissions Left' : 'Submissions'}
+            </span>
             <div className="p-2 bg-indigo-50 dark:bg-gray-900 rounded-lg group-hover:bg-indigo-100 dark:group-hover:bg-gray-800 transition-colors">
               <FileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             </div>
           </div>
-          <div className="flex items-baseline gap-2">
-            <p className={`text-3xl font-bold ${submissionsLeft > 0 ? 'text-gray-900 dark:text-white' : 'text-red-600 dark:text-red-400'}`}>
-              {submissionsLeft}
-            </p>
-            <span className="text-sm text-gray-400">/ {totalSubmissions} total</span>
-          </div>
-          <p className="text-xs text-gray-400 mt-2">Resets in {daysLeft} days</p>
+          
+          {activePlan.toLowerCase() === 'free' ? (
+            <>
+              <div className="flex items-baseline gap-2">
+                <p className={`text-3xl font-bold ${submissionsLeft > 0 ? 'text-gray-900 dark:text-white' : 'text-red-600 dark:text-red-400'}`}>
+                  {submissionsLeft}
+                </p>
+                <span className="text-sm text-gray-400">/ {totalSubmissions} total</span>
+              </div>
+              <p className="text-xs text-gray-400 mt-2">Resets in {daysLeft} days</p>
+            </>
+          ) : (
+            <>
+              <div className="flex items-baseline gap-2 mb-3">
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">∞</p>
+                <span className="text-sm text-gray-400">Unlimited</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-yellow-500/50 bg-yellow-900/20 text-yellow-400">
+                  <span>Pending</span>
+                  <span>{submissionsPending}</span>
+                </span>
+                <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-green-500/50 bg-green-900/20 text-green-400">
+                  <span>Completed</span>
+                  <span>{submissionsCompleted}</span>
+                </span>
+                <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-500/50 bg-blue-900/20 text-blue-400">
+                  <span>Reviewing</span>
+                  <span>{submissionsUnderReview}</span>
+                </span>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Active Plan */}
@@ -140,18 +175,25 @@ const DashboardHome = () => {
           </div>
           <div className="flex items-baseline gap-2">
             <p className="text-3xl font-bold text-gray-900 dark:text-white">{activePlan}</p>
-            {activePlan !== 'Free' && (
+            {activePlan.toLowerCase() !== 'free' && (
               <span className="text-xs font-medium px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full">Active</span>
             )}
           </div>
           <p className="text-xs text-gray-400 mt-2">
-            {activePlan === 'Free' ? 'Upgrade for more features' : 'Valid until Dec 20, 2025'}
+            {activePlan.toLowerCase() === 'free' ? 'Upgrade for more features' : 'Valid until Dec 20, 2025'}
           </p>
+          <Link 
+            to="/dashboard/plans" 
+            className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
+          >
+            <Crown className="w-3.5 h-3.5" />
+            {activePlan.toLowerCase() === 'free' ? 'Upgrade Now' : 'Manage Plan'}
+          </Link>
         </div>
 
         {/* Days Left - Billing Cycle */}
         <div className="relative group overflow-hidden bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all hover:border-black dark:hover:border-indigo-500">
-          {activePlan === 'Free' && (
+          {activePlan.toLowerCase() === 'free' && (
             <a href="/pricing" className="absolute inset-0 z-20 bg-white/60 dark:bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer transition-opacity opacity-0 group-hover:opacity-100">
               <div className="p-3 bg-indigo-600 rounded-full shadow-lg mb-2 transform scale-90 group-hover:scale-100 transition-transform">
                 <Lock className="w-6 h-6 text-white" />
@@ -160,14 +202,14 @@ const DashboardHome = () => {
             </a>
           )}
            
-          {activePlan === 'Free' && (
+          {activePlan.toLowerCase() === 'free' && (
              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
                  <Lock className="w-8 h-8 text-gray-400 dark:text-gray-600 mb-2" />
                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Locked Feature</span>
              </div>
           )}
 
-          <div className={activePlan === 'Free' ? 'blur-sm opacity-50' : ''}>
+          <div className={activePlan.toLowerCase() === 'free' ? 'blur-sm opacity-50' : ''}>
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Billing Cycle</span>
               <div className="p-2 bg-orange-50 dark:bg-gray-900 rounded-lg group-hover:bg-orange-100 dark:group-hover:bg-gray-800 transition-colors">
@@ -188,7 +230,7 @@ const DashboardHome = () => {
 
         {/* Guidance Calls */}
         <div className="relative group overflow-hidden bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all hover:border-black dark:hover:border-indigo-500">
-          {activePlan === 'Free' && (
+          {activePlan.toLowerCase() === 'free' && (
             <a href="/pricing" className="absolute inset-0 z-20 bg-white/60 dark:bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer transition-opacity opacity-0 group-hover:opacity-100">
               <div className="p-3 bg-indigo-600 rounded-full shadow-lg mb-2 transform scale-90 group-hover:scale-100 transition-transform">
                 <Lock className="w-6 h-6 text-white" />
@@ -197,27 +239,34 @@ const DashboardHome = () => {
             </a>
           )}
            
-          {activePlan === 'Free' && (
+          {activePlan.toLowerCase() === 'free' && (
              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
                  <Lock className="w-8 h-8 text-gray-400 dark:text-gray-600 mb-2" />
                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Locked Feature</span>
              </div>
           )}
 
-          <div className={activePlan === 'Free' ? 'blur-sm opacity-50' : ''}>
-            <div className="flex items-center justify-between mb-4">
+          <div className={activePlan.toLowerCase() === 'free' ? 'blur-sm opacity-50' : ''}>
+            <div className="flex items-center justify-between mb-1">
               <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Guidance Calls</span>
               <div className="p-2 bg-purple-50 dark:bg-gray-900 rounded-lg group-hover:bg-purple-100 dark:group-hover:bg-gray-800 transition-colors">
                 <Phone className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               </div>
             </div>
-            <div className="flex items-baseline gap-2">
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                {guidanceCallsLeft}
-              </p>
-              <span className="text-sm text-gray-400">/ {totalGuidanceCalls} left</span>
+            <div className="flex items-baseline gap-2 mb-3">
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">∞</p>
+              <span className="text-sm text-gray-400">Unlimited</span>
             </div>
-            <p className="text-xs text-gray-400 mt-2">{callsCompletedThisMonth} calls completed this month</p>
+            <div className="flex flex-wrap gap-2">
+              <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-yellow-500/50 bg-yellow-900/20 text-yellow-400">
+                <span>Pending</span>
+                <span>{callsPending}</span>
+              </span>
+              <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-green-500/50 bg-green-900/20 text-green-400">
+                <span>Completed</span>
+                <span>{callsCompletedThisMonth}</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>

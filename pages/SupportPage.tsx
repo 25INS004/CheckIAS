@@ -19,7 +19,7 @@ const getAccessToken = () => {
 };
 
 const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
-  const { user } = useUser();
+  const { user, refreshUser } = useUser();
   const [activeTab, setActiveTab] = useState<'support' | 'faq'>('support');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -131,6 +131,7 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
         setTickets([data[0], ...tickets]);
         setNewTicket({ subject: '', category: 'General', priority: 'Medium', date: new Date().toISOString().split('T')[0], description: '' });
         setShowTicketForm(false);
+        refreshUser(); // Refresh dashboard stats
       }
     } catch (err: any) {
       console.error('Error creating ticket:', err);

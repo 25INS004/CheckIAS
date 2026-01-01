@@ -19,7 +19,7 @@ const subjects = [
 const years = ['2025', '2024', '2023', '2022', '2021', '2020'];
 
 const SubmissionPage = () => {
-  const { user, decrementSubmissions } = useUser();
+  const { user, decrementSubmissions, refreshUser } = useUser();
   const { createSubmission } = useSubmissions();
   const { uploadFile, uploading } = useFileUpload();
   
@@ -104,6 +104,7 @@ const SubmissionPage = () => {
 
       // 3. Success!
       decrementSubmissions();
+      refreshUser(); // Refresh dashboard stats
       setIsSubmitted(true);
       // Reset form
       setSubject('');

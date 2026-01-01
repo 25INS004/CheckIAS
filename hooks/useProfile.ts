@@ -14,6 +14,7 @@ export interface Profile {
   avatar_url?: string;
   language: string;
   plan: 'free' | 'starter' | 'pro' | 'achiever';
+  plan_started_at?: string;
   role: 'user' | 'admin';
   created_at: string;
 }

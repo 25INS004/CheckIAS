@@ -7,7 +7,7 @@ import NotesModal from '../components/NotesModal';
 import CallDetailsModal from '../components/CallDetailsModal';
 
 const GuidanceCallsPage = () => {
-  const { user } = useUser();
+  const { user, refreshUser } = useUser();
   const { calls: myCalls, loading: callsLoading, createCall, updateCall } = useGuidanceCalls();
 
   if (user?.plan === 'free') {
@@ -81,6 +81,7 @@ const GuidanceCallsPage = () => {
     if (success) {
       setCallStatus('requested');
       setCallDetails({ topic: '', description: '', date: '', timeSlot: '' });
+      refreshUser(); // Refresh dashboard stats
     } else {
       setCallStatus('idle');
       alert(error || 'Failed to submit request');
