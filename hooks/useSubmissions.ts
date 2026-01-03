@@ -10,11 +10,14 @@ export interface Submission {
   question_number: string;
   file_url: string;
   file_name?: string;
-  status: 'pending' | 'reviewing' | 'completed';
+  status: 'pending' | 'reviewing' | 'completed' | 'Pending' | 'Under Review' | 'Evaluated';
   feedback?: string;
   score?: number;
+  score_total?: number;
+  pages?: number;
   created_at: string;
   reviewed_at?: string;
+  checked_file_url?: string;
 }
 
 interface UseSubmissionsReturn {
@@ -84,6 +87,11 @@ export const useSubmissions = (): UseSubmissionsReturn => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('User Submissions Fetched:', data);
+        if (data.length > 0) {
+          console.log('First submission status:', data[0].status);
+          console.log('First submission checked_url:', data[0].checked_file_url);
+        }
         setSubmissions(data);
       } else {
         setError('Failed to fetch submissions');

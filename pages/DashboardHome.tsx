@@ -1,5 +1,6 @@
 import React from 'react';
 import { Megaphone, FileText, Crown, Clock, Phone, Lock } from 'lucide-react';
+import RefreshButton from '../components/RefreshButton';
 import { useUser } from '../context/UserContext';
 import { Link } from 'react-router-dom';
 import { usePayment } from '../hooks/usePayment';
@@ -8,7 +9,7 @@ import { supabase } from '../lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
 
 const DashboardHome = () => {
-  const { user, updateUser } = useUser();
+  const { user, updateUser, refreshUser } = useUser();
   const { openPaymentModal } = usePayment();
   const { updateProfile } = useProfile();
 
@@ -59,9 +60,9 @@ const DashboardHome = () => {
   const [recentActivity, setRecentActivity] = React.useState<any[]>([]);
   const [loadingActivity, setLoadingActivity] = React.useState(true);
 
-  React.useEffect(() => {
-    const fetchActivity = async () => {
+  const fetchActivity = React.useCallback(async () => {
       if (!user) return;
+      setLoadingActivity(true);
       
       try {
         const [submissions, tickets, calls] = await Promise.all([
@@ -83,10 +84,39 @@ const DashboardHome = () => {
       } finally {
         setLoadingActivity(false);
       }
-    };
-    
+    }, [user]);
+
+  React.useEffect(() => {
     fetchActivity();
-  }, [user]);
+  }, [user, fetchActivity]);
+
+  // Realtime subscription for auto-updates
+  React.useEffect(() => {
+    if (!user) return;
+
+    console.log('Setting up realtime subscription for guidance calls...');
+    const channel = supabase
+      .channel('dashboard-guidance-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'guidance_calls',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('Realtime update received:', payload);
+          refreshUser(); // Update stats cards
+          fetchActivity(); // Update recent activity list
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, refreshUser, fetchActivity]);
   
   if (!user) return null;
 
@@ -102,6 +132,7 @@ const DashboardHome = () => {
     guidanceCallsLeft, 
     totalGuidanceCalls, 
     callsCompletedThisMonth,
+    callsCancelled,
     callsPending 
   } = user;
 
@@ -122,7 +153,7 @@ const DashboardHome = () => {
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Submissions Card */}
         <div className="bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all group hover:border-black dark:hover:border-indigo-500">
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between ">
             <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
               {activePlan.toLowerCase() === 'free' ? 'Submissions Left' : 'Submissions'}
             </span>
@@ -266,6 +297,10 @@ const DashboardHome = () => {
                 <span>Completed</span>
                 <span>{callsCompletedThisMonth}</span>
               </span>
+              <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-red-500/50 bg-red-900/20 text-red-400">
+                <span>Cancelled</span>
+                <span>{callsCancelled}</span>
+              </span>
             </div>
           </div>
         </div>
@@ -304,7 +339,10 @@ const DashboardHome = () => {
 
       {/* Recent Activity */}
       <div className="bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Activity</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
+          <RefreshButton onClick={fetchActivity} loading={loadingActivity} />
+        </div>
         <div className="space-y-4">
           {loadingActivity ? (
             <div className="text-center py-4 text-gray-500 text-sm">Loading activity...</div>

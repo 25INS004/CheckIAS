@@ -37,6 +37,7 @@ const SubmissionPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [pageCount, setPageCount] = useState(0);
   
   // Dropdown states
   const [isSubjectOpen, setIsSubjectOpen] = useState(false);
@@ -66,6 +67,22 @@ const SubmissionPage = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
+      countPdfPages(e.target.files[0]);
+    }
+  };
+
+  const countPdfPages = async (file: File) => {
+    try {
+      if (!file || file.type !== 'application/pdf') return;
+      
+      const arrayBuffer = await file.arrayBuffer();
+      // @ts-ignore - pdfjsLib is loaded from CDN
+      const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      console.log('PDF Page Count:', pdf.numPages);
+      setPageCount(pdf.numPages);
+    } catch (err) {
+      console.error('Error counting pages:', err);
+      setPageCount(0);
     }
   };
 
@@ -94,6 +111,7 @@ const SubmissionPage = () => {
         question_number: paperCode,
         file_url: url,
         file_name: file.name,
+        pages: pageCount,
       });
 
       if (!success) {

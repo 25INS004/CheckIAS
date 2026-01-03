@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -15,8 +15,17 @@ import ThemeToggle from '../components/ThemeToggle';
 import Sidebar from '../components/Sidebar';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+
+  const handleSignOut = () => {
+    // Clear session from both storage types
+    localStorage.removeItem('supabase.auth.token');
+    sessionStorage.removeItem('supabase.auth.token');
+    // Redirect to admin login
+    navigate('/admin/login');
+  };
 
   // Open sidebar on desktop by default
   React.useEffect(() => {
@@ -85,7 +94,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-4 ml-auto">
              <ThemeToggle />
              <div className="h-8 w-px bg-slate-200 dark:bg-gray-800 mx-2"></div>
-             <button className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 text-sm font-medium transition-colors">
+             <button 
+               onClick={handleSignOut}
+               className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 text-sm font-medium transition-colors"
+             >
                <LogOut className="w-4 h-4" />
                <span className="hidden sm:inline">Sign Out</span> 
              </button>

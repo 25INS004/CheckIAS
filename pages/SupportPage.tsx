@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { LifeBuoy, MessageSquare, Plus, Minus, Send, HelpCircle, Calendar, Flag, ChevronDown, Lock } from 'lucide-react';
 import DatePicker from '../components/DatePicker';
 import { useUser } from '../context/UserContext';
+import RefreshButton from '../components/RefreshButton';
 
 // Helper to get access token
 const getAccessToken = () => {
@@ -213,13 +214,16 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Support Tickets</h3>
-                <button 
-                  onClick={() => setShowTicketForm(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 dark:shadow-none"
-                >
-                  <Plus className="w-4 h-4" />
-                  Raise Ticket
-                </button>
+                <div className="flex items-center gap-3">
+                  <RefreshButton onClick={fetchTickets} loading={loading} />
+                  <button 
+                    onClick={() => setShowTicketForm(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 dark:shadow-none"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Raise Ticket
+                  </button>
+                </div>
               </div>
 
               {tickets.length > 0 ? (
@@ -263,6 +267,23 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
                           {ticket.status}
                         </span>
                       </div>
+                      
+                      {/* Admin Response Section */}
+                      {ticket.admin_response && (
+                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                          <div className="flex items-start gap-3">
+                            <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-600 dark:text-green-400 mt-0.5">
+                              <MessageSquare className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-gray-900 dark:text-white">Admin Response</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">
+                                {ticket.admin_response}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

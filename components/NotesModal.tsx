@@ -9,6 +9,8 @@ interface NotesModalProps {
   onSave: (notes: string) => void;
   initialNotes: string;
   title?: string;
+  subtitle?: string;
+  placeholder?: string;
   maxWords?: number;
 }
 
@@ -18,6 +20,8 @@ const NotesModal: React.FC<NotesModalProps> = ({
   onSave,
   initialNotes,
   title = "Call Notes",
+  subtitle = "Private notes for your reference",
+  placeholder = "Write your takeaways, action items, and key points from the call here...",
   maxWords = 1500
 }) => {
   const [notes, setNotes] = useState(initialNotes);
@@ -68,7 +72,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
                 {title}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Private notes for your reference
+                {subtitle}
               </p>
             </div>
           </div>
@@ -84,7 +88,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Write your takeaways, action items, and key points from the call here..."
+            placeholder={placeholder}
             className="w-full h-64 sm:h-96 p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none resize-none leading-relaxed custom-scrollbar"
           />
           <div className={`mt-2 text-right text-sm font-medium ${isOverLimit ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}>

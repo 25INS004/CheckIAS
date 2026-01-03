@@ -17,6 +17,7 @@ export interface UserData {
   guidanceCallsLeft: number;
   totalGuidanceCalls: number;
   callsCompletedThisMonth: number;
+  callsCancelled: number;
   callsPending: number;
   isProfileComplete: boolean;
   // Profile fields for pre-filling
@@ -114,6 +115,37 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const profiles = await response.json();
           profile = profiles[0] || null;
           console.log('Fetched profile:', profile);
+
+          // If Admin, skip user-specific stats fetching
+          if (profile?.role === 'admin') {
+            setUser({
+              id: authUser.id,
+              name: profile.full_name || 'Admin',
+              email: profile.email || authUser.email || '',
+              plan: 'achiever', // Admin has no partial plan limits
+              role: 'admin',
+              submissionsLeft: 9999,
+              totalSubmissions: 9999,
+              submissionsCompleted: 0,
+              submissionsPending: 0,
+              submissionsUnderReview: 0,
+              daysLeft: 365,
+              guidanceCallsLeft: 9999,
+              totalGuidanceCalls: 9999,
+              callsCompletedThisMonth: 0,
+              callsCancelled: 0,
+              callsPending: 0,
+              isProfileComplete: true,
+              // Clear user-specific fields
+              phone: '',
+              yearOfAttempt: '',
+              optionalSubject: '',
+              dob: '',
+              avatarUrl: profile.avatar_url || ''
+            });
+            setLoading(false);
+            return;
+          }
         } else {
           console.error('Profile fetch error:', await response.text());
         }
@@ -140,9 +172,21 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (response.ok) {
           const submissions = await response.json();
           submissionCount = submissions.length;
-          submissionsCompleted = submissions.filter((s: any) => s.status === 'completed' || s.status === 'graded').length;
-          submissionsPending = submissions.filter((s: any) => s.status === 'pending').length;
-          submissionsUnderReview = submissions.filter((s: any) => s.status === 'under_review' || s.status === 'reviewing').length;
+          
+          submissionsCompleted = submissions.filter((s: any) => {
+            const status = s.status?.toLowerCase();
+            return status === 'completed' || status === 'graded' || status === 'evaluated' || status === 'resolved';
+          }).length;
+          
+          submissionsPending = submissions.filter((s: any) => {
+            const status = s.status?.toLowerCase();
+            return status === 'pending' || status === 'draft' || status === 'open';
+          }).length;
+          
+          submissionsUnderReview = submissions.filter((s: any) => {
+             const status = s.status?.toLowerCase();
+             return status === 'under_review' || status === 'reviewing' || status === 'under review';
+          }).length;
         }
       } catch (err) {
         console.log('Submission count fetch failed');
@@ -151,6 +195,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Fetch guidance calls count and status breakdown
       let guidanceCallsCount = 0;
       let callsCompleted = 0;
+      let callsCancelled = 0;
       let callsPending = 0;
       try {
         const response = await fetch(
@@ -167,6 +212,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const calls = await response.json();
           guidanceCallsCount = calls.length;
           callsCompleted = calls.filter((c: any) => c.status?.toLowerCase() === 'completed').length;
+          callsCancelled = calls.filter((c: any) => c.status?.toLowerCase() === 'cancelled').length;
           callsPending = calls.filter((c: any) => {
             const status = c.status?.toLowerCase();
             return status === 'pending' || status === 'scheduled' || status === 'confirmed';
@@ -214,6 +260,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         guidanceCallsLeft: guidanceCallsLeft,
         totalGuidanceCalls: limits.guidanceCalls,
         callsCompletedThisMonth: callsCompleted,
+        callsCancelled: callsCancelled,
         callsPending: callsPending,
         isProfileComplete: !!(profile?.full_name && profile?.phone),
         // Store profile data for pre-filling

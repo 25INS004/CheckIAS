@@ -18,6 +18,8 @@ import AdminTickets from './pages/admin/AdminTickets';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminGuidanceCalls from './pages/admin/AdminGuidanceCalls';
 import AdminSubmissions from './pages/admin/AdminSubmissions';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminForgotPassword from './pages/admin/AdminForgotPassword';
 import { AppProvider } from './context/AppProvider';
 import { ThemeProvider } from './context/ThemeContext';
 import { UserProvider } from './context/UserContext';
@@ -29,6 +31,7 @@ import AboutUs from './pages/AboutUs';
 import TosPage from './pages/TosPage';
 import PrivacyPage from './pages/PrivacyPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -49,6 +52,10 @@ const App: React.FC = () => {
               <Route path="/signup" element={<Register />} />
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+
+              {/* Admin Auth Routes (standalone, no layout) */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
 
               {/* Public Routes */}
               <Route element={<PublicLayout><Outlet /></PublicLayout>}>
@@ -75,8 +82,12 @@ const App: React.FC = () => {
                 <Route path="settings/:tab?" element={<ProfileSettings />} />
               </Route>
 
-              {/* Admin Routes */}
-              <Route path="/admin" element={<AdminLayout><Outlet /></AdminLayout>}>
+              {/* Admin Routes (Protected - requires admin role) */}
+              <Route path="/admin" element={
+                <ProtectedAdminRoute>
+                  <AdminLayout><Outlet /></AdminLayout>
+                </ProtectedAdminRoute>
+              }>
                 <Route index element={<AdminOverview />} />
                 <Route path="users" element={<UserManagement />} />
                 <Route path="submissions" element={<AdminSubmissions />} />

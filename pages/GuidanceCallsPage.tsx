@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { Phone, Clock, Plus, Minus, Lock, ChevronRight, FileText, MoreVertical } from 'lucide-react';
+import { Phone, Clock, Plus, Minus, Lock, ChevronRight, FileText, MoreVertical, RefreshCw } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { useGuidanceCalls } from '../hooks/useGuidanceCalls';
 import DatePicker from '../components/DatePicker';
+import RefreshButton from '../components/RefreshButton';
 import NotesModal from '../components/NotesModal';
 import CallDetailsModal from '../components/CallDetailsModal';
 
 const GuidanceCallsPage = () => {
   const { user, refreshUser } = useUser();
-  const { calls: myCalls, loading: callsLoading, createCall, updateCall } = useGuidanceCalls();
+  const { calls: myCalls, loading: callsLoading, createCall, updateCall, fetchCalls } = useGuidanceCalls();
 
   if (user?.plan === 'free') {
     return (
@@ -101,13 +102,16 @@ const GuidanceCallsPage = () => {
         <div className="space-y-6 animate-fade-in">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Your Scheduled Calls</h3>
-            <button 
-              onClick={() => setShowBookingForm(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Book New Call
-            </button>
+            <div className="flex gap-3">
+              <RefreshButton onClick={fetchCalls} loading={callsLoading} />
+              <button 
+                onClick={() => setShowBookingForm(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 dark:shadow-none bg-gradient-to-r from-indigo-600 to-indigo-700"
+              >
+                <Plus className="w-4 h-4" />
+                Book New Call
+              </button>
+            </div>
           </div>
 
           <div className="grid gap-4">
@@ -118,8 +122,16 @@ const GuidanceCallsPage = () => {
             ) : myCalls.map((call) => (
               <div key={call.id} className="bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
-                  <div className={`p-3 rounded-xl ${call.status === 'Scheduled' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'}`}>
-                    <Phone className="w-6 h-6" />
+                  <div className={`p-3 rounded-xl ${
+                    call.status?.toLowerCase() === 'confirmed' || call.status?.toLowerCase() === 'scheduled' 
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' 
+                      : call.status?.toLowerCase() === 'completed'
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                      : call.status?.toLowerCase() === 'cancelled'
+                      ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                      : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'
+                  }`}>
+                    {call.status?.toLowerCase() === 'cancelled' ? <Minus className="w-6 h-6" /> : <Phone className="w-6 h-6" />}
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 dark:text-white">{call.topic}</h4>
@@ -141,8 +153,12 @@ const GuidanceCallsPage = () => {
                     {call.notes ? 'View Notes' : 'Add Notes'}
                   </button>
                   <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                    call.status === 'Scheduled' 
+                    call.status?.toLowerCase() === 'confirmed' || call.status?.toLowerCase() === 'scheduled'
                       ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800'
+                      : call.status?.toLowerCase() === 'completed'
+                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800'
+                      : call.status?.toLowerCase() === 'cancelled'
+                      ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800'
                       : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800'
                   }`}>
                     {call.status}

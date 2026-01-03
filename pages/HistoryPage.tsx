@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Download, FileText, Plus, Phone, MessageSquare, Clock, CheckCircle, AlertCircle, Calendar, RefreshCw } from 'lucide-react';
+import { Download, FileText, Plus, Phone, MessageSquare, Clock, CheckCircle, AlertCircle, Calendar, RefreshCw, X } from 'lucide-react';
+import RefreshButton from '../components/RefreshButton';
 import { useSubmissions } from '../hooks/useSubmissions';
 import { useGuidanceCalls } from '../hooks/useGuidanceCalls';
+import { supabase } from '../lib/supabase';
 import NotesModal from '../components/NotesModal';
 
 // Helper to get access token
@@ -29,45 +31,72 @@ const HistoryPage = () => {
   const [activeTab, setActiveTab] = useState<TabType>('submissions');
   
   // Use real hooks for data
-  const { submissions, loading: submissionsLoading } = useSubmissions();
-  const { calls: guidanceCalls, loading: callsLoading, updateCall } = useGuidanceCalls();
+  const { submissions, loading: submissionsLoading, fetchSubmissions } = useSubmissions();
+  const { calls: guidanceCalls, loading: callsLoading, updateCall, fetchCalls } = useGuidanceCalls();
 
   // Support Tickets State
   const [supportTickets, setSupportTickets] = useState<any[]>([]);
   const [ticketsLoading, setTicketsLoading] = useState(true);
   const [activeNoteCallId, setActiveNoteCallId] = useState<string | null>(null);
+  const [viewTicketResponse, setViewTicketResponse] = useState<any | null>(null);
+
+  const fetchTickets = React.useCallback(async () => {
+    if (!user) return;
+    setTicketsLoading(true);
+    try {
+      const token = getAccessToken();
+      if (!token) return;
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/support_tickets?user_id=eq.${user.id}&select=*&order=created_at.desc`,
+        {
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (!response.ok) throw new Error('Failed to fetch tickets');
+      const data = await response.json();
+      setSupportTickets(data || []);
+    } catch (err) {
+      console.error('Error fetching tickets:', err);
+    } finally {
+      setTicketsLoading(false);
+    }
+  }, [user]);
 
   React.useEffect(() => {
-    const fetchTickets = async () => {
-      if (!user) return;
-      try {
-        const token = getAccessToken();
-        if (!token) return;
-
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/support_tickets?user_id=eq.${user.id}&select=*&order=created_at.desc`,
-          {
-            headers: {
-              'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        );
-        
-        if (!response.ok) throw new Error('Failed to fetch tickets');
-        const data = await response.json();
-        setSupportTickets(data || []);
-      } catch (err) {
-        console.error('Error fetching tickets:', err);
-      } finally {
-        setTicketsLoading(false);
-      }
-    };
-
     if (activeTab === 'support') {
       fetchTickets();
     }
-  }, [user, activeTab]);
+  }, [user, activeTab, fetchTickets]);
+
+  // Realtime subscription for tickets
+  React.useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel('history-tickets')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'support_tickets', filter: `user_id=eq.${user.id}` },
+        () => fetchTickets()
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user, fetchTickets]);
+
+  const handleRefresh = () => {
+    if (activeTab === 'submissions') fetchSubmissions();
+    else if (activeTab === 'guidance') fetchCalls();
+    else if (activeTab === 'support') fetchTickets();
+  };
+
+  const isRefreshing = 
+    (activeTab === 'submissions' && submissionsLoading) ||
+    (activeTab === 'guidance' && callsLoading) ||
+    (activeTab === 'support' && ticketsLoading);
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -128,7 +157,7 @@ const HistoryPage = () => {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 dark:border-gray-800">
+      <div className="border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
         <div className="flex items-center gap-6 overflow-x-auto">
           <button
             onClick={() => setActiveTab('submissions')}
@@ -164,6 +193,12 @@ const HistoryPage = () => {
             Support History
           </button>
         </div>
+        
+
+        
+        <div className="mr-2">
+          <RefreshButton onClick={handleRefresh} loading={isRefreshing} />
+        </div>
       </div>
 
       {/* Content Area */}
@@ -184,6 +219,7 @@ const HistoryPage = () => {
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Submitted On</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Score</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -198,7 +234,24 @@ const HistoryPage = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
-                        {submission.score !== null ? `${submission.score}/15` : '-'}
+                        {submission.score !== null && submission.score !== undefined 
+                          ? `${submission.score}/${submission.score_total || 15}` 
+                          : '-'}
+                      </td>
+                      <td className="px-6 py-4">
+                        {submission.checked_file_url ? (
+                          <a
+                            href={submission.checked_file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 dark:bg-green-900/40 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/60 rounded-lg text-xs font-medium transition-colors"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            Evaluated Copy
+                          </a>
+                        ) : (
+                          <span className="text-xs text-gray-400 dark:text-gray-500">-</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -285,6 +338,7 @@ const HistoryPage = () => {
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Priority</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -310,6 +364,16 @@ const HistoryPage = () => {
                           {ticket.status}
                         </span>
                       </td>
+                      <td className="px-6 py-4">
+                        {ticket.admin_response && (
+                          <button
+                            onClick={() => setViewTicketResponse(ticket)}
+                            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium text-xs bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-800"
+                          >
+                            View Response
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -333,6 +397,28 @@ const HistoryPage = () => {
         }}
         title={`Notes: ${guidanceCalls.find(c => c.id === activeNoteCallId)?.topic || 'Call'}`}
       />
+
+      {/* Ticket Response Modal */}
+      {viewTicketResponse && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setViewTicketResponse(null)}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Admin Response</h3>
+               <button onClick={() => setViewTicketResponse(null)} className="text-gray-400 hover:text-gray-500">
+                 <X className="w-6 h-6" />
+               </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="prose dark:prose-invert max-w-none">
+                 <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{viewTicketResponse.admin_response}</p>
+              </div>
+            </div>
+            <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex justify-end">
+               <button onClick={() => setViewTicketResponse(null)} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
