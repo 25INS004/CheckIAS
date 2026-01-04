@@ -3,6 +3,7 @@ import { Search, MessageSquare, CheckCircle, Clock, AlertCircle, ChevronDown, Fi
 import NotesModal from '../../components/NotesModal';
 import Toast from '../../components/Toast';
 import RefreshButton from '../../components/RefreshButton';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 
 interface Ticket {
   id: string;
@@ -32,8 +33,8 @@ const AdminTickets = () => {
   const [activeTicketId, setActiveTicketId] = useState<string | null>(null);
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
-  const fetchTickets = async () => {
-    setLoading(true);
+  const fetchTickets = async (background = false) => {
+    if (!background) setLoading(true);
     try {
       const token = localStorage.getItem('supabase.auth.token') || sessionStorage.getItem('supabase.auth.token');
       if (!token) throw new Error('Not authenticated');
@@ -75,13 +76,15 @@ const AdminTickets = () => {
       // Don't show toast on initial load error to avoid spamming if just empty
       setToast({ message: 'Failed to fetch tickets. Please try again.', type: 'error' });
     } finally {
-      setLoading(false);
+      if (!background) setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchTickets();
   }, []);
+
+  useAutoRefresh(() => fetchTickets(true));
 
   const handleResolve = async (response: string) => {
     if (!activeTicketId) return;
@@ -95,8 +98,7 @@ const AdminTickets = () => {
       const headers = {
         'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
         'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
+        'Content-Type': 'application/json'
       };
 
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/support_tickets?id=eq.${activeTicketId}`, {
@@ -138,7 +140,7 @@ const AdminTickets = () => {
       
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <RefreshButton onClick={fetchTickets} loading={loading} />
+          <RefreshButton onClick={() => fetchTickets()} loading={loading} />
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="w-5 h-5 text-gray-400" />

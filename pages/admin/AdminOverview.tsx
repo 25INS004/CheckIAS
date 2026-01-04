@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext';
 import { DollarSign, Users, Clock, TrendingUp, FileText, Download, Megaphone, X, Phone, RefreshCw } from 'lucide-react';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
+import { useUser } from '../../context/UserContext';
+import { supabase } from '../../lib/supabase';
 
 // Plan prices for revenue calculation
 const PLAN_PRICES: Record<string, number> = {
@@ -28,6 +33,7 @@ interface DashboardStats {
 }
 
 const AdminOverview = () => {
+  const { toast } = useToast();
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
   const [announcement, setAnnouncement] = useState('');
   const [revenueView, setRevenueView] = useState<'list' | 'chart'>('list');
@@ -66,8 +72,8 @@ const AdminOverview = () => {
   });
 
   // Fetch all dashboard data
-  const fetchDashboardData = async () => {
-    setLoading(true);
+  const fetchDashboardData = async (background = false) => {
+    if (!background) setLoading(true);
     
     try {
       const token = localStorage.getItem('supabase.auth.token') || sessionStorage.getItem('supabase.auth.token');
@@ -222,19 +228,79 @@ const AdminOverview = () => {
       console.error('Failed to fetch dashboard data:', err);
     }
     
-    setLoading(false);
+    if (!background) setLoading(false);
   };
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
-  const handleBroadcast = () => {
-    if (announcement.trim()) {
-      console.log('Broadcasting:', announcement);
-      alert('Announcement broadcasted successfully!');
+  useAutoRefresh(() => fetchDashboardData(true));
+  const { user } = useUser();
+
+  const handleBroadcast = async () => {
+    if (!announcement.trim()) return;
+
+    try {
+      setLoading(true);
+      
+      // Get token from localStorage/sessionStorage
+      const getAccessToken = () => {
+        try {
+          const localData = localStorage.getItem('supabase.auth.token');
+          const sessionData = sessionStorage.getItem('supabase.auth.token');
+          const data = localData || sessionData;
+          if (data) {
+            return JSON.parse(data).currentSession?.access_token;
+          }
+        } catch (e) {
+          console.error('Error getting access token:', e);
+        }
+        return null;
+      };
+      
+      const token = getAccessToken();
+      if (!token) {
+        toast.error('Not authenticated. Please log in again.');
+        setLoading(false);
+        return;
+      }
+      
+      console.log('DEBUG - Using token for broadcast');
+      
+      // Use direct fetch to bypass Supabase SDK RLS issues
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/announcements`,
+        {
+          method: 'POST',
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({
+            message: announcement,
+            recipient_group: recipient,
+            created_by: user?.id,
+            is_active: true
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Failed to broadcast');
+      }
+
+      toast.success('Announcement broadcasted successfully!');
       setAnnouncement('');
       setShowAnnouncementModal(false);
+    } catch (error: any) {
+      console.error('Error broadcasting announcement:', error);
+      toast.error(`Failed to broadcast: ${error.message || 'Unknown error'}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -279,7 +345,7 @@ Cancelled Calls,${stats.cancelledCalls}`;
         </div>
         <div className="flex gap-3">
           <button
-            onClick={fetchDashboardData}
+            onClick={() => fetchDashboardData()}
             disabled={loading}
             className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all disabled:opacity-50"
           >

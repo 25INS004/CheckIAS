@@ -3,12 +3,16 @@ import { Phone, Clock, Plus, Minus, Lock, ChevronRight, FileText, MoreVertical, 
 import { useUser } from '../context/UserContext';
 import { useGuidanceCalls } from '../hooks/useGuidanceCalls';
 import DatePicker from '../components/DatePicker';
+import { useToast } from '../context/ToastContext';
+import { usePayment } from '../hooks/usePayment';
 import RefreshButton from '../components/RefreshButton';
 import NotesModal from '../components/NotesModal';
 import CallDetailsModal from '../components/CallDetailsModal';
 
 const GuidanceCallsPage = () => {
   const { user, refreshUser } = useUser();
+  const { toast } = useToast();
+  const { openPaymentModal } = usePayment();
   const { calls: myCalls, loading: callsLoading, createCall, updateCall, fetchCalls } = useGuidanceCalls();
 
   if (user?.plan === 'free') {
@@ -85,7 +89,7 @@ const GuidanceCallsPage = () => {
       refreshUser(); // Refresh dashboard stats
     } else {
       setCallStatus('idle');
-      alert(error || 'Failed to submit request');
+      toast.error(error || 'Failed to submit request');
     }
   };
 
@@ -103,7 +107,7 @@ const GuidanceCallsPage = () => {
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Your Scheduled Calls</h3>
             <div className="flex gap-3">
-              <RefreshButton onClick={fetchCalls} loading={callsLoading} />
+              <RefreshButton onClick={() => fetchCalls()} loading={callsLoading} />
               <button 
                 onClick={() => setShowBookingForm(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 dark:shadow-none bg-gradient-to-r from-indigo-600 to-indigo-700"
@@ -298,7 +302,10 @@ const GuidanceCallsPage = () => {
         call={myCalls.find(c => c.id === selectedCallId) || null}
         onCancelCall={async (id) => {
           const { success, error } = await updateCall(id, { status: 'Cancelled' });
-          if (!success) alert(error);
+          if (!success) toast.error(error);
+          else {
+             toast.success('Call cancelled successfully!');
+          }
         }}
       />
     </div>

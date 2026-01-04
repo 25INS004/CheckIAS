@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, RefreshCw, ArrowLeft } from 'lucide-react';
 import { useUser } from '../context/UserContext';
+import { supabase } from '../lib/supabase';
 
 const Login = () => {
   const navigate = useNavigate();

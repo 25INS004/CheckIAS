@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Download, FileText, Plus, Phone, MessageSquare, Clock, CheckCircle, AlertCircle, Calendar, RefreshCw, X } from 'lucide-react';
+import { Download, FileText, Plus, Phone, MessageSquare, Clock, CheckCircle, AlertCircle, Calendar, RefreshCw, X, Megaphone } from 'lucide-react';
 import RefreshButton from '../components/RefreshButton';
 import { useSubmissions } from '../hooks/useSubmissions';
 import { useGuidanceCalls } from '../hooks/useGuidanceCalls';
 import { supabase } from '../lib/supabase';
 import NotesModal from '../components/NotesModal';
+import { useAutoRefresh } from '../hooks/useAutoRefresh';
 
 // Helper to get access token
 const getAccessToken = () => {
@@ -24,7 +25,13 @@ const getAccessToken = () => {
 import { useUser } from '../context/UserContext';
 
 
-type TabType = 'submissions' | 'guidance' | 'support';
+type TabType = 'submissions' | 'guidance' | 'support' | 'updates';
+
+interface Announcement {
+  id: string;
+  message: string;
+  created_at: string;
+}
 
 const HistoryPage = () => {
   const { user } = useUser();
@@ -36,13 +43,14 @@ const HistoryPage = () => {
 
   // Support Tickets State
   const [supportTickets, setSupportTickets] = useState<any[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [ticketsLoading, setTicketsLoading] = useState(true);
   const [activeNoteCallId, setActiveNoteCallId] = useState<string | null>(null);
   const [viewTicketResponse, setViewTicketResponse] = useState<any | null>(null);
 
-  const fetchTickets = React.useCallback(async () => {
+  const fetchTickets = React.useCallback(async (background = false) => {
     if (!user) return;
-    setTicketsLoading(true);
+    if (!background) setTicketsLoading(true);
     try {
       const token = getAccessToken();
       if (!token) return;
@@ -63,13 +71,52 @@ const HistoryPage = () => {
     } catch (err) {
       console.error('Error fetching tickets:', err);
     } finally {
-      setTicketsLoading(false);
+      if (!background) setTicketsLoading(false);
     }
   }, [user]);
 
   React.useEffect(() => {
     if (activeTab === 'support') {
       fetchTickets();
+    } else if (activeTab === 'updates') {
+      const fetchAnnouncements = async () => {
+        try {
+          const getAccessToken = () => {
+            try {
+              const localData = localStorage.getItem('supabase.auth.token');
+              const sessionData = sessionStorage.getItem('supabase.auth.token');
+              const data = localData || sessionData;
+              if (data) {
+                return JSON.parse(data).currentSession?.access_token;
+              }
+            } catch (e) {
+              console.error('Error getting access token:', e);
+            }
+            return null;
+          };
+          
+          const token = getAccessToken();
+          if (!token) return;
+          
+          const response = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/announcements?is_active=eq.true&order=created_at.desc`,
+            {
+              headers: {
+                'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${token}`
+              }
+            }
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data) setAnnouncements(data);
+          }
+        } catch (err) {
+          console.error('Error fetching announcements:', err);
+        }
+      };
+      fetchAnnouncements();
     }
   }, [user, activeTab, fetchTickets]);
 
@@ -87,16 +134,18 @@ const HistoryPage = () => {
     return () => { supabase.removeChannel(channel); };
   }, [user, fetchTickets]);
 
-  const handleRefresh = () => {
-    if (activeTab === 'submissions') fetchSubmissions();
-    else if (activeTab === 'guidance') fetchCalls();
-    else if (activeTab === 'support') fetchTickets();
+  const handleRefresh = (background = false) => {
+    if (activeTab === 'submissions') fetchSubmissions(background);
+    else if (activeTab === 'guidance') fetchCalls(background);
+    else if (activeTab === 'support') fetchTickets(background);
   };
 
   const isRefreshing = 
     (activeTab === 'submissions' && submissionsLoading) ||
     (activeTab === 'guidance' && callsLoading) ||
     (activeTab === 'support' && ticketsLoading);
+
+  useAutoRefresh(() => handleRefresh(true));
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -192,12 +241,23 @@ const HistoryPage = () => {
             <MessageSquare className="w-4 h-4" />
             Support History
           </button>
+          <button
+            onClick={() => setActiveTab('updates')}
+            className={`flex items-center gap-2 py-4 px-2 border-b-2 transition-all whitespace-nowrap ${
+              activeTab === 'updates'
+                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 font-medium'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
+          >
+            <Megaphone className="w-4 h-4" />
+            Previous Updates
+          </button>
         </div>
         
 
         
         <div className="mr-2">
-          <RefreshButton onClick={handleRefresh} loading={isRefreshing} />
+          <RefreshButton onClick={() => handleRefresh(false)} loading={isRefreshing} />
         </div>
       </div>
 
@@ -215,7 +275,7 @@ const HistoryPage = () => {
                 <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
                   <tr>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Paper Type</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Question #</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Paper Code</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Submitted On</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Score</th>
@@ -383,8 +443,45 @@ const HistoryPage = () => {
             )}
           </div>
         )}
+
+        {/* Updates Tab */}
+        {activeTab === 'updates' && (
+          <div className="p-6">
+          {announcements.length <= 1 ? (
+            <div className="text-center py-12">
+               <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center mx-auto mb-4">
+                 <Megaphone className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+               </div>
+               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No previous updates</h3>
+               <p className="text-gray-500 dark:text-gray-400">Past announcements will appear here.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {announcements.slice(1).map((ann) => (
+                <div key={ann.id} className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
+                  <div className="flex items-start gap-3">
+                     <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
+                        <Megaphone className="w-4 h-4" />
+                     </div>
+                     <div>
+                       <p className="text-gray-900 dark:text-white font-medium">{ann.message}</p>
+                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                         {new Date(ann.created_at).toLocaleDateString(undefined, {
+                           year: 'numeric',
+                           month: 'long',
+                           day: 'numeric'
+                         })}
+                       </p>
+                     </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       </div>
-      
+
       {/* Notes Modal */}
       <NotesModal
         isOpen={activeNoteCallId !== null}

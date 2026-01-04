@@ -3,6 +3,7 @@ import { Search, Plus, Minus, X, Calendar, Filter, Download, History, ChevronDow
 import DatePicker from '../../components/DatePicker';
 import Toast from '../../components/Toast';
 import RefreshButton from '../../components/RefreshButton';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 
 interface User {
   id: string;
@@ -31,8 +32,8 @@ const UserManagement = () => {
   const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [isPlanOpen, setIsPlanOpen] = useState(false);
 
-  const fetchUsers = async () => {
-    setLoading(true);
+  const fetchUsers = async (background = false) => {
+    if (!background) setLoading(true);
     try {
       const token = localStorage.getItem('supabase.auth.token') || sessionStorage.getItem('supabase.auth.token');
       if (!token) throw new Error('Not authenticated');
@@ -72,13 +73,15 @@ const UserManagement = () => {
       console.error('Error fetching users:', err);
       setToast({ message: 'Failed to fetch users', type: 'error' });
     } finally {
-      setLoading(false);
+      if (!background) setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  useAutoRefresh(() => fetchUsers(true));
 
   const handleUpdatePlan = async (userId: string, newPlan: string) => {
     try {
@@ -168,7 +171,7 @@ const UserManagement = () => {
           <p className="text-gray-500 dark:text-gray-400 mt-1">Manage users and subscriptions</p>
         </div>
         <div className="flex gap-3">
-          <RefreshButton onClick={fetchUsers} loading={loading} />
+          <RefreshButton onClick={() => fetchUsers()} loading={loading} />
           <button
             onClick={exportUserCSV}
             className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"

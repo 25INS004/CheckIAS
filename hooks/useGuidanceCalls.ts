@@ -19,7 +19,7 @@ interface UseGuidanceCallsReturn {
   calls: GuidanceCall[];
   loading: boolean;
   error: string | null;
-  fetchCalls: () => Promise<void>;
+  fetchCalls: (background?: boolean) => Promise<void>;
   createCall: (data: Omit<GuidanceCall, 'id' | 'user_id' | 'status' | 'created_at'>) => Promise<{ success: boolean; error?: string }>;
   updateCall: (id: string, data: Partial<GuidanceCall>) => Promise<{ success: boolean; error?: string }>;
   cancelCall: (id: string) => Promise<{ success: boolean; error?: string }>;
@@ -45,14 +45,14 @@ export const useGuidanceCalls = (): UseGuidanceCallsReturn => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCalls = useCallback(async () => {
-    setLoading(true);
+  const fetchCalls = useCallback(async (background = false) => {
+    if (!background) setLoading(true);
     setError(null);
     
     const token = getAccessToken();
     if (!token) {
       setCalls([]);
-      setLoading(false);
+      if (!background) setLoading(false);
       return;
     }
 
@@ -78,7 +78,7 @@ export const useGuidanceCalls = (): UseGuidanceCallsReturn => {
       console.error(err);
     }
     
-    setLoading(false);
+    if (!background) setLoading(false);
   }, []);
 
   const createCall = async (

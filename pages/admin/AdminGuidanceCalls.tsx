@@ -3,6 +3,7 @@ import { Search, Phone, Calendar, Clock, CheckCircle, XCircle, AlertCircle, Chev
 import ConfirmationModal from '../../components/ConfirmationModal';
 import Toast from '../../components/Toast';
 import RefreshButton from '../../components/RefreshButton';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 
 interface GuidanceCall {
   id: string;
@@ -30,8 +31,8 @@ const AdminGuidanceCalls = () => {
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
   // Fetch Calls
-  const fetchCalls = async () => {
-    setLoading(true);
+  const fetchCalls = async (background = false) => {
+    if (!background) setLoading(true);
     try {
       const token = localStorage.getItem('supabase.auth.token') || sessionStorage.getItem('supabase.auth.token');
       if (!token) return;
@@ -91,13 +92,15 @@ const AdminGuidanceCalls = () => {
     } catch (err) {
         console.error('Error fetching calls:', err);
     } finally {
-        setLoading(false);
+        if (!background) setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchCalls();
   }, []);
+
+  useAutoRefresh(() => fetchCalls(true));
 
   const handleUpdateStatus = async (id: string, newStatus: string) => {
     setProcessing(true);
@@ -153,7 +156,7 @@ const AdminGuidanceCalls = () => {
         </div>
         
         <div className="flex items-center gap-3">
-          <RefreshButton onClick={fetchCalls} loading={loading} />
+          <RefreshButton onClick={() => fetchCalls()} loading={loading} />
 
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

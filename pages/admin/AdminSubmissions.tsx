@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext';
 import { Search, FileText, CheckCircle, Clock, ChevronDown, AlertCircle, Download, Eye, X, Upload, RefreshCw } from 'lucide-react';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import Toast from '../../components/Toast';
 import RefreshButton from '../../components/RefreshButton';
+import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 
 interface Submission {
   id: string;
   user_id: string;
   title: string;
   subject: string;
+  paper_code: string;
   pages: number;
   status: string;
   created_at: string;
@@ -41,22 +45,22 @@ const AdminSubmissions = () => {
   // Upload checked/evaluated copy to Supabase storage with score
   const handleUploadCheckedCopy = async (file: File, submissionId: string, marksAcquired: number, marksTotal: number) => {
     if (!file || !file.type.includes('pdf')) {
-      alert('Please select a valid PDF file.');
+      toast.error('Please select a valid PDF file.');
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      alert('File size must be less than 10MB.');
+      toast.error('File size must be less than 10MB.');
       return;
     }
 
     if (isNaN(marksAcquired) || marksAcquired < 0) {
-      alert('Please enter valid marks acquired.');
+      toast.error('Please enter valid marks acquired.');
       return;
     }
 
     if (isNaN(marksTotal) || marksTotal <= 0) {
-      alert('Please enter valid total marks.');
+      toast.error('Please enter valid total marks.');
       return;
     }
 
@@ -66,7 +70,7 @@ const AdminSubmissions = () => {
     try {
       const token = localStorage.getItem('supabase.auth.token') || sessionStorage.getItem('supabase.auth.token');
       if (!token) {
-        alert('Authentication error. Please log in again.');
+        toast.error('Authentication error. Please log in again.');
         setUploading(false);
         return;
       }
@@ -77,8 +81,10 @@ const AdminSubmissions = () => {
       console.log('User Email from Token:', currentSession?.user?.email);
       console.log('Attempting update for Submission ID:', submissionId);
 
-      // Generate unique filename
-      const fileName = `checked_${submissionId}_${Date.now()}.pdf`;
+      // Generate unique filename: CheckIAS_Evaluated_[SubmissionID]_[Timestamp]_[RandomString].pdf
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
+      const randomString = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const fileName = `CheckIAS_Evaluated_${submissionId.slice(0, 8)}_${timestamp}_${randomString}.pdf`;
       const filePath = `evaluated/${fileName}`;
 
       // Upload to Supabase Storage (admin-submissions bucket)
@@ -162,14 +168,14 @@ const AdminSubmissions = () => {
   };
 
   // Fetch submissions from database
-  const fetchSubmissions = async () => {
-    setLoading(true);
+  const fetchSubmissions = async (background = false) => {
+    if (!background) setLoading(true);
     try {
       // Get access token from storage (same pattern as AdminOverview)
       const token = localStorage.getItem('supabase.auth.token') || sessionStorage.getItem('supabase.auth.token');
       if (!token) {
         console.error('No auth token found');
-        setLoading(false);
+        if (!background) setLoading(false);
         return;
       }
       
@@ -189,7 +195,7 @@ const AdminSubmissions = () => {
       
       if (!submissionsRes.ok) {
         console.error('Failed to fetch submissions:', submissionsRes.status);
-        setLoading(false);
+        if (!background) setLoading(false);
         return;
       }
       
@@ -224,8 +230,9 @@ const AdminSubmissions = () => {
         return {
           id: s.id,
           user_id: s.user_id,
-          title: s.title || 'Untitled',
-          subject: s.subject || 'General',
+          title: s.file_name || s.title || 'Untitled',
+          subject: s.paper_type || 'General',
+          paper_code: s.question_number || '-',
           pages: s.pages || 0,
           status: s.status || 'Pending',
           created_at: s.created_at,
@@ -241,12 +248,14 @@ const AdminSubmissions = () => {
     } catch (err) {
       console.error('Failed to fetch submissions:', err);
     }
-    setLoading(false);
+    if (!background) setLoading(false);
   };
 
   useEffect(() => {
     fetchSubmissions();
   }, []);
+
+  useAutoRefresh(() => fetchSubmissions(true));
 
   // Update status in database
   const handleStatusChange = async (id: string, newStatus: string) => {
@@ -421,7 +430,7 @@ const AdminSubmissions = () => {
             <RefreshCw className={`w-4 h-4 ${syncingPages ? 'animate-spin' : ''}`} />
             {syncingPages ? 'Syncing...' : 'Sync Pages'}
           </button>
-          <RefreshButton onClick={fetchSubmissions} loading={loading} />
+          <RefreshButton onClick={() => fetchSubmissions()} loading={loading} />
         </div>
       </div>
 
@@ -537,6 +546,7 @@ const AdminSubmissions = () => {
                 <th className="px-6 py-4">Submission Details</th>
                 <th className="px-6 py-4">User</th>
                 <th className="px-6 py-4">Subject</th>
+                <th className="px-6 py-4">Paper Code</th>
                 <th className="px-6 py-4">Date</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4 text-right">Actions</th>
@@ -565,6 +575,9 @@ const AdminSubmissions = () => {
                   </td>
                   <td className="px-6 py-4">
                     <p className="text-gray-900 dark:text-white">{sub.subject}</p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-gray-900 dark:text-white font-mono text-sm">{sub.paper_code}</p>
                   </td>
                   <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
                     {new Date(sub.created_at).toLocaleDateString()}
@@ -821,11 +834,11 @@ const AdminSubmissions = () => {
                       <button
                         onClick={() => {
                           if (!pendingFile) {
-                            alert('Please select a PDF file first.');
+                            toast.error('Please select a PDF file first.');
                             return;
                           }
                           if (!scoreAcquired) {
-                            alert('Please enter marks acquired.');
+                            toast.error('Please enter marks acquired.');
                             return;
                           }
                           if (selectedSubmission) {

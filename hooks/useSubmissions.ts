@@ -24,7 +24,7 @@ interface UseSubmissionsReturn {
   submissions: Submission[];
   loading: boolean;
   error: string | null;
-  fetchSubmissions: () => Promise<void>;
+  fetchSubmissions: (background?: boolean) => Promise<void>;
   createSubmission: (data: Omit<Submission, 'id' | 'user_id' | 'status' | 'created_at'>) => Promise<{ success: boolean; error?: string }>;
 }
 
@@ -63,14 +63,14 @@ export const useSubmissions = (): UseSubmissionsReturn => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchSubmissions = useCallback(async () => {
-    setLoading(true);
+  const fetchSubmissions = useCallback(async (background = false) => {
+    if (!background) setLoading(true);
     setError(null);
     
     const token = getAccessToken();
     if (!token) {
       setSubmissions([]);
-      setLoading(false);
+      if (!background) setLoading(false);
       return;
     }
 
@@ -101,7 +101,7 @@ export const useSubmissions = (): UseSubmissionsReturn => {
       console.error(err);
     }
     
-    setLoading(false);
+    if (!background) setLoading(false);
   }, []);
 
   const createSubmission = async (

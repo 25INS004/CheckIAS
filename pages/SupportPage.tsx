@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { LifeBuoy, MessageSquare, Plus, Minus, Send, HelpCircle, Calendar, Flag, ChevronDown, Lock } from 'lucide-react';
+import { LifeBuoy, MessageSquare, Plus, Minus, Send, HelpCircle, Calendar, Flag, ChevronDown, Lock, Megaphone } from 'lucide-react';
 import DatePicker from '../components/DatePicker';
 import { useUser } from '../context/UserContext';
 import RefreshButton from '../components/RefreshButton';
+import { useAutoRefresh } from '../hooks/useAutoRefresh';
+import { useToast } from '../context/ToastContext';
+import { supabase } from '../lib/supabase';
 
 // Helper to get access token
 const getAccessToken = () => {
@@ -21,6 +24,7 @@ const getAccessToken = () => {
 
 const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
   const { user, refreshUser } = useUser();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'support' | 'faq'>('support');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -36,9 +40,9 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
     }
   }, [user]);
 
-  const fetchTickets = async () => {
+  const fetchTickets = async (background = false) => {
     try {
-      setLoading(true);
+      if (!background) setLoading(true);
       const token = getAccessToken();
       if (!token) return;
 
@@ -56,16 +60,18 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
       const data = await response.json();
       setTickets(data || []);
     } catch (err) {
-      console.error('Error fetching tickets:', err);
+      console.error('Error fetching data:', err);
     } finally {
-      setLoading(false);
+      if (!background) setLoading(false);
     }
   };
+
+  useAutoRefresh(() => fetchTickets(true));
   const [showTicketForm, setShowTicketForm] = useState(false);
   const [newTicket, setNewTicket] = useState({
     subject: '',
-    category: 'General',
-    priority: 'Medium',
+    category: 'Login Issues', // Default to a valid category
+    priority: 'High', // Matches Login Issues
     date: new Date().toISOString().split('T')[0],
     description: ''
   });
@@ -89,6 +95,20 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
 
   const priorities = ["Low", "Medium", "High"];
 
+  const getPriority = (category: string) => {
+    switch (category) {
+      case "Billing & Payments":
+      case "Technical Support":
+      case "Login Issues":
+        return "High";
+      case "Sign Up Issues":
+      case "Custom Issue":
+        return "Medium";
+      default:
+        return "Low";
+    }
+  };
+
   const handleCreateTicket = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -96,7 +116,7 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
     try {
       const token = getAccessToken();
       if (!token) {
-        alert('Authentication error. Please login again.');
+        toast.error('Authentication error. Please login again.');
         return;
       }
 
@@ -130,13 +150,14 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
 
       if (data && data.length > 0) {
         setTickets([data[0], ...tickets]);
-        setNewTicket({ subject: '', category: 'General', priority: 'Medium', date: new Date().toISOString().split('T')[0], description: '' });
+        setNewTicket({ subject: '', category: 'Login Issues', priority: 'High', date: new Date().toISOString().split('T')[0], description: '' });
         setShowTicketForm(false);
         refreshUser(); // Refresh dashboard stats
+        toast.success('Ticket created successfully!');
       }
     } catch (err: any) {
       console.error('Error creating ticket:', err);
-      alert(`Failed to create ticket: ${err.message}`);
+      toast.error(`Failed to create ticket: ${err.message}`);
     }
   };
 
@@ -215,7 +236,7 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Support Tickets</h3>
                 <div className="flex items-center gap-3">
-                  <RefreshButton onClick={fetchTickets} loading={loading} />
+                  <RefreshButton onClick={() => fetchTickets()} loading={loading} />
                   <button 
                     onClick={() => setShowTicketForm(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 dark:shadow-none"
@@ -339,7 +360,8 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
                               key={cat}
                               type="button"
                               onClick={() => {
-                                setNewTicket({...newTicket, category: cat});
+                                const priority = getPriority(cat);
+                                setNewTicket({...newTicket, category: cat, priority});
                                 setIsCategoryOpen(false);
                               }}
                               className={`w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${newTicket.category === cat ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400' : 'text-gray-900 dark:text-white'}`}
@@ -352,22 +374,14 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
                    </div>
                    
                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Priority</label>
-                      <div className="flex items-center gap-3">
-                        {priorities.map((prio) => (
-                          <button
-                            key={prio}
-                            type="button"
-                            onClick={() => setNewTicket({...newTicket, priority: prio})}
-                            className={`flex-1 px-3 py-2.5 text-sm font-medium rounded-lg border transition-all ${
-                              newTicket.priority === prio
-                                ? 'bg-indigo-600 text-white border-indigo-600'
-                                : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-800 hover:border-indigo-500'
-                            }`}
-                          >
-                            {prio}
-                          </button>
-                        ))}
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Priority (Auto-assigned)</label>
+                      <div className={`w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white flex items-center gap-2 cursor-not-allowed`}>
+                        <span className={`w-2 h-2 rounded-full ${
+                          newTicket.priority === 'High' ? 'bg-red-500' :
+                          newTicket.priority === 'Medium' ? 'bg-yellow-500' :
+                          'bg-green-500'
+                        }`} />
+                        <span className="font-medium">{newTicket.priority}</span>
                       </div>
                    </div>
                  </div>

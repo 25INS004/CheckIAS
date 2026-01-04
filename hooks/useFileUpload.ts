@@ -55,12 +55,11 @@ export const useFileUpload = (): UseFileUploadReturn => {
     setProgress(0);
 
     try {
-      // Generate unique filename
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const randomString = Math.random().toString(36).substring(2, 8);
-      const ext = file.name.split('.').pop();
-      const uniqueFilename = `${userId}/${timestamp}_${randomString}.${ext}`;
-      const filePath = `${folder}/${uniqueFilename}`;
+      // Generate unique filename: CheckIAS_[UserID]_[Timestamp]_[RandomString].pdf
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
+      const randomString = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const uniqueFilename = `CheckIAS_${userId}_${timestamp}_${randomString}.pdf`;
+      const filePath = `${folder}/${userId}/${uniqueFilename}`;
 
       // Upload to Supabase Storage
       const response = await fetch(

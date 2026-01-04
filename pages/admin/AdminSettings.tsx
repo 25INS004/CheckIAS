@@ -1,14 +1,16 @@
 import React, { useState, useRef } from 'react';
-import { User, Lock, Bell, Mail, Shield, Camera, Save, Phone } from 'lucide-react';
+import { User, Save, Shield, Bell, Key, Mail, Lock, Camera, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext';
 
 export default function AdminSettings() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
   
-  const [profile, setProfile] = useState({
+  const [adminProfile, setAdminProfile] = useState({
     name: 'Admin User',
     email: 'admin@checkias.com',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
@@ -24,7 +26,7 @@ export default function AdminSettings() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfile(prev => ({ ...prev, avatar: reader.result as string }));
+        setAdminProfile(prev => ({ ...prev, avatar: reader.result as string }));
       };
       reader.readAsDataURL(file);
     }
@@ -35,7 +37,7 @@ export default function AdminSettings() {
     // Simulate API call
     setTimeout(() => {
       setLoading(false);
-      alert('Settings saved successfully!');
+      toast.success('Settings saved successfully!');
     }, 1000);
   };
 
@@ -84,7 +86,7 @@ export default function AdminSettings() {
             <div className="flex items-center gap-6 pb-6 border-b border-gray-100 dark:border-gray-800">
               <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                 <img 
-                  src={profile.avatar} 
+                  src={adminProfile.avatar} 
                   alt="Profile" 
                   className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-950 shadow-sm group-hover:opacity-75 transition-opacity"
                 />
@@ -114,8 +116,8 @@ export default function AdminSettings() {
                   </div>
                   <input
                     type="text"
-                    value={profile.name}
-                    onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                    value={adminProfile.name}
+                    onChange={(e) => setAdminProfile({ ...adminProfile, name: e.target.value })}
                     className="w-full pr-4 py-2.5 outline-none border-none focus:ring-0 text-gray-900 dark:text-white bg-transparent"
                   />
                 </div>
@@ -129,7 +131,7 @@ export default function AdminSettings() {
                   </div>
                   <input
                     type="email"
-                    value={profile.email}
+                    value={adminProfile.email}
                     disabled
                     className="w-full pr-4 py-2.5 outline-none border-none focus:ring-0 text-gray-500 dark:text-gray-400 bg-transparent cursor-not-allowed"
                   />

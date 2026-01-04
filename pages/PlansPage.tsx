@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Check, X, Shield, Zap, Info } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 import { useUser } from '../context/UserContext';
 import { usePayment } from '../hooks/usePayment';
 import { useProfile } from '../hooks/useProfile';
@@ -74,6 +76,8 @@ const PLANS = [
 
 const PlansPage = () => {
   const { user, updateUser } = useUser();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const { openPaymentModal, loading: paymentLoading } = usePayment();
   const { updateProfile } = useProfile();
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -91,7 +95,7 @@ const PlansPage = () => {
         // Handle downgrade to free? Usually not allowed easily or just direct update
         // For MVP, allow downgrade if they want, but usually it's locked.
         // Let's assume user wants to switch.
-         alert('To downgrade to Free, please contact support.');
+         toast.info('To downgrade to Free, please contact support.');
          setProcessingId(null);
          return;
       }
@@ -110,16 +114,16 @@ const PlansPage = () => {
           
           if (success) {
             updateUser({ plan: plan.id as any });
-            alert(`Successfully upgraded to ${plan.title}!`);
+            toast.success(`Successfully upgraded to ${plan.title}!`);
           } else {
             console.error('Profile update failed:', error);
-            alert('Payment successful but failed to update subscription. Please contact support with Payment ID: ' + response.razorpay_payment_id);
+            toast.error('Payment successful but failed to update subscription. Please contact support with Payment ID: ' + response.razorpay_payment_id);
           }
         }
       });
     } catch (err) {
       console.error(err);
-      alert('Something went wrong.');
+      toast.error('Something went wrong.');
     } finally {
       setProcessingId(null);
     }

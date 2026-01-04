@@ -1,8 +1,11 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Megaphone, FileText, Crown, Clock, Phone, Lock } from 'lucide-react';
 import RefreshButton from '../components/RefreshButton';
+import { useAutoRefresh } from '../hooks/useAutoRefresh';
 import { useUser } from '../context/UserContext';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 import { usePayment } from '../hooks/usePayment';
 import { useProfile } from '../hooks/useProfile';
 import { supabase } from '../lib/supabase';
@@ -10,6 +13,60 @@ import { formatDistanceToNow } from 'date-fns';
 
 const DashboardHome = () => {
   const { user, updateUser, refreshUser } = useUser();
+  const [announcement, setAnnouncement] = useState<string | null>(null);
+  
+  // Helper to get access token
+  const getAccessToken = () => {
+    try {
+      const localData = localStorage.getItem('supabase.auth.token');
+      const sessionData = sessionStorage.getItem('supabase.auth.token');
+      const data = localData || sessionData;
+      if (data) {
+        return JSON.parse(data).currentSession?.access_token;
+      }
+    } catch (e) {
+      console.error('Error getting access token:', e);
+    }
+    return null;
+  };
+  
+  const fetchAnnouncement = React.useCallback(async () => {
+    try {
+      const token = getAccessToken();
+      if (!token) return;
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/announcements?is_active=eq.true&order=created_at.desc&limit=1`,
+        {
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.length > 0) {
+          setAnnouncement(data[0].message);
+        } else {
+          setAnnouncement(null);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching announcement:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAnnouncement();
+  }, [user, fetchAnnouncement]);
+
+  // Auto-refresh announcements every 3 seconds
+  useAutoRefresh(fetchAnnouncement);
+  
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const { openPaymentModal } = usePayment();
   const { updateProfile } = useProfile();
 
@@ -43,7 +100,7 @@ const DashboardHome = () => {
                         });
                         if (success) {
                             updateUser({ plan: pendingPlan as any });
-                            alert(`Welcome to ${pendingPlan}! Your account has been upgraded.`);
+                            toast.success(`Welcome to ${pendingPlan}! Your account has been upgraded.`);
                         }
                     }
                 });
@@ -60,21 +117,38 @@ const DashboardHome = () => {
   const [recentActivity, setRecentActivity] = React.useState<any[]>([]);
   const [loadingActivity, setLoadingActivity] = React.useState(true);
 
-  const fetchActivity = React.useCallback(async () => {
+  const fetchActivity = React.useCallback(async (background = false) => {
       if (!user) return;
-      setLoadingActivity(true);
+      if (!background) setLoadingActivity(true);
       
       try {
-        const [submissions, tickets, calls] = await Promise.all([
-          supabase.from('submissions').select('id, paper_type, status, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(3),
-          supabase.from('support_tickets').select('id, subject, status, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(3),
-          supabase.from('guidance_calls').select('id, topic, status, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(3)
+        const token = localStorage.getItem('supabase.auth.token') || sessionStorage.getItem('supabase.auth.token');
+        if (!token) throw new Error('No auth token found');
+
+        const { currentSession } = JSON.parse(token);
+        const accessToken = currentSession?.access_token;
+        
+        const headers = {
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${accessToken}`,
+        };
+
+        const [submissionsRes, ticketsRes, callsRes] = await Promise.all([
+          fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/submissions?user_id=eq.${user.id}&select=id,paper_type,status,created_at&order=created_at.desc&limit=3`, { headers }),
+          fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/support_tickets?user_id=eq.${user.id}&select=id,subject,status,created_at&order=created_at.desc&limit=3`, { headers }),
+          fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/guidance_calls?user_id=eq.${user.id}&select=id,topic,status,created_at&order=created_at.desc&limit=3`, { headers })
+        ]);
+
+        const [submissionsData, ticketsData, callsData] = await Promise.all([
+           submissionsRes.ok ? submissionsRes.json() : [],
+           ticketsRes.ok ? ticketsRes.json() : [],
+           callsRes.ok ? callsRes.json() : []
         ]);
 
         const combined = [
-          ...(submissions.data || []).map(i => ({ ...i, type: 'submission', title: i.paper_type, icon: FileText, color: 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400' })),
-          ...(tickets.data || []).map(i => ({ ...i, type: 'ticket', title: i.subject, icon: Megaphone, color: 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' })),
-          ...(calls.data || []).map(i => ({ ...i, type: 'call', title: i.topic, icon: Clock, color: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400' }))
+          ...(submissionsData || []).map((i: any) => ({ ...i, type: 'submission', title: i.paper_type, icon: FileText, color: 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400' })),
+          ...(ticketsData || []).map((i: any) => ({ ...i, type: 'ticket', title: i.subject, icon: Megaphone, color: 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' })),
+          ...(callsData || []).map((i: any) => ({ ...i, type: 'call', title: i.topic, icon: Clock, color: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400' }))
         ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
          .slice(0, 3);
          
@@ -82,13 +156,15 @@ const DashboardHome = () => {
       } catch (err) {
         console.error('Error fetching activity:', err);
       } finally {
-        setLoadingActivity(false);
+        if (!background) setLoadingActivity(false);
       }
     }, [user]);
 
   React.useEffect(() => {
     fetchActivity();
   }, [user, fetchActivity]);
+
+  useAutoRefresh(() => fetchActivity(true));
 
   // Realtime subscription for auto-updates
   React.useEffect(() => {
@@ -128,7 +204,6 @@ const DashboardHome = () => {
     submissionsUnderReview,
     plan: activePlan, 
     daysLeft, 
-    announcement, 
     guidanceCallsLeft, 
     totalGuidanceCalls, 
     callsCompletedThisMonth,
@@ -341,7 +416,7 @@ const DashboardHome = () => {
       <div className="bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
-          <RefreshButton onClick={fetchActivity} loading={loadingActivity} />
+          <RefreshButton onClick={() => fetchActivity()} loading={loadingActivity} />
         </div>
         <div className="space-y-4">
           {loadingActivity ? (
