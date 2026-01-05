@@ -89,7 +89,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                 ))}
                 <Link
                   to="/about"
-                  onClick={() => setActiveSection('about')}
+                  onClick={() => { setActiveSection('about'); window.scrollTo(0, 0); }}
                   className={`text-sm font-medium px-4 py-2 rounded-full transition-all whitespace-nowrap ${
                     activeSection === 'about'
                       ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 shadow-sm'
@@ -105,7 +105,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <div className="flex justify-end items-center gap-4">
               <ThemeToggle />
               <Link 
-                to="/signup"
+                to="/login"
                 className="hidden lg:block bg-indigo-600 hover:bg-indigo-700 text-white !text-white px-7 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-0.5 whitespace-nowrap"
               >
                 Get Started
@@ -160,12 +160,12 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <a href="/#reviews" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-base font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all">Reviews</a>
             <a href="/#features" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-base font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all">Features</a>
             <a href="/#pricing" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-base font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all">Pricing</a>
-            <Link to="/about" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-base font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all">About us</Link>
+            <Link to="/about" onClick={() => { setIsMobileMenuOpen(false); window.scrollTo(0, 0); }} className="block px-4 py-3 rounded-lg text-base font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all">About us</Link>
           </div>
 
           <div className="p-4 border-t border-gray-100 dark:border-gray-800 shrink-0">
             <Link 
-              to="/signup" 
+              to="/login" 
               onClick={() => setIsMobileMenuOpen(false)}
               className="block w-full text-center bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-3 rounded-xl text-base font-medium hover:bg-black dark:hover:bg-gray-100 transition-all shadow-lg"
             >
