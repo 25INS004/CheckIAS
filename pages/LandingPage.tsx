@@ -1,10 +1,102 @@
-import React from 'react';
-import { Check, X, CheckCircle, BarChart2, Zap, BookOpen, Users, Target } from 'lucide-react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Check, X, CheckCircle, BarChart2, Zap, BookOpen, Users, Target, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ReviewCarousel from '../components/ReviewCarousel';
 import SectionSeparator from '../components/SectionSeparator';
+import useEmblaCarousel from 'embla-carousel-react';
+
+const pricingPlans = [
+  {
+    id: 'free',
+    title: 'Free',
+    description: 'Try before you commit.',
+    price: '₹0',
+    period: '/ lifetime',
+    billingNote: 'No Credit Card Required',
+    buttonText: 'Get Started',
+    link: '/login',
+    features: [
+      { text: '2 Submissions (Lifetime)', included: true },
+      { text: 'Basic Feedback', included: true },
+      { text: 'Model Answers', included: false },
+      { text: 'Mentor Call', included: false }
+    ]
+  },
+  {
+    id: 'starter',
+    title: 'Starter',
+    description: 'Great for occasional evaluation.',
+    price: '₹999',
+    period: '/ month',
+    billingNote: 'Billed Monthly',
+    buttonText: 'Get Started',
+    link: '/login?plan=starter',
+    features: [
+      { text: 'Unlimited Submissions', included: true },
+      { text: 'Basic Feedback', included: true },
+      { text: '24h Turnaround', included: true },
+      { text: '2 calls per month', included: true }
+    ]
+  },
+  {
+    id: 'pro',
+    title: 'Pro',
+    description: 'For serious aspirants.',
+    price: '₹2,499',
+    period: '/ 3 months',
+    billingNote: 'Billed Quarterly',
+    buttonText: 'Get Started',
+    link: '/login?plan=pro',
+    isPopular: true,
+    features: [
+      { text: 'Unlimited Submissions', included: true },
+      { text: 'Detailed Feedback', included: true },
+      { text: 'Model Answers', included: true },
+      { text: '6 calls per 3 months', included: true }
+    ]
+  },
+  {
+    id: 'achiever',
+    title: 'Achiever',
+    description: 'For rank holders.',
+    price: '₹4,999',
+    period: '/ 6 months',
+    billingNote: 'Billed Biannually',
+    buttonText: 'Get Started',
+    link: '/login?plan=achiever',
+    features: [
+      { text: 'Unlimited Submissions', included: true },
+      { text: 'Personal Mentor', included: true },
+      { text: 'Daily Targets', included: true },
+      { text: 'Live Evaluation', included: true },
+      { text: '12 calls per 6 months', included: true }
+    ]
+  }
+];
 
 const LandingPage = () => {
+  // Embla carousel for mobile pricing
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+
+  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
+  const scrollTo = useCallback((index: number) => emblaApi && emblaApi.scrollTo(index), [emblaApi]);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    setScrollSnaps(emblaApi.scrollSnapList());
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+  }, [emblaApi, onSelect]);
+
   return (
     <div className="bg-white dark:bg-black transition-colors duration-200">
       {/* Hero Section */}
@@ -33,7 +125,7 @@ const LandingPage = () => {
 
           <div data-aos="fade-up" data-aos-delay="300" className="flex justify-center gap-4">
             <Link
-              to="/signup"
+              to="/login"
               className="bg-indigo-600 text-white px-10 py-4 rounded-full text-lg font-semibold hover:bg-indigo-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
               Get Started for Free
@@ -120,12 +212,78 @@ const LandingPage = () => {
       <section id="pricing" className="py-32 bg-white dark:bg-black relative transition-colors duration-200">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-50/30 dark:via-purple-900/10 to-transparent pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-           <div data-aos="fade-up" className="text-center mb-20">
+           <div data-aos="fade-up" className="text-center mb-12 md:mb-20">
             <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Transparent Pricing</h2>
             <p className="text-lg text-gray-500 dark:text-gray-400">Choose the perfect plan for your preparation needs.</p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+          {/* Mobile Carousel Navigation */}
+          <div className="flex md:hidden items-center justify-center gap-4 mb-6">
+            <button
+              onClick={scrollPrev}
+              className="p-3 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm"
+              aria-label="Previous plan"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <span className="text-sm text-gray-500 dark:text-gray-400">Swipe or use arrows</span>
+            <button
+              onClick={scrollNext}
+              className="p-3 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm"
+              aria-label="Next plan"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Mobile Carousel */}
+          <div className="md:hidden overflow-hidden" ref={emblaRef}>
+            <div className="flex -ml-4">
+              {pricingPlans.map((plan) => (
+                <div key={plan.id} className="flex-[0_0_85%] pl-4 min-w-0">
+                  <PricingCard 
+                    title={plan.title}
+                    description={plan.description}
+                    price={plan.price}
+                    period={plan.period}
+                    billingNote={plan.billingNote}
+                    buttonText={plan.buttonText}
+                    link={plan.link}
+                    features={plan.features}
+                    isPopular={plan.isPopular}
+                    customStyles={plan.isPopular 
+                      ? "bg-white dark:bg-gray-900 border-2 border-indigo-500 dark:border-indigo-400 shadow-2xl shadow-indigo-200 dark:shadow-indigo-900/20"
+                      : "bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 shadow-lg"
+                    }
+                    buttonStyles={plan.isPopular 
+                      ? "bg-indigo-600 text-white hover:bg-indigo-700 border-transparent"
+                      : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Mobile Pagination Dots */}
+          <div className="flex md:hidden justify-center gap-2 mt-6">
+            {scrollSnaps.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => scrollTo(index)}
+                className={`
+                  h-1.5 rounded-full transition-all duration-300 
+                  ${index === selectedIndex 
+                    ? 'w-8 bg-indigo-600 dark:bg-indigo-400' 
+                    : 'w-2 bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600'}
+                `}
+                aria-label={`Go to plan ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Desktop Grid */}
+          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
              {/* Free Plan */}
              <div data-aos="fade-up" data-aos-delay="100" className="h-full">
                <PricingCard 
@@ -153,7 +311,7 @@ const LandingPage = () => {
                 period="/ month"
                 billingNote="Billed Monthly"
                 buttonText="Get Started"
-                link="/signup?plan=starter"
+                link="/login?plan=starter"
                 features={[
                   { text: 'Unlimited Submissions', included: true },
                   { text: 'Basic Feedback', included: true },
@@ -172,7 +330,7 @@ const LandingPage = () => {
                 period="/ 3 months"
                 billingNote="Billed Quarterly"
                 buttonText="Get Started"
-                link="/signup?plan=pro"
+                link="/login?plan=pro"
                 isPopular
                 features={[
                   { text: 'Unlimited Submissions', included: true },
@@ -194,7 +352,7 @@ const LandingPage = () => {
                 period="/ 6 months"
                 billingNote="Billed Biannually"
                 buttonText="Get Started"
-                link="/signup?plan=achiever"
+                link="/login?plan=achiever"
                 features={[
                   { text: 'Unlimited Submissions', included: true },
                   { text: 'Personal Mentor', included: true },
@@ -268,7 +426,7 @@ const PricingCard = ({
        <p className="text-[10px] mt-2 text-gray-400">*{billingNote}</p>
     </div>
 
-    <Link to={link || '/signup'} className={`
+    <Link to={link || '/login'} className={`
       block w-full py-3 rounded-xl font-semibold text-sm transition-all mb-8 relative z-10 text-center
       ${buttonStyles}
     `}>
