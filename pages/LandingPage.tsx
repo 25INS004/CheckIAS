@@ -16,7 +16,7 @@ const pricingPlans = [
     buttonText: 'Get Started',
     link: '/login',
     features: [
-      { text: '2 Submissions (Lifetime)', included: true },
+      { text: '1 Trial Submission', included: true },
       { text: 'Basic Feedback', included: true },
       { text: 'Model Answers', included: false },
       { text: 'Mentor Call', included: false }
@@ -217,52 +217,54 @@ const LandingPage = () => {
             <p className="text-lg text-gray-500 dark:text-gray-400">Choose the perfect plan for your preparation needs.</p>
           </div>
           
-          {/* Mobile Carousel Navigation */}
-          <div className="flex md:hidden items-center justify-center gap-4 mb-6">
+          {/* Mobile Carousel with Side Arrows */}
+          <div className="md:hidden relative">
+            {/* Left Arrow */}
             <button
               onClick={scrollPrev}
-              className="p-3 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm"
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/90 dark:bg-gray-800/90 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-lg backdrop-blur-sm"
               aria-label="Previous plan"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <span className="text-sm text-gray-500 dark:text-gray-400">Swipe or use arrows</span>
+
+            {/* Carousel */}
+            <div className="overflow-hidden px-8" ref={emblaRef}>
+              <div className="flex -ml-4">
+                {pricingPlans.map((plan) => (
+                  <div key={plan.id} className="flex-[0_0_100%] pl-4 min-w-0">
+                    <PricingCard 
+                      title={plan.title}
+                      description={plan.description}
+                      price={plan.price}
+                      period={plan.period}
+                      billingNote={plan.billingNote}
+                      buttonText={plan.buttonText}
+                      link={plan.link}
+                      features={plan.features}
+                      isPopular={plan.isPopular}
+                      customStyles={plan.isPopular 
+                        ? "bg-white dark:bg-gray-900 border-2 border-indigo-500 dark:border-indigo-400 shadow-2xl shadow-indigo-200 dark:shadow-indigo-900/20"
+                        : "bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 shadow-lg"
+                      }
+                      buttonStyles={plan.isPopular 
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700 border-transparent"
+                        : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Arrow */}
             <button
               onClick={scrollNext}
-              className="p-3 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm"
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/90 dark:bg-gray-800/90 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-lg backdrop-blur-sm"
               aria-label="Next plan"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
-          </div>
-
-          {/* Mobile Carousel */}
-          <div className="md:hidden overflow-hidden" ref={emblaRef}>
-            <div className="flex -ml-4">
-              {pricingPlans.map((plan) => (
-                <div key={plan.id} className="flex-[0_0_85%] pl-4 min-w-0">
-                  <PricingCard 
-                    title={plan.title}
-                    description={plan.description}
-                    price={plan.price}
-                    period={plan.period}
-                    billingNote={plan.billingNote}
-                    buttonText={plan.buttonText}
-                    link={plan.link}
-                    features={plan.features}
-                    isPopular={plan.isPopular}
-                    customStyles={plan.isPopular 
-                      ? "bg-white dark:bg-gray-900 border-2 border-indigo-500 dark:border-indigo-400 shadow-2xl shadow-indigo-200 dark:shadow-indigo-900/20"
-                      : "bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 shadow-lg"
-                    }
-                    buttonStyles={plan.isPopular 
-                      ? "bg-indigo-600 text-white hover:bg-indigo-700 border-transparent"
-                      : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
-                    }
-                  />
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Mobile Pagination Dots */}

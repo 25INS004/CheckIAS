@@ -9,7 +9,8 @@ import {
   Shield,
   MessageSquare,
   Phone,
-  FileText
+  FileText,
+  Tag
 } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import Sidebar from '../components/Sidebar';
@@ -47,6 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Copy Submissions', icon: FileText, path: '/admin/submissions' },
     { name: 'Guidance Calls', icon: Phone, path: '/admin/guidance-calls' },
     { name: 'Support Tickets', icon: MessageSquare, path: '/admin/tickets' },
+    { name: 'Coupons', icon: Tag, path: '/admin/coupons' },
     { name: 'Settings', icon: Settings, path: '/admin/settings' },
   ];
 

@@ -18,6 +18,7 @@ import AdminTickets from './pages/admin/AdminTickets';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminGuidanceCalls from './pages/admin/AdminGuidanceCalls';
 import AdminSubmissions from './pages/admin/AdminSubmissions';
+import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminForgotPassword from './pages/admin/AdminForgotPassword';
 import { AppProvider } from './context/AppProvider';
@@ -95,6 +96,7 @@ const App: React.FC = () => {
                   <Route path="submissions" element={<AdminSubmissions />} />
                   <Route path="tickets" element={<AdminTickets />} />
                   <Route path="guidance-calls" element={<AdminGuidanceCalls />} />
+                  <Route path="coupons" element={<AdminCoupons />} />
                   <Route path="settings" element={<AdminSettings />} />
                 </Route>
               </Routes>

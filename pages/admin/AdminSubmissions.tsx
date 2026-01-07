@@ -5,6 +5,7 @@ import { Search, FileText, CheckCircle, Clock, ChevronDown, AlertCircle, Downloa
 import ConfirmationModal from '../../components/ConfirmationModal';
 import Toast from '../../components/Toast';
 import RefreshButton from '../../components/RefreshButton';
+import Pagination from '../../components/Pagination';
 import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 
 interface Submission {
@@ -41,6 +42,8 @@ const AdminSubmissions = () => {
   const [scoreAcquired, setScoreAcquired] = useState('');
   const [scoreTotal, setScoreTotal] = useState('15');
   const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   // Upload checked/evaluated copy to Supabase storage with score
   const handleUploadCheckedCopy = async (file: File, submissionId: string, marksAcquired: number, marksTotal: number) => {
@@ -546,14 +549,15 @@ const AdminSubmissions = () => {
                 <th className="px-6 py-4">Submission Details</th>
                 <th className="px-6 py-4">User</th>
                 <th className="px-6 py-4">Subject</th>
-                <th className="px-6 py-4">Paper Code</th>
                 <th className="px-6 py-4">Date</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-              {filteredSubmissions.map((sub) => (
+              {filteredSubmissions
+                .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                .map((sub) => (
                 <tr key={sub.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-start gap-3">
@@ -575,9 +579,6 @@ const AdminSubmissions = () => {
                   </td>
                   <td className="px-6 py-4">
                     <p className="text-gray-900 dark:text-white">{sub.subject}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-gray-900 dark:text-white font-mono text-sm">{sub.paper_code}</p>
                   </td>
                   <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
                     {new Date(sub.created_at).toLocaleDateString()}
@@ -648,6 +649,13 @@ const AdminSubmissions = () => {
               <p>No submissions found matching your criteria</p>
             </div>
           )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(filteredSubmissions.length / ITEMS_PER_PAGE)}
+            onPageChange={setCurrentPage}
+            totalItems={filteredSubmissions.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
         </div>
       </div>
 

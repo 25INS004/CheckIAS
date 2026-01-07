@@ -3,6 +3,7 @@ import { Search, Phone, Calendar, Clock, CheckCircle, XCircle, AlertCircle, Chev
 import ConfirmationModal from '../../components/ConfirmationModal';
 import Toast from '../../components/Toast';
 import RefreshButton from '../../components/RefreshButton';
+import Pagination from '../../components/Pagination';
 import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 
 interface GuidanceCall {
@@ -29,6 +30,8 @@ const AdminGuidanceCalls = () => {
   const [confirmAction, setConfirmAction] = useState<{ type: 'confirm' | 'cancel' | 'complete', id: string } | null>(null);
   const [processing, setProcessing] = useState(false);
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   // Fetch Calls
   const fetchCalls = async (background = false) => {
@@ -266,6 +269,7 @@ const AdminGuidanceCalls = () => {
             <thead className="bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 font-medium border-b border-gray-200 dark:border-gray-800">
               <tr>
                 <th className="px-6 py-4">Call Details</th>
+                <th className="px-6 py-4">Description</th>
                 <th className="px-6 py-4">User</th>
                 <th className="px-6 py-4">Scheduled For</th>
                 <th className="px-6 py-4">Status</th>
@@ -273,7 +277,9 @@ const AdminGuidanceCalls = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-              {filteredCalls.map((call) => (
+              {filteredCalls
+                .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                .map((call) => (
                 <tr key={call.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-start gap-3">
@@ -283,9 +289,11 @@ const AdminGuidanceCalls = () => {
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">{call.topic}</p>
                         <p className="text-xs text-gray-400 mt-0.5">#{call.id.slice(0,8)}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs truncate">{call.description}</p>
                       </div>
                     </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 max-w-xs">{call.description || '-'}</p>
                   </td>
                   <td className="px-6 py-4">
                     <p className="font-medium text-gray-900 dark:text-white">{call.user_name}</p>
@@ -328,13 +336,13 @@ const AdminGuidanceCalls = () => {
                             <>
                                 <button 
                                     onClick={() => setConfirmAction({ type: 'confirm', id: call.id })}
-                                    className="px-3 py-1.5 text-xs font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md shadow-green-200 dark:shadow-none transition-all"
+                                    className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-medium text-xs bg-green-50 dark:bg-green-900/40 hover:bg-green-100 dark:hover:bg-green-900/60 px-3 py-1.5 rounded-lg transition-colors border border-green-100 dark:border-green-800"
                                 >
                                     Confirm
                                 </button>
                                 <button 
                                     onClick={() => setConfirmAction({ type: 'cancel', id: call.id })}
-                                    className="px-3 py-1.5 text-xs font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md shadow-red-200 dark:shadow-none transition-all"
+                                    className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium text-xs bg-red-50 dark:bg-red-900/40 hover:bg-red-100 dark:hover:bg-red-900/60 px-3 py-1.5 rounded-lg transition-colors border border-red-100 dark:border-red-800"
                                 >
                                     Cancel
                                 </button>
@@ -343,7 +351,7 @@ const AdminGuidanceCalls = () => {
                         {call.status?.toLowerCase() === 'confirmed' && (
                             <button 
                                 onClick={() => setConfirmAction({ type: 'complete', id: call.id })}
-                                className="px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md shadow-blue-200 dark:shadow-none transition-all flex items-center gap-1"
+                                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium text-xs bg-blue-50 dark:bg-blue-900/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 px-3 py-1.5 rounded-lg transition-colors border border-blue-100 dark:border-blue-800"
                             >
                                 Completed
                             </button>
@@ -351,7 +359,7 @@ const AdminGuidanceCalls = () => {
                         {call.status?.toLowerCase() === 'confirmed' && (
                              <button 
                                 onClick={() => setConfirmAction({ type: 'cancel', id: call.id })}
-                                className="px-3 py-1.5 text-xs font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md shadow-red-200 dark:shadow-none transition-all"
+                                className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium text-xs bg-red-50 dark:bg-red-900/40 hover:bg-red-100 dark:hover:bg-red-900/60 px-3 py-1.5 rounded-lg transition-colors border border-red-100 dark:border-red-800"
                             >
                                 Cancel
                             </button>
@@ -368,6 +376,13 @@ const AdminGuidanceCalls = () => {
               <p>No calls found matching your criteria</p>
             </div>
           )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(filteredCalls.length / ITEMS_PER_PAGE)}
+            onPageChange={setCurrentPage}
+            totalItems={filteredCalls.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
         </div>
       </div>
 

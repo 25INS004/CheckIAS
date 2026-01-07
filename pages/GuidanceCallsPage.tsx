@@ -6,8 +6,10 @@ import DatePicker from '../components/DatePicker';
 import { useToast } from '../context/ToastContext';
 import { usePayment } from '../hooks/usePayment';
 import RefreshButton from '../components/RefreshButton';
+import Pagination from '../components/Pagination';
 import NotesModal from '../components/NotesModal';
 import CallDetailsModal from '../components/CallDetailsModal';
+import { useAutoRefresh } from '../hooks/useAutoRefresh';
 
 const GuidanceCallsPage = () => {
   const { user, refreshUser } = useUser();
@@ -19,7 +21,7 @@ const GuidanceCallsPage = () => {
     return (
       <div className="max-w-4xl mx-auto space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Guidance Calls</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Mentor calls</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">Schedule 1-on-1 mentorship sessions with expert mentors.</p>
         </div>
 
@@ -29,7 +31,7 @@ const GuidanceCallsPage = () => {
               <Lock className="w-8 h-8 text-white" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Premium Feature Locked</h3>
-            <p className="text-gray-600 dark:text-gray-300 font-medium">Upgrade to Pro to book 1-on-1 guidance calls</p>
+            <p className="text-gray-600 dark:text-gray-300 font-medium">Upgrade to Pro to book 1-on-1 Mentor calls</p>
           </a>
           <div className="blur-sm opacity-50 pointer-events-none select-none">
             <div className="space-y-4">
@@ -59,6 +61,11 @@ const GuidanceCallsPage = () => {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [activeNoteCallId, setActiveNoteCallId] = useState<string | null>(null);
   const [selectedCallId, setSelectedCallId] = useState<string | null>(null);
+  const [callsPage, setCallsPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  // Auto-refresh calls every 3 seconds
+  useAutoRefresh(() => fetchCalls(true));
 
   const timeSlots = [
     "09:00 AM - 10:00 AM",
@@ -97,7 +104,7 @@ const GuidanceCallsPage = () => {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Guidance Calls</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Mentor Calls</h1>
         <p className="text-gray-500 dark:text-gray-400 mt-1">Schedule 1-on-1 mentorship sessions with expert mentors.</p>
       </div>
 
@@ -121,9 +128,13 @@ const GuidanceCallsPage = () => {
           <div className="grid gap-4">
             {callsLoading ? (
                <div className="text-center py-10 text-gray-500">Loading calls...</div>
-            ) : myCalls.length === 0 ? (
-               <div className="text-center py-10 text-gray-500 border border-dashed border-gray-200 dark:border-gray-800 rounded-xl">No guidance calls scheduled yet.</div>
-            ) : myCalls.map((call) => (
+             ) : myCalls.length === 0 ? (
+               <div className="text-center py-10 text-gray-500 border border-dashed border-gray-200 dark:border-gray-800 rounded-xl">No Mentor calls scheduled yet.</div>
+             ) : (
+               <>
+               {myCalls
+                 .slice((callsPage - 1) * ITEMS_PER_PAGE, callsPage * ITEMS_PER_PAGE)
+                 .map((call) => (
               <div key={call.id} className="bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
                   <div className={`p-3 rounded-xl ${
@@ -177,6 +188,15 @@ const GuidanceCallsPage = () => {
                 </div>
               </div>
             ))}
+            <Pagination
+              currentPage={callsPage}
+              totalPages={Math.ceil(myCalls.length / ITEMS_PER_PAGE)}
+              onPageChange={setCallsPage}
+              totalItems={myCalls.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+            />
+            </>
+            )}
           </div>
         </div>
       ) : callStatus === 'requested' ? (
@@ -186,7 +206,7 @@ const GuidanceCallsPage = () => {
           </div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Request Submitted</h3>
           <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8">
-            We have received your request for a guidance call. Our team will review your preferred slot and confirm the time shortly via email.
+            We have received your request for a Mentor call. Our team will review your preferred slot and confirm the time shortly via email.
           </p>
           <button 
             onClick={() => {
@@ -202,7 +222,7 @@ const GuidanceCallsPage = () => {
         <div className="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden animate-fade-in">
           <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Schedule a Guidance Call</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Schedule a Mentor Call</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Book a 1-hour session with an expert mentor.</p>
             </div>
             <button 

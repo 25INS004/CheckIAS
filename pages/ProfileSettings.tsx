@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { User, Phone, Lock, Save, Camera, ChevronDown, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, Phone, Lock, Save, Camera, ChevronDown, CheckCircle, AlertCircle, Megaphone } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import DatePicker from '../components/DatePicker';
 import SupportPage from './SupportPage';
 import { useUser } from '../context/UserContext';
 import { useProfile } from '../hooks/useProfile';
+import Pagination from '../components/Pagination';
 
 const ProfileSettings = () => {
   const { tab } = useParams<{ tab?: string }>();
@@ -242,6 +243,19 @@ const ProfileSettings = () => {
         >
           Support
           {activeTab === 'support' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-t-full" />
+          )}
+        </button>
+        <button
+          onClick={() => navigate('/dashboard/settings/updates')}
+          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${
+            activeTab === 'updates' 
+              ? 'text-indigo-600 dark:text-indigo-400' 
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+          }`}
+        >
+          Updates
+          {activeTab === 'updates' && (
             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-t-full" />
           )}
         </button>
@@ -491,6 +505,124 @@ const ProfileSettings = () => {
       {activeTab === 'support' && (
         <SupportPage hideHeader />
       )}
+
+      {activeTab === 'updates' && (
+        <UpdatesSection />
+      )}
+    </div>
+  );
+};
+
+// Updates Section Component
+const UpdatesSection = () => {
+  const [announcements, setAnnouncements] = React.useState<{id: string; message: string; created_at: string}[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [updatesPage, setUpdatesPage] = React.useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  // Helper to get token
+  const getAccessToken = () => {
+    try {
+      let sessionData = localStorage.getItem('supabase.auth.token');
+      if (!sessionData) {
+        sessionData = sessionStorage.getItem('supabase.auth.token');
+      }
+      if (!sessionData) return null;
+      const { currentSession } = JSON.parse(sessionData);
+      return currentSession?.access_token || null;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  React.useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const token = getAccessToken();
+        const headers: Record<string, string> = {
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        };
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/announcements?select=*&order=created_at.desc`,
+          { headers }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Fetched announcements:', data); // Debug log
+          setAnnouncements(data || []);
+        } else {
+          console.error('Failed to fetch announcements:', response.status);
+        }
+      } catch (err) {
+        console.error('Error fetching announcements:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnnouncements();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-12 text-center">
+        <div className="animate-pulse">
+          <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-900 mx-auto mb-4"></div>
+          <div className="h-4 w-32 bg-gray-200 dark:bg-gray-800 rounded mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden animate-fade-in">
+      <div className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Previous Updates</h3>
+        {announcements.length <= 1 ? (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center mx-auto mb-4">
+              <Megaphone className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No previous updates</h3>
+            <p className="text-gray-500 dark:text-gray-400">Past announcements will appear here.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {announcements
+              .slice(1)
+              .slice((updatesPage - 1) * ITEMS_PER_PAGE, updatesPage * ITEMS_PER_PAGE)
+              .map((ann) => (
+              <div key={ann.id} className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
+                    <Megaphone className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-gray-900 dark:text-white font-medium">{ann.message}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      {new Date(ann.created_at).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+            <Pagination
+              currentPage={updatesPage}
+              totalPages={Math.ceil((announcements.length - 1) / ITEMS_PER_PAGE)}
+              onPageChange={setUpdatesPage}
+              totalItems={Math.max(0, announcements.length - 1)}
+              itemsPerPage={ITEMS_PER_PAGE}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

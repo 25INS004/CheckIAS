@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { LifeBuoy, MessageSquare, Plus, Minus, Send, HelpCircle, Calendar, Flag, ChevronDown, Lock, Megaphone } from 'lucide-react';
+import { LifeBuoy, MessageSquare, Plus, Minus, Send, HelpCircle, Calendar, Flag, ChevronDown, Lock, Megaphone, X } from 'lucide-react';
 import DatePicker from '../components/DatePicker';
 import { useUser } from '../context/UserContext';
 import RefreshButton from '../components/RefreshButton';
+import Pagination from '../components/Pagination';
 import { useAutoRefresh } from '../hooks/useAutoRefresh';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../lib/supabase';
@@ -32,6 +33,9 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
   // Ticket State
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewTicketResponse, setViewTicketResponse] = useState<any | null>(null);
+  const [ticketsPage, setTicketsPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
   
   // Fetch tickets on mount
   React.useEffect(() => {
@@ -248,65 +252,65 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
               </div>
 
               {tickets.length > 0 ? (
-                <div className="grid gap-4">
-                  {tickets.map((ticket) => (
-                    <div key={ticket.id} className="bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex items-start gap-4">
-                          <div className={`p-3 rounded-xl ${
-                             ticket.status === 'Resolved' 
-                               ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' 
-                               : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
-                          }`}>
-                            <MessageSquare className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                              {ticket.subject}
-                              <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
-                                {ticket.category}
-                              </span>
-                              <span className={`text-xs font-normal px-2 py-0.5 rounded-full ${
-                                ticket.priority === 'High' ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' :
-                                ticket.priority === 'Medium' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400' :
-                                'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+                <div className="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+                  <div className="overflow-x-auto custom-scrollbar">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+                        <tr>
+                          <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ticket ID</th>
+                          <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Subject</th>
+                          <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
+                          <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                          <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                          <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Response</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                        {tickets
+                          .slice((ticketsPage - 1) * ITEMS_PER_PAGE, ticketsPage * ITEMS_PER_PAGE)
+                          .map((ticket) => (
+                          <tr key={ticket.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                            <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white uppercase">{ticket.ticket_number}</td>
+                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{ticket.subject}</td>
+                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{ticket.category}</td>
+                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{new Date(ticket.created_at).toLocaleDateString()}</td>
+                            <td className="px-6 py-4">
+                              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+                                ticket.status === 'Resolved' || ticket.status === 'Closed'
+                                  ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300'
+                                  : ticket.status === 'Open' || ticket.status === 'Pending'
+                                  ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300'
+                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300'
                               }`}>
-                                {ticket.priority} Priority
+                                {ticket.status}
                               </span>
-                            </h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{ticket.description}</p>
-                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                              ID: {ticket.ticket_number} • Raised on {new Date(ticket.created_at).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                        <span className={`self-start sm:self-center px-3 py-1 rounded-full text-xs font-medium border ${
-                          ticket.status === 'Resolved'
-                            ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800'
-                            : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800'
-                        }`}>
-                          {ticket.status}
-                        </span>
-                      </div>
-                      
-                      {/* Admin Response Section */}
-                      {ticket.admin_response && (
-                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                          <div className="flex items-start gap-3">
-                            <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-600 dark:text-green-400 mt-0.5">
-                              <MessageSquare className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-semibold text-gray-900 dark:text-white">Admin Response</p>
-                              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">
-                                {ticket.admin_response}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                            </td>
+                            <td className="px-6 py-4">
+                              {ticket.admin_response ? (
+                                <button
+                                  onClick={() => setViewTicketResponse(ticket)}
+                                  className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium text-xs bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-800"
+                                >
+                                  View Response
+                                </button>
+                              ) : (
+                                <span className="text-gray-500 dark:text-gray-400 font-medium text-xs bg-gray-50 dark:bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700">
+                                  Awaiting
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <Pagination
+                    currentPage={ticketsPage}
+                    totalPages={Math.ceil(tickets.length / ITEMS_PER_PAGE)}
+                    onPageChange={setTicketsPage}
+                    totalItems={tickets.length}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                  />
                 </div>
               ) : (
                 <div className="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-12 text-center">
@@ -373,17 +377,7 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
                       </div>
                    </div>
                    
-                   <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Priority (Auto-assigned)</label>
-                      <div className={`w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white flex items-center gap-2 cursor-not-allowed`}>
-                        <span className={`w-2 h-2 rounded-full ${
-                          newTicket.priority === 'High' ? 'bg-red-500' :
-                          newTicket.priority === 'Medium' ? 'bg-yellow-500' :
-                          'bg-green-500'
-                        }`} />
-                        <span className="font-medium">{newTicket.priority}</span>
-                      </div>
-                   </div>
+                   {/* Priority is auto-assigned but hidden from user */}
                  </div>
 
                  <div>
@@ -473,6 +467,33 @@ const SupportPage = ({ hideHeader = false }: { hideHeader?: boolean }) => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Response Modal */}
+      {viewTicketResponse && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setViewTicketResponse(null)}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Admin Response</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Ticket: {viewTicketResponse.ticket_number}</p>
+              </div>
+              <button onClick={() => setViewTicketResponse(null)} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="prose dark:prose-invert max-w-none">
+                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{viewTicketResponse.admin_response}</p>
+              </div>
+            </div>
+            <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex justify-end">
+              <button onClick={() => setViewTicketResponse(null)} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                Close
+              </button>
             </div>
           </div>
         </div>

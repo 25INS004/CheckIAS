@@ -226,7 +226,7 @@ const DashboardHome = () => {
 
       {/* Stats Cards */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Submissions Card */}
+        {/* 1. Submissions Card */}
         <div className="bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all group hover:border-black dark:hover:border-indigo-500">
           <div className="flex items-center justify-between ">
             <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -254,15 +254,15 @@ const DashboardHome = () => {
                 <span className="text-sm text-gray-400">Unlimited</span>
               </div>
               <div className="flex flex-wrap gap-2">
-                <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-yellow-500/50 bg-yellow-900/20 text-yellow-400">
+                <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-yellow-300 dark:border-yellow-500/50 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400">
                   <span>Pending</span>
                   <span>{submissionsPending}</span>
                 </span>
-                <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-green-500/50 bg-green-900/20 text-green-400">
+                <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-green-300 dark:border-green-500/50 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400">
                   <span>Completed</span>
                   <span>{submissionsCompleted}</span>
                 </span>
-                <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-500/50 bg-blue-900/20 text-blue-400">
+                <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-300 dark:border-blue-500/50 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400">
                   <span>Reviewing</span>
                   <span>{submissionsUnderReview}</span>
                 </span>
@@ -271,7 +271,53 @@ const DashboardHome = () => {
           )}
         </div>
 
-        {/* Active Plan */}
+        {/* 2. Guidance Calls */}
+        <div className="relative group overflow-hidden bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all hover:border-black dark:hover:border-indigo-500">
+          {activePlan.toLowerCase() === 'free' && (
+            <a href="/pricing" className="absolute inset-0 z-20 bg-white/60 dark:bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer transition-opacity opacity-0 group-hover:opacity-100">
+              <div className="p-3 bg-indigo-600 rounded-full shadow-lg mb-2 transform scale-90 group-hover:scale-100 transition-transform">
+                <Lock className="w-6 h-6 text-white" />
+              </div>
+              <span className="font-semibold text-gray-900 dark:text-white">Upgrade to Unlock</span>
+            </a>
+          )}
+           
+          {activePlan.toLowerCase() === 'free' && (
+             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
+                 <Lock className="w-8 h-8 text-gray-400 dark:text-gray-600 mb-2" />
+                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Locked Feature</span>
+             </div>
+          )}
+
+          <div className={activePlan.toLowerCase() === 'free' ? 'blur-sm opacity-50' : ''}>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Guidance Calls</span>
+              <div className="p-2 bg-purple-50 dark:bg-gray-900 rounded-lg group-hover:bg-purple-100 dark:group-hover:bg-gray-800 transition-colors">
+                <Phone className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              </div>
+            </div>
+            <div className="flex items-baseline gap-2 mb-3">
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">∞</p>
+              <span className="text-sm text-gray-400">Unlimited</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-yellow-300 dark:border-yellow-500/50 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400">
+                <span>Pending</span>
+                <span>{callsPending}</span>
+              </span>
+              <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-green-300 dark:border-green-500/50 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400">
+                <span>Completed</span>
+                <span>{callsCompletedThisMonth}</span>
+              </span>
+              <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400">
+                <span>Cancelled</span>
+                <span>{callsCancelled}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Active Plan */}
         <div className="bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all group hover:border-black dark:hover:border-indigo-500">
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Current Plan</span>
@@ -297,7 +343,7 @@ const DashboardHome = () => {
           </Link>
         </div>
 
-        {/* Days Left - Billing Cycle */}
+        {/* 4. Days Left - Billing Cycle */}
         <div className="relative group overflow-hidden bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all hover:border-black dark:hover:border-indigo-500">
           {activePlan.toLowerCase() === 'free' && (
             <a href="/pricing" className="absolute inset-0 z-20 bg-white/60 dark:bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer transition-opacity opacity-0 group-hover:opacity-100">
@@ -330,52 +376,6 @@ const DashboardHome = () => {
             </div>
             <div className="w-full bg-gray-100 dark:bg-gray-900 rounded-full h-1.5 mt-3 overflow-hidden">
               <div className="bg-orange-500 h-full rounded-full" style={{ width: `${(daysLeft / 30) * 100}%` }}></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Guidance Calls */}
-        <div className="relative group overflow-hidden bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all hover:border-black dark:hover:border-indigo-500">
-          {activePlan.toLowerCase() === 'free' && (
-            <a href="/pricing" className="absolute inset-0 z-20 bg-white/60 dark:bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer transition-opacity opacity-0 group-hover:opacity-100">
-              <div className="p-3 bg-indigo-600 rounded-full shadow-lg mb-2 transform scale-90 group-hover:scale-100 transition-transform">
-                <Lock className="w-6 h-6 text-white" />
-              </div>
-              <span className="font-semibold text-gray-900 dark:text-white">Upgrade to Unlock</span>
-            </a>
-          )}
-           
-          {activePlan.toLowerCase() === 'free' && (
-             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
-                 <Lock className="w-8 h-8 text-gray-400 dark:text-gray-600 mb-2" />
-                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Locked Feature</span>
-             </div>
-          )}
-
-          <div className={activePlan.toLowerCase() === 'free' ? 'blur-sm opacity-50' : ''}>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Guidance Calls</span>
-              <div className="p-2 bg-purple-50 dark:bg-gray-900 rounded-lg group-hover:bg-purple-100 dark:group-hover:bg-gray-800 transition-colors">
-                <Phone className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              </div>
-            </div>
-            <div className="flex items-baseline gap-2 mb-3">
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">∞</p>
-              <span className="text-sm text-gray-400">Unlimited</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-yellow-500/50 bg-yellow-900/20 text-yellow-400">
-                <span>Pending</span>
-                <span>{callsPending}</span>
-              </span>
-              <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-green-500/50 bg-green-900/20 text-green-400">
-                <span>Completed</span>
-                <span>{callsCompletedThisMonth}</span>
-              </span>
-              <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-red-500/50 bg-red-900/20 text-red-400">
-                <span>Cancelled</span>
-                <span>{callsCancelled}</span>
-              </span>
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@ import { Search, Plus, Minus, X, Calendar, Filter, Download, History, ChevronDow
 import DatePicker from '../../components/DatePicker';
 import Toast from '../../components/Toast';
 import RefreshButton from '../../components/RefreshButton';
+import Pagination from '../../components/Pagination';
 import { useAutoRefresh } from '../../hooks/useAutoRefresh';
 
 interface User {
@@ -31,6 +32,12 @@ const UserManagement = () => {
   // Dropdown visibility states
   const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [isPlanOpen, setIsPlanOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  // Action dropdown and confirmation states
+  const [openActionDropdown, setOpenActionDropdown] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ userId: string; userName: string; action: string; plan: string } | null>(null);
 
   const fetchUsers = async (background = false) => {
     if (!background) setLoading(true);
@@ -260,7 +267,9 @@ const UserManagement = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                {filteredUsers.map((user) => (
+                {filteredUsers
+                  .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                  .map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                     <td className="px-6 py-4">
                       <p className="font-medium text-gray-900 dark:text-white">{user.full_name}</p>
@@ -292,25 +301,51 @@ const UserManagement = () => {
                        </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        {user.plan !== 'Free' ? (
-                          <button
-                            onClick={() => {
-                                if(confirm('Revoke plan for ' + user.full_name + '?')) handleUpdatePlan(user.id, 'Free');
-                            }}
-                            className="px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors border border-red-200 dark:border-red-900/30"
-                          >
-                            Revoke Plan
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => {
-                                if(confirm('Activate PLAN? (Default: Pro)')) handleUpdatePlan(user.id, 'Pro');
-                            }}
-                            className="px-3 py-1.5 text-xs font-medium text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors border border-green-200 dark:border-green-900/30"
-                          >
-                            Gift Pro
-                          </button>
+                      <div className="relative">
+                        <button
+                          onClick={() => setOpenActionDropdown(openActionDropdown === user.id ? null : user.id)}
+                          onBlur={() => setTimeout(() => setOpenActionDropdown(null), 200)}
+                          className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        >
+                          Actions
+                          <ChevronDown className={`w-3 h-3 transition-transform ${openActionDropdown === user.id ? 'rotate-180' : ''}`} />
+                        </button>
+                        
+                        {openActionDropdown === user.id && (
+                          <div className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20 overflow-hidden">
+                            {user.plan !== 'Free' && (
+                              <button
+                                onClick={() => setConfirmAction({ userId: user.id, userName: user.full_name, action: 'Revoke', plan: 'Free' })}
+                                className="w-full text-left px-4 py-2 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                              >
+                                Revoke Plan
+                              </button>
+                            )}
+                            {user.plan !== 'Pro' && (
+                              <button
+                                onClick={() => setConfirmAction({ userId: user.id, userName: user.full_name, action: 'Gift', plan: 'Pro' })}
+                                className="w-full text-left px-4 py-2 text-xs text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+                              >
+                                Gift Pro
+                              </button>
+                            )}
+                            {user.plan !== 'Achiever' && (
+                              <button
+                                onClick={() => setConfirmAction({ userId: user.id, userName: user.full_name, action: 'Gift', plan: 'Achiever' })}
+                                className="w-full text-left px-4 py-2 text-xs text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
+                              >
+                                Gift Achiever
+                              </button>
+                            )}
+                            {user.plan !== 'Starter' && (
+                              <button
+                                onClick={() => setConfirmAction({ userId: user.id, userName: user.full_name, action: 'Gift', plan: 'Starter' })}
+                                className="w-full text-left px-4 py-2 text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                              >
+                                Gift Starter
+                              </button>
+                            )}
+                          </div>
                         )}
                       </div>
                     </td>
@@ -324,8 +359,56 @@ const UserManagement = () => {
                <p>No users found</p>
              </div>
           )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(filteredUsers.length / ITEMS_PER_PAGE)}
+            onPageChange={setCurrentPage}
+            totalItems={filteredUsers.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+          />
         </div>
       </div>
+      {/* Confirmation Modal */}
+      {confirmAction && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setConfirmAction(null)}>
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {confirmAction.action === 'Revoke' ? 'Revoke Plan' : `Gift ${confirmAction.plan} Plan`}
+              </h3>
+            </div>
+            <div className="px-6 py-4">
+              <p className="text-gray-600 dark:text-gray-400">
+                {confirmAction.action === 'Revoke' 
+                  ? `Are you sure you want to revoke the plan for "${confirmAction.userName}"? This will remove their subscription access.`
+                  : `Are you sure you want to gift ${confirmAction.plan} plan to "${confirmAction.userName}"?`
+                }
+              </p>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmAction(null)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  handleUpdatePlan(confirmAction.userId, confirmAction.plan);
+                  setConfirmAction(null);
+                }}
+                className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
+                  confirmAction.action === 'Revoke' 
+                    ? 'bg-red-600 hover:bg-red-700' 
+                    : 'bg-indigo-600 hover:bg-indigo-700'
+                }`}
+              >
+                {confirmAction.action === 'Revoke' ? 'Revoke Plan' : `Gift ${confirmAction.plan}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

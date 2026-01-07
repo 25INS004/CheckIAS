@@ -38,7 +38,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { name: 'New Submission', icon: Upload, path: '/dashboard/submit' },
-    { name: 'History', icon: Clock, path: '/dashboard/history' },
+    { name: 'My Submissions', icon: Clock, path: '/dashboard/history' },
     { name: 'Guidance Calls', icon: Phone, path: '/dashboard/guidance-calls' },
     { name: 'Subscription Plans', icon: CreditCard, path: '/dashboard/plans' },
     { name: 'Settings', icon: Settings, path: '/dashboard/settings' },

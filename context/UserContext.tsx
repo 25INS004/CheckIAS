@@ -42,7 +42,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 // Plan-specific limits
 const planLimits = {
-  free: { submissions: 2, guidanceCalls: 0, days: 0 },
+  free: { submissions: 1, guidanceCalls: 0, days: 0 },
   starter: { submissions: 999, guidanceCalls: 999, days: 30 },   // 1 month
   pro: { submissions: 999, guidanceCalls: 999, days: 90 },       // 3 months
   achiever: { submissions: 999, guidanceCalls: 999, days: 180 }, // 6 months
@@ -227,7 +227,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const limits = planLimits[plan];
       
       const submissionsLeft = plan === 'free' 
-        ? Math.max(0, 2 - submissionCount) 
+        ? Math.max(0, 1 - submissionCount) 
         : 999;
 
       const guidanceCallsLeft = Math.max(0, limits.guidanceCalls - guidanceCallsCount);
@@ -252,7 +252,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         plan,
         role: (profile?.role || 'user') as 'user' | 'admin',
         submissionsLeft,
-        totalSubmissions: plan === 'free' ? 2 : 999,
+        totalSubmissions: plan === 'free' ? 1 : 999,
         submissionsCompleted,
         submissionsPending,
         submissionsUnderReview,

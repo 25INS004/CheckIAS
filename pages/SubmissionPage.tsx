@@ -137,7 +137,7 @@ const SubmissionPage = () => {
     setIsSubmitting(false);
   };
 
-  const isFormValid = (subject === 'Other' ? customSubject : subject) && year && paperCode && file;
+  const isFormValid = (subject === 'Other' ? customSubject : subject) && file;
 
   if (isSubmitted) {
     return (
@@ -179,7 +179,7 @@ const SubmissionPage = () => {
               You've reached your plan's submission limit. Upgrade to Premium for <strong>unlimited submissions</strong> and priority evaluation.
             </p>
             <Link 
-              to="/pricing" 
+              to="/dashboard/plans" 
               className="inline-flex items-center gap-2 mt-4 bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
             >
               Upgrade to Premium
@@ -246,57 +246,6 @@ const SubmissionPage = () => {
                 />
               </div>
             )}
-
-            {/* Year Dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Year</label>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsYearOpen(!isYearOpen)}
-                  onBlur={() => setTimeout(() => setIsYearOpen(false), 200)}
-                  className="w-full px-4 py-3 text-left rounded-lg border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all flex items-center justify-between"
-                >
-                  <span className={!year ? 'text-gray-500 dark:text-gray-400' : ''}>{year || 'Select Year'}</span>
-                  <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${isYearOpen ? 'rotate-180' : ''}`} />
-                </button>
-                
-                 <div className={`absolute left-0 w-full mt-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg z-20 overflow-hidden max-h-60 overflow-y-auto custom-scrollbar transition-all duration-200 origin-top ${isYearOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-                   {years.map((yr) => (
-                    <button
-                      key={yr}
-                      type="button"
-                      onClick={() => {
-                        setYear(yr);
-                        setIsYearOpen(false);
-                      }}
-                       className={`w-full text-left px-4 py-3 text-sm transition-colors ${
-                        year === yr 
-                          ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium' 
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                      }`}
-                    >
-                      {yr}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Paper Code */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Paper Code</label>
-              <input
-                type="text"
-                value={paperCode}
-                onChange={(e) => setPaperCode(e.target.value.slice(0, 10))}
-                required
-                maxLength={10}
-                placeholder="e.g., GS1-2024-01"
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-              />
-              <p className="text-xs text-gray-400 mt-1">Max 10 characters</p>
-            </div>
           </div>
         </div>
 
