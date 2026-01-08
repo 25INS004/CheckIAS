@@ -5,9 +5,10 @@ interface TimePickerProps {
   value: string; // HH:mm (24h)
   onChange: (time: string) => void;
   className?: string;
+  align?: 'left' | 'right';
 }
 
-const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, className = '' }) => {
+const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, className = '', align = 'left' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -78,7 +79,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, className = ''
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 z-50 p-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl flex gap-1 h-64 w-[240px] animate-in fade-in zoom-in-95 duration-100">
+        <div className={`absolute top-full ${align === 'right' ? 'right-0' : 'left-0'} mt-2 z-50 p-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl flex gap-1 h-64 w-[240px] animate-in fade-in zoom-in-95 duration-100`}>
           
           {/* Hours Column */}
           <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800">

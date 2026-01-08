@@ -227,9 +227,34 @@ const AdminCoupons = () => {
     setShowModal(true);
   };
 
-  const copyCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    setToast({ message: 'Code copied!', type: 'success' });
+  const copyCode = async (code: string) => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(code);
+        setToast({ message: 'Code copied!', type: 'success' });
+      } else {
+        // Fallback for older browsers or non-secure contexts
+        const textArea = document.createElement("textarea");
+        textArea.value = code;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        textArea.style.top = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          setToast({ message: 'Code copied!', type: 'success' });
+        } catch (err) {
+          console.error('Fallback: Oops, unable to copy', err);
+          setToast({ message: 'Failed to copy code', type: 'error' });
+        }
+        document.body.removeChild(textArea);
+      }
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      setToast({ message: 'Failed to copy code', type: 'error' });
+    }
   };
 
   const filteredCoupons = coupons.filter(coupon =>
@@ -577,6 +602,7 @@ const AdminCoupons = () => {
                       value={formData.valid_from_time}
                       onChange={(time) => setFormData({ ...formData, valid_from_time: time })}
                       className="w-36"
+                      align="right"
                     />
                   </div>
                 </div>
@@ -596,6 +622,7 @@ const AdminCoupons = () => {
                       value={formData.valid_until_time}
                       onChange={(time) => setFormData({ ...formData, valid_until_time: time })}
                       className="w-36"
+                      align="right"
                     />
                   </div>
                 </div>
