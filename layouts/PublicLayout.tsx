@@ -54,7 +54,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <div className="flex justify-start items-center">
               <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                 <img 
-                  src="/images/logo.png"
+                  src={theme === 'dark' ? '/images/logo-dark.png' : '/images/logo-light.png'}
                   alt="CheckIAS Logo"
                   className="h-14 w-auto rounded-xl"
                 />

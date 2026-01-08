@@ -518,12 +518,12 @@ const AnalyticsTab = ({ submissions, loading }: { submissions: any[], loading: b
   }, [scoredSubmissions]);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500 dark:text-gray-400">Time:</span>
-          <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">Time:</span>
+          <div className="flex flex-wrap gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
             {[
               { key: 'all', label: 'All Time' },
               { key: '30d', label: '30 Days' },
@@ -532,7 +532,7 @@ const AnalyticsTab = ({ submissions, loading }: { submissions: any[], loading: b
               <button
                 key={opt.key}
                 onClick={() => setTimeFilter(opt.key as any)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all whitespace-nowrap ${
                   timeFilter === opt.key
                     ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -612,18 +612,20 @@ const AnalyticsTab = ({ submissions, loading }: { submissions: any[], loading: b
           </div>
 
           {chartPoints.length > 0 ? (
-            <div className="relative h-64">
-              {/* Y-axis */}
-              <div className="absolute left-0 top-0 bottom-8 w-8 flex flex-col justify-between text-xs text-gray-400">
-                <span>100%</span>
-                <span>75%</span>
-                <span>50%</span>
-                <span>25%</span>
-                <span>0%</span>
-              </div>
+            <div className="w-full">
+              <div className="w-full">
+                <div className="relative h-64">
+                  {/* Y-axis */}
+                  <div className="absolute left-0 top-0 bottom-8 w-8 flex flex-col justify-between text-xs text-gray-400">
+                    <span>100%</span>
+                    <span>75%</span>
+                    <span>50%</span>
+                    <span>25%</span>
+                    <span>0%</span>
+                  </div>
               
-              {/* Chart */}
-              <div className="absolute left-10 right-0 top-0 bottom-0">
+                  {/* Chart */}
+                  <div className="absolute left-10 right-0 top-0 bottom-0">
                 {/* Grid */}
                 <div className="absolute inset-0 bottom-8">
                   {[0, 25, 50, 75, 100].map(pct => (
@@ -710,6 +712,8 @@ const AnalyticsTab = ({ submissions, loading }: { submissions: any[], loading: b
                 </div>
               </div>
             </div>
+            </div>
+            </div>
           ) : (
             <div className="h-64 flex items-center justify-center text-gray-400">
               <div className="text-center">
@@ -724,7 +728,7 @@ const AnalyticsTab = ({ submissions, loading }: { submissions: any[], loading: b
         <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Subject Distribution</h3>
           
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col sm:flex-row items-center gap-6">
             {/* Interactive Donut Chart */}
             <div className="relative w-36 h-36 flex-shrink-0">
               <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90" style={{ overflow: 'visible' }}>
@@ -830,10 +834,10 @@ const AnalyticsTab = ({ submissions, loading }: { submissions: any[], loading: b
             <div className="space-y-3">
               {(() => {
                 const ranges = [
-                  { label: '90-100%', min: 90, max: 100, color: 'from-green-500 to-emerald-500' },
-                  { label: '70-89%', min: 70, max: 89, color: 'from-blue-500 to-indigo-500' },
-                  { label: '50-69%', min: 50, max: 69, color: 'from-yellow-500 to-orange-500' },
-                  { label: '0-49%', min: 0, max: 49, color: 'from-red-500 to-pink-500' }
+                  { label: '90-100%', min: 90, max: 100, color: 'bg-green-500', textColor: 'text-green-600 dark:text-green-400' },
+                  { label: '70-89%', min: 70, max: 89, color: 'bg-blue-500', textColor: 'text-blue-600 dark:text-indigo-400' },
+                  { label: '50-69%', min: 50, max: 69, color: 'bg-yellow-500', textColor: 'text-yellow-600 dark:text-yellow-400' },
+                  { label: '0-49%', min: 0, max: 49, color: 'bg-red-500', textColor: 'text-red-600 dark:text-red-400' }
                 ];
                 
                 const total = scoredSubmissions.length;
@@ -848,12 +852,12 @@ const AnalyticsTab = ({ submissions, loading }: { submissions: any[], loading: b
                   return (
                     <div key={i}>
                       <div className="flex justify-between text-xs mb-1">
-                        <span className="text-gray-600 dark:text-gray-400">{range.label}</span>
+                        <span className={`font-semibold ${range.textColor}`}>{range.label}</span>
                         <span className="font-medium text-gray-900 dark:text-white">{count} ({pct}%)</span>
                       </div>
                       <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                         <div 
-                          className={`h-full bg-gradient-to-r ${range.color} rounded-full transition-all duration-700`}
+                          className={`h-full ${range.color} rounded-full transition-all duration-700`}
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -889,18 +893,19 @@ const AnalyticsTab = ({ submissions, loading }: { submissions: any[], loading: b
         {/* Subject Performance Comparison - Horizontal Bar Chart */}
         {subjectPerformance.length >= 1 && (
           <div className="lg:col-span-2 bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 overflow-visible">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Subject Performance</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Average scores by subject</p>
               </div>
-              <div className="text-right">
+              <div className="flex items-center gap-3 sm:block sm:text-right">
                 <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{stats.avgScore}%</p>
                 <p className="text-xs text-gray-500">Overall Average</p>
               </div>
             </div>
             
-            <div className="space-y-4 overflow-visible">
+            <div className="w-full">
+              <div className="space-y-4 w-full">
               {subjectPerformance.map((item, i) => (
                 <div 
                   key={i} 
@@ -959,6 +964,7 @@ const AnalyticsTab = ({ submissions, loading }: { submissions: any[], loading: b
                   </div>
                 </div>
               ))}
+              </div>
             </div>
             
             {/* Scale reference */}
@@ -973,15 +979,15 @@ const AnalyticsTab = ({ submissions, loading }: { submissions: any[], loading: b
             {/* Performance Summary */}
             {subjectPerformance.length > 1 && (
               <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
                         <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />
                       </div>
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <p className="text-xs text-gray-500 dark:text-gray-400">Best Subject</p>
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate" title={subjectPerformance.reduce((best, curr) => curr.avgScore > best.avgScore ? curr : best).name}>
                           {subjectPerformance.reduce((best, curr) => curr.avgScore > best.avgScore ? curr : best).name}
                         </p>
                         <p className="text-xs font-bold text-green-600 dark:text-green-400">
@@ -991,13 +997,13 @@ const AnalyticsTab = ({ submissions, loading }: { submissions: any[], loading: b
                     </div>
                   </div>
                   <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
                         <Target className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                       </div>
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <p className="text-xs text-gray-500 dark:text-gray-400">Needs Focus</p>
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate" title={subjectPerformance.reduce((worst, curr) => curr.avgScore < worst.avgScore ? curr : worst).name}>
                           {subjectPerformance.reduce((worst, curr) => curr.avgScore < worst.avgScore ? curr : worst).name}
                         </p>
                         <p className="text-xs font-bold text-orange-600 dark:text-orange-400">

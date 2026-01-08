@@ -32,20 +32,20 @@ const FEATURES = {
     { text: 'Unlimited Submissions', included: true },
     { text: 'Basic Feedback', included: true },
     { text: '24h Turnaround', included: true },
-    { text: '2 calls per month', included: true }
+    { text: 'Unlimited calls', included: true }
   ],
   pro: [
     { text: 'Unlimited Submissions', included: true },
     { text: 'Detailed Feedback', included: true },
     { text: 'Model Answers', included: true },
-    { text: '6 calls per 3 months', included: true }
+    { text: 'Unlimited calls', included: true }
   ],
   achiever: [
     { text: 'Unlimited Submissions', included: true },
     { text: 'Personal Mentor', included: true },
     { text: 'Daily Targets', included: true },
     { text: 'Live Evaluation', included: true },
-    { text: '12 calls per 6 months', included: true }
+    { text: 'Unlimited calls', included: true }
   ]
 };
 
@@ -406,7 +406,7 @@ const PlansPage = () => {
       </div>
 
        {/* Current Plan Info */}
-      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+      <div className="bg-indigo-600 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
             <Shield className="w-8 h-8 text-white" />

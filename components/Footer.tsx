@@ -16,7 +16,7 @@ const Footer = () => {
           <div className="col-span-2 lg:col-span-4">
             <Link to="/" className="inline-flex items-center gap-3">
               <img 
-                src="/images/logo.png"
+                src={theme === 'dark' ? '/images/logo-dark.png' : '/images/logo-light.png'}
                 alt="CheckIAS Logo"
                 className="h-16 w-auto rounded-xl"
               />
