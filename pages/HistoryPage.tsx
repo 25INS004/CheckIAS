@@ -690,19 +690,28 @@ const AnalyticsTab = ({ submissions, loading }: { submissions: any[], loading: b
                 </div>
                 
                 {/* Tooltip */}
-                {hoveredPoint !== null && chartPoints[hoveredPoint] && (
-                  <div 
-                    className="absolute z-10 bg-gray-900 dark:bg-gray-700 text-white px-3 py-2 rounded-lg text-xs shadow-lg pointer-events-none transform -translate-x-1/2"
-                    style={{ 
-                      left: `${chartPoints[hoveredPoint].x}%`, 
-                      top: `${chartPoints[hoveredPoint].y - 15}%` 
-                    }}
-                  >
-                    <p className="font-semibold">{chartPoints[hoveredPoint].score}%</p>
-                    <p className="text-gray-300">{chartPoints[hoveredPoint].date}</p>
-                    <p className="text-gray-400 text-[10px]">{chartPoints[hoveredPoint].subject}</p>
-                  </div>
-                )}
+                {hoveredPoint !== null && chartPoints[hoveredPoint] && (() => {
+                  const x = chartPoints[hoveredPoint].x;
+                  // Adjust tooltip alignment based on position
+                  let translateX = '-50%'; // Default center
+                  if (x < 15) translateX = '0%'; // Left edge - align left
+                  else if (x > 85) translateX = '-100%'; // Right edge - align right
+                  
+                  return (
+                    <div 
+                      className="absolute z-10 bg-gray-900 dark:bg-gray-700 text-white px-3 py-2 rounded-lg text-xs shadow-lg pointer-events-none whitespace-nowrap"
+                      style={{ 
+                        left: `${x}%`, 
+                        top: `${chartPoints[hoveredPoint].y - 15}%`,
+                        transform: `translateX(${translateX})`
+                      }}
+                    >
+                      <p className="font-semibold">{chartPoints[hoveredPoint].score}%</p>
+                      <p className="text-gray-300">{chartPoints[hoveredPoint].date}</p>
+                      <p className="text-gray-400 text-[10px]">{chartPoints[hoveredPoint].subject}</p>
+                    </div>
+                  );
+                })()}
                 
                 {/* X-axis labels */}
                 <div className="absolute bottom-0 left-0 right-0 h-8 flex justify-between text-xs text-gray-400">
