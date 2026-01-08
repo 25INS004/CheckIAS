@@ -308,48 +308,48 @@ const AdminCoupons = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-200 dark:border-indigo-800/50 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg">
+            <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
               <Tag className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{coupons.length}</p>
-              <p className="text-xs text-gray-500">Total Coupons</p>
+              <p className="text-2xl font-bold text-indigo-700 dark:text-indigo-300">{coupons.length}</p>
+              <p className="text-xs font-medium text-indigo-600 dark:text-indigo-400">Total Coupons</p>
             </div>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
+        <div className="bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/50 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-lg">
+            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
               <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{coupons.filter(c => c.is_active && !isExpired(c) && !isMaxedOut(c)).length}</p>
-              <p className="text-xs text-gray-500">Active</p>
+              <p className="text-2xl font-bold text-green-700 dark:text-green-300">{coupons.filter(c => c.is_active && !isExpired(c) && !isMaxedOut(c)).length}</p>
+              <p className="text-xs font-medium text-green-600 dark:text-green-400">Active</p>
             </div>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
+        <div className="bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-800/50 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg">
+            <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
               <BarChart2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{coupons.reduce((acc, c) => acc + c.uses_count, 0)}</p>
-              <p className="text-xs text-gray-500">Total Uses</p>
+              <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">{coupons.reduce((acc, c) => acc + c.uses_count, 0)}</p>
+              <p className="text-xs font-medium text-purple-600 dark:text-purple-400">Total Uses</p>
             </div>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
+        <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg">
+            <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
               <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{coupons.filter(c => !c.is_active || isExpired(c) || isMaxedOut(c)).length}</p>
-              <p className="text-xs text-gray-500">Inactive/Expired</p>
+              <p className="text-2xl font-bold text-red-700 dark:text-red-300">{coupons.filter(c => !c.is_active || isExpired(c) || isMaxedOut(c)).length}</p>
+              <p className="text-xs font-medium text-red-600 dark:text-red-400">Inactive/Expired</p>
             </div>
           </div>
         </div>

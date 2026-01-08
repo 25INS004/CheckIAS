@@ -252,6 +252,57 @@ const PlansPage = () => {
     }
   };
 
+  const createInvoice = async (
+    planId: string,
+    planTitle: string,
+    originalAmount: number,
+    discountApplied: number,
+    finalAmount: number,
+    paymentId: string
+  ) => {
+    if (!user) return;
+
+    try {
+      const token = localStorage.getItem('supabase.auth.token') || sessionStorage.getItem('supabase.auth.token');
+      if (!token) return;
+      const { currentSession } = JSON.parse(token);
+      const accessToken = currentSession?.access_token;
+
+      // Generate invoice number: INV-YYYY-XXXXX
+      const invoiceNumber = `INV-${new Date().getFullYear()}-${Date.now().toString().slice(-5)}`;
+
+      await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/invoices`, {
+        method: 'POST',
+        headers: {
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          invoice_number: invoiceNumber,
+          user_id: user.id,
+          plan_purchased: planId,
+          amount: originalAmount,
+          discount_applied: discountApplied,
+          final_amount: finalAmount,
+          payment_id: paymentId,
+          coupon_id: appliedCoupon?.id || null,
+          coupon_code: appliedCoupon?.code || null,
+          billing_name: user.name || user.email,
+          billing_email: user.email,
+          billing_phone: user.phone || null,
+          cgst: 0,
+          sgst: 0,
+          tax_total: 0
+        })
+      });
+
+      console.log('Invoice created:', invoiceNumber);
+    } catch (err) {
+      console.error('Failed to create invoice:', err);
+    }
+  };
+
   const handleUpgrade = async (plan: typeof PLANS[0]) => {
     if (!user) return;
     
@@ -280,6 +331,16 @@ const PlansPage = () => {
           if (appliedCoupon) {
             await recordCouponUsage(plan.id, originalPrice, finalPrice, response.razorpay_payment_id);
           }
+
+          // Create invoice
+          await createInvoice(
+            plan.id,
+            plan.title,
+            originalPrice,
+            originalPrice - finalPrice,
+            finalPrice,
+            response.razorpay_payment_id
+          );
           
           const { success, error } = await updateProfile({ 
             plan: plan.id as any,

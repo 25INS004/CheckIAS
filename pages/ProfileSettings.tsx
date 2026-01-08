@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Phone, Lock, Save, Camera, ChevronDown, CheckCircle, AlertCircle, Megaphone } from 'lucide-react';
+import { User, Phone, Lock, Save, Camera, ChevronDown, CheckCircle, AlertCircle, Megaphone, FileText, Download, Calendar, CreditCard, Loader2 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import DatePicker from '../components/DatePicker';
@@ -7,6 +7,8 @@ import SupportPage from './SupportPage';
 import { useUser } from '../context/UserContext';
 import { useProfile } from '../hooks/useProfile';
 import Pagination from '../components/Pagination';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import InvoicePDF from '../components/InvoicePDF';
 
 const ProfileSettings = () => {
   const { tab } = useParams<{ tab?: string }>();
@@ -256,6 +258,19 @@ const ProfileSettings = () => {
         >
           Updates
           {activeTab === 'updates' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-t-full" />
+          )}
+        </button>
+        <button
+          onClick={() => navigate('/dashboard/settings/invoices')}
+          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${
+            activeTab === 'invoices' 
+              ? 'text-indigo-600 dark:text-indigo-400' 
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+          }`}
+        >
+          Invoices
+          {activeTab === 'invoices' && (
             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-t-full" />
           )}
         </button>
@@ -509,6 +524,10 @@ const ProfileSettings = () => {
       {activeTab === 'updates' && (
         <UpdatesSection />
       )}
+
+      {activeTab === 'invoices' && (
+        <InvoicesSection />
+      )}
     </div>
   );
 };
@@ -623,6 +642,256 @@ const UpdatesSection = () => {
           </div>
         )}
       </div>
+    </div>
+  );
+};
+
+// Invoices Section Component
+const InvoicesSection = () => {
+  const [invoices, setInvoices] = React.useState<{
+    id: string;
+    invoice_number: string;
+    plan_purchased: string;
+    amount: number;
+    discount_applied: number;
+    final_amount: number;
+    payment_id: string;
+    coupon_code: string | null;
+    billing_name: string;
+    billing_email: string;
+    billing_phone: string | null;
+    invoice_date: string;
+    cgst: number;
+    sgst: number;
+    tax_total: number;
+  }[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [filterPlan, setFilterPlan] = React.useState('All');
+  const [dateFrom, setDateFrom] = React.useState('');
+  const [dateTo, setDateTo] = React.useState('');
+  const [isPlanDropdownOpen, setIsPlanDropdownOpen] = React.useState(false);
+
+  const getAccessToken = () => {
+    try {
+      let sessionData = localStorage.getItem('supabase.auth.token');
+      if (!sessionData) {
+        sessionData = sessionStorage.getItem('supabase.auth.token');
+      }
+      if (!sessionData) return null;
+      const { currentSession } = JSON.parse(sessionData);
+      return currentSession?.access_token || null;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const fetchInvoices = async () => {
+    try {
+      const accessToken = getAccessToken();
+      if (!accessToken) return;
+
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/invoices?select=*&order=invoice_date.desc`,
+        {
+          headers: {
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        setInvoices(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch invoices:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchInvoices();
+  }, []);
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  // Filter invoices
+  const filteredInvoices = invoices.filter(invoice => {
+    const planMatch = filterPlan === 'All' || invoice.plan_purchased.toLowerCase() === filterPlan.toLowerCase();
+    let dateMatch = true;
+    if (dateFrom) {
+      dateMatch = new Date(invoice.invoice_date) >= new Date(dateFrom);
+    }
+    if (dateTo && dateMatch) {
+      dateMatch = new Date(invoice.invoice_date) <= new Date(dateTo + 'T23:59:59');
+    }
+    return planMatch && dateMatch;
+  });
+
+  return (
+    <div className="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm animate-fade-in">
+      <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Payment Invoices</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">View and download your payment invoices</p>
+        
+        {/* Filters */}
+        {invoices.length > 0 && (
+          <div className="flex flex-wrap gap-3 mt-4">
+            {/* Plan Filter */}
+            <div className="relative">
+              <button
+                onClick={() => setIsPlanDropdownOpen(!isPlanDropdownOpen)}
+                onBlur={() => setTimeout(() => setIsPlanDropdownOpen(false), 200)}
+                className="flex items-center justify-between w-40 px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+              >
+                <span className="truncate">{filterPlan === 'All' ? 'All Plans' : filterPlan}</span>
+                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isPlanDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              <div className={`absolute top-full left-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-10 overflow-hidden transition-all duration-200 origin-top ${isPlanDropdownOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
+                <div className="py-1">
+                  {['All', 'Starter', 'Pro', 'Achiever'].map(plan => (
+                    <button
+                      key={plan}
+                      onClick={() => { setFilterPlan(plan); setIsPlanDropdownOpen(false); }}
+                      className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                        filterPlan === plan 
+                          ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium' 
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                      }`}
+                    >
+                      {plan === 'All' ? 'All Plans' : plan}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* Date From */}
+            <div className="w-36">
+              <DatePicker
+                value={dateFrom}
+                onChange={setDateFrom}
+                placeholder="From date"
+              />
+            </div>
+            
+            {/* Date To */}
+            <div className="w-36">
+              <DatePicker
+                value={dateTo}
+                onChange={setDateTo}
+                placeholder="To date"
+                min={dateFrom}
+              />
+            </div>
+            
+            {/* Clear Filters */}
+            {(filterPlan !== 'All' || dateFrom || dateTo) && (
+              <button
+                onClick={() => { setFilterPlan('All'); setDateFrom(''); setDateTo(''); setIsPlanDropdownOpen(false); }}
+                className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+      
+      {loading ? (
+        <div className="p-12 text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mx-auto" />
+          <p className="text-gray-500 mt-4">Loading invoices...</p>
+        </div>
+      ) : invoices.length === 0 ? (
+        <div className="p-12 text-center">
+          <FileText className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-700 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No invoices yet</h3>
+          <p className="text-gray-500">Your invoices will appear here after you make a purchase.</p>
+        </div>
+      ) : filteredInvoices.length === 0 ? (
+        <div className="p-12 text-center">
+          <FileText className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-700 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No matching invoices</h3>
+          <p className="text-gray-500">Try adjusting your filters.</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 font-medium border-b border-gray-200 dark:border-gray-800">
+              <tr>
+                <th className="px-6 py-4">Invoice #</th>
+                <th className="px-6 py-4">Plan</th>
+                <th className="px-6 py-4">Amount</th>
+                <th className="px-6 py-4">Date</th>
+                <th className="px-6 py-4 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+              {filteredInvoices.map((invoice) => (
+                <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                  <td className="px-6 py-4">
+                    <span className="font-mono font-bold text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs">
+                      {invoice.invoice_number}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs rounded-full capitalize">
+                      {invoice.plan_purchased}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="font-bold text-gray-900 dark:text-white">{formatCurrency(invoice.final_amount)}</div>
+                    {invoice.discount_applied > 0 && (
+                      <div className="text-xs text-green-600 dark:text-green-400">-{formatCurrency(invoice.discount_applied)}</div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-gray-500">
+                    {formatDate(invoice.invoice_date)}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <PDFDownloadLink
+                      document={<InvoicePDF invoice={invoice} />}
+                      fileName={`${invoice.invoice_number}.pdf`}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
+                    >
+                      {({ loading: pdfLoading }) => (
+                        <>
+                          {pdfLoading ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Download className="w-4 h-4" />
+                          )}
+                          <span className="hidden sm:inline">
+                            {pdfLoading ? 'Generating...' : 'Download'}
+                          </span>
+                        </>
+                      )}
+                    </PDFDownloadLink>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

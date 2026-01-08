@@ -151,6 +151,61 @@ const AdminTickets = () => {
     <div className="space-y-6">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Support Tickets</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage and respond to user support requests</p>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-200 dark:border-indigo-800/50 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+              <MessageSquare className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-indigo-700 dark:text-indigo-300">{tickets.length}</p>
+              <p className="text-xs font-medium text-indigo-600 dark:text-indigo-400">Total Tickets</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800/50 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+              <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">{tickets.filter(t => t.status !== 'Resolved').length}</p>
+              <p className="text-xs font-medium text-orange-600 dark:text-orange-400">Open Tickets</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/50 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-green-700 dark:text-green-300">{tickets.filter(t => t.status === 'Resolved').length}</p>
+              <p className="text-xs font-medium text-green-600 dark:text-green-400">Resolved</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-red-700 dark:text-red-300">{tickets.filter(t => t.priority === 'High' || t.priority === 'Critical').length}</p>
+              <p className="text-xs font-medium text-red-600 dark:text-red-400">High Priority</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <RefreshButton onClick={() => fetchTickets()} loading={loading} />
