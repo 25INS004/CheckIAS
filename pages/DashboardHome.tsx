@@ -208,7 +208,8 @@ const DashboardHome = () => {
     totalGuidanceCalls, 
     callsCompletedThisMonth,
     callsCancelled,
-    callsPending 
+    callsPending,
+    validUntil
   } = user;
 
   return (
@@ -332,7 +333,7 @@ const DashboardHome = () => {
             )}
           </div>
           <p className="text-xs text-gray-400 mt-2">
-            {activePlan.toLowerCase() === 'free' ? 'Upgrade for more features' : 'Valid until Dec 20, 2025'}
+            {activePlan.toLowerCase() === 'free' ? 'Upgrade for more features' : `Valid until ${validUntil || '...'}`}
           </p>
           <Link 
             to="/dashboard/plans" 

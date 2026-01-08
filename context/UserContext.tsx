@@ -26,6 +26,7 @@ export interface UserData {
   optionalSubject?: string;
   dob?: string;
   avatarUrl?: string; // Add avatarUrl
+  validUntil?: string; // Add validUntil
 }
 
 interface UserContextType {
@@ -232,13 +233,21 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const guidanceCallsLeft = Math.max(0, limits.guidanceCalls - guidanceCallsCount);
       
-      // Calculate days left based on plan_started_at from database
+      // Calculate days left and valid until date based on plan_started_at from database
       let daysLeft = 0;
+      let validUntil = '';
+      
       if (plan !== 'free' && profile?.plan_started_at) {
         const planStartDate = new Date(profile.plan_started_at);
-        const planDuration = limits.days; // 30 for starter/pro, 365 for achiever
+        const planDuration = limits.days; 
         const expiryDate = new Date(planStartDate);
         expiryDate.setDate(expiryDate.getDate() + planDuration);
+        
+        validUntil = expiryDate.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
         
         const today = new Date();
         const diffTime = expiryDate.getTime() - today.getTime();
@@ -257,6 +266,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         submissionsPending,
         submissionsUnderReview,
         daysLeft,
+        validUntil, // Add validUntil
         guidanceCallsLeft: guidanceCallsLeft,
         totalGuidanceCalls: limits.guidanceCalls,
         callsCompletedThisMonth: callsCompleted,
