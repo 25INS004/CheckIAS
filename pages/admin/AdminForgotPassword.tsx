@@ -104,7 +104,7 @@ const AdminForgotPassword = () => {
       );
 
       const data = await response.json();
-      console.log('Admin password reset response:', data);
+      // console.log('Admin password reset response:', data);
 
       if (!response.ok) {
         setError(data.error || 'Failed to reset password');
@@ -113,7 +113,7 @@ const AdminForgotPassword = () => {
       }
 
       setIsSubmitting(false);
-      navigate('/admin/login', { state: { message: 'Password updated successfully! Please login with your new password.' } });
+      navigate('/login', { state: { message: 'Password updated successfully! Please login with your new password.' } });
     } catch (err: any) {
       console.error('Admin password reset error:', err);
       setError(err.message || 'Failed to reset password. Please try again.');
@@ -150,7 +150,7 @@ const AdminForgotPassword = () => {
           {/* Tab Switcher */}
           <div className="flex border-b border-gray-700">
             <button
-              onClick={() => navigate('/admin/login')}
+              onClick={() => navigate('/login')}
               className="flex-1 py-4 text-sm font-semibold transition-all bg-gray-700/50 text-gray-400 hover:bg-gray-700"
             >
               Login
@@ -345,7 +345,7 @@ const AdminForgotPassword = () => {
           {/* Back to Admin Login */}
           <div className="p-4 border-t border-gray-700">
             <Link 
-              to="/admin/login" 
+              to="/login" 
               className="flex items-center justify-center gap-2 text-sm text-gray-400 hover:text-red-400 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />

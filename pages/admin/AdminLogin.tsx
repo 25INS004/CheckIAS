@@ -34,7 +34,7 @@ const AdminLogin = () => {
       );
 
       const data = await response.json();
-      console.log('Admin login response:', data);
+      // console.log('Admin login response:', data);
 
       if (!response.ok) {
         setError(data.error_description || data.msg || 'Invalid credentials');
@@ -148,7 +148,7 @@ const AdminLogin = () => {
               Login
             </button>
             <button
-              onClick={() => navigate('/admin/forgot-password')}
+              onClick={() => navigate('/forgot-password')}
               className="flex-1 py-4 text-sm font-semibold transition-all bg-gray-700/50 text-gray-400 hover:bg-gray-700"
             >
               Forgot Password
@@ -227,7 +227,7 @@ const AdminLogin = () => {
                 <span className="text-sm text-gray-400 group-hover:text-gray-300">Remember me (90 days)</span>
               </label>
               <Link 
-                to="/admin/forgot-password" 
+                to="/forgot-password" 
                 className="text-sm text-red-400 hover:text-red-300 transition-colors"
               >
                 Forgot password?

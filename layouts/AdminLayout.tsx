@@ -26,7 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     localStorage.removeItem('supabase.auth.token');
     sessionStorage.removeItem('supabase.auth.token');
     // Redirect to admin login
-    navigate('/admin/login');
+    navigate('/login');
   };
 
   // Open sidebar on desktop by default
@@ -44,14 +44,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [location]);
 
   const navItems = [
-    { name: 'Overview', icon: LayoutDashboard, path: '/admin' },
-    { name: 'User Management', icon: Users, path: '/admin/users' },
-    { name: 'Copy Submissions', icon: FileText, path: '/admin/submissions' },
-    { name: 'Guidance Calls', icon: Phone, path: '/admin/guidance-calls' },
-    { name: 'Support Tickets', icon: MessageSquare, path: '/admin/tickets' },
-    { name: 'Coupons', icon: Tag, path: '/admin/coupons' },
-    { name: 'Invoices', icon: Receipt, path: '/admin/invoices' },
-    { name: 'Settings', icon: Settings, path: '/admin/settings' },
+    { name: 'Overview', icon: LayoutDashboard, path: '/' },
+    { name: 'User Management', icon: Users, path: '/users' },
+    { name: 'Copy Submissions', icon: FileText, path: '/submissions' },
+    { name: 'Guidance Calls', icon: Phone, path: '/guidance-calls' },
+    { name: 'Support Tickets', icon: MessageSquare, path: '/tickets' },
+    { name: 'Coupons', icon: Tag, path: '/coupons' },
+    { name: 'Invoices', icon: Receipt, path: '/invoices' },
+    { name: 'Settings', icon: Settings, path: '/settings' },
   ];
 
   const adminIcon = <Shield className="h-5 w-5 text-white" />;
@@ -77,7 +77,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         title="CheckIAS" 
         icon={adminIcon}
         navItems={navItems}
-        basePath="/admin"
+        basePath="/"
         footer={userFooter}
       />
 
@@ -92,7 +92,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Menu className="w-6 h-6" />
           </button>
           <h1 className="text-lg font-semibold text-gray-900 dark:text-white md:ml-0 ml-4">
-            {navItems.find(i => i.path === location.pathname || (i.path !== '/admin' && location.pathname.startsWith(i.path)))?.name || 'Admin'}
+            {navItems.find(i => i.path === location.pathname || (i.path !== '/' && location.pathname.startsWith(i.path)))?.name || 'Admin'}
           </h1>
           
           <div className="flex items-center gap-4 ml-auto">

@@ -571,7 +571,7 @@ const UpdatesSection = () => {
         );
         if (response.ok) {
           const data = await response.json();
-          console.log('Fetched announcements:', data); // Debug log
+          // console.log('Fetched announcements:', data); // Debug log
           setAnnouncements(data || []);
         } else {
           console.error('Failed to fetch announcements:', response.status);

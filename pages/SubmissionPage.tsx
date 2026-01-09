@@ -78,7 +78,7 @@ const SubmissionPage = () => {
       const arrayBuffer = await file.arrayBuffer();
       // @ts-ignore - pdfjsLib is loaded from CDN
       const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      console.log('PDF Page Count:', pdf.numPages);
+      // console.log('PDF Page Count:', pdf.numPages);
       setPageCount(pdf.numPages);
     } catch (err) {
       console.error('Error counting pages:', err);

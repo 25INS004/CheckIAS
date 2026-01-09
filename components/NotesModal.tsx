@@ -27,7 +27,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
   const [notes, setNotes] = useState(initialNotes);
 
   useEffect(() => {
-    console.log('NotesModal received initialNotes:', initialNotes);
+    // console.log('NotesModal received initialNotes:', initialNotes);
     setNotes(initialNotes);
   }, [initialNotes, isOpen]);
 

@@ -115,7 +115,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (response.ok) {
           const profiles = await response.json();
           profile = profiles[0] || null;
-          console.log('Fetched profile:', profile);
+          // console.log('Fetched profile:', profile);
 
           // If Admin, skip user-specific stats fetching
           if (profile?.role === 'admin') {

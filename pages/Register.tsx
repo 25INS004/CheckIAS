@@ -111,7 +111,7 @@ const Register = () => {
       );
 
       const data = await response.json();
-      console.log('Signup response:', data);
+      // console.log('Signup response:', data);
 
       if (!response.ok) {
         setError(data.error_description || data.msg || 'Signup failed');

@@ -93,7 +93,7 @@ const DashboardHome = () => {
                     planId: pendingPlan,
                     amount,
                     onSuccess: async (response) => {
-                        console.log('Auto-upgrade success', response);
+                        // console.log('Auto-upgrade success', response);
                         const { success } = await updateProfile({ 
                           plan: pendingPlan as any,
                           plan_started_at: new Date().toISOString()
@@ -182,7 +182,7 @@ const DashboardHome = () => {
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          console.log('Realtime update received:', payload);
+          // console.log('Realtime update received:', payload);
           refreshUser(); // Update stats cards
           fetchActivity(); // Update recent activity list
         }

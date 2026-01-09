@@ -103,7 +103,7 @@ const ForgotPassword = () => {
       );
 
       const data = await response.json();
-      console.log('Password reset response:', data);
+      // console.log('Password reset response:', data);
 
       if (!response.ok) {
         setError(data.error || 'Failed to reset password');
