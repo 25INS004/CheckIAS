@@ -5,76 +5,11 @@ import ReviewCarousel from '../components/ReviewCarousel';
 import SectionSeparator from '../components/SectionSeparator';
 import useEmblaCarousel from 'embla-carousel-react';
 
-const pricingPlans = [
-  {
-    id: 'free',
-    title: 'Free',
-    description: 'Try before you commit.',
-    price: '₹0',
-    period: '/ lifetime',
-    billingNote: 'No Credit Card Required',
-    buttonText: 'Get Started',
-    link: '/login',
-    features: [
-      { text: '1 Trial Submission', included: true },
-      { text: 'Basic Feedback', included: true },
-      { text: 'Model Answers', included: false },
-      { text: 'Mentor Call', included: false }
-    ]
-  },
-  {
-    id: 'starter',
-    title: 'Starter',
-    description: 'Great for occasional evaluation.',
-    price: '₹999',
-    period: '/ month',
-    billingNote: 'Billed Monthly',
-    buttonText: 'Get Started',
-    link: '/login?plan=starter',
-    features: [
-      { text: 'Unlimited Submissions', included: true },
-      { text: 'Basic Feedback', included: true },
-      { text: '24h Turnaround', included: true },
-      { text: '2 calls per month', included: true }
-    ]
-  },
-  {
-    id: 'pro',
-    title: 'Pro',
-    description: 'For serious aspirants.',
-    price: '₹2,499',
-    period: '/ 3 months',
-    billingNote: 'Billed Quarterly',
-    buttonText: 'Get Started',
-    link: '/login?plan=pro',
-    isPopular: true,
-    features: [
-      { text: 'Unlimited Submissions', included: true },
-      { text: 'Detailed Feedback', included: true },
-      { text: 'Model Answers', included: true },
-      { text: '6 calls per 3 months', included: true }
-    ]
-  },
-  {
-    id: 'achiever',
-    title: 'Achiever',
-    description: 'For rank holders.',
-    price: '₹4,999',
-    period: '/ 6 months',
-    billingNote: 'Billed Biannually',
-    buttonText: 'Get Started',
-    link: '/login?plan=achiever',
-    features: [
-      { text: 'Unlimited Submissions', included: true },
-      { text: 'Personal Mentor', included: true },
-      { text: 'Daily Targets', included: true },
-      { text: 'Live Evaluation', included: true },
-      { text: '12 calls per 6 months', included: true }
-    ]
-  }
-];
+// import { PRICING_PLANS as pricingPlans } from '../config/pricing';
+import { usePricing } from '../hooks/usePricing';
 
 const LandingPage = () => {
+  const { plans: pricingPlans, loading } = usePricing();
   // Embla carousel for mobile pricing
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' });
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -159,7 +94,7 @@ const LandingPage = () => {
                 icon={<CheckCircle className="w-6 h-6 text-white" />}
                 iconBg="bg-blue-500"
                 title="Expert Review"
-                description="Get your copies evaluated by selected candidates and experienced mentors."
+                description="Get your copies evaluated by 2 mains or 1 interview appeared mentors."
               />
             </div>
             <div data-aos="fade-up" data-aos-delay="200" className="h-full">
@@ -175,7 +110,7 @@ const LandingPage = () => {
                 icon={<Zap className="w-6 h-6 text-white" />}
                 iconBg="bg-yellow-500"
                 title="Fast Turnaround"
-                description="Get your evaluated copies back within 24-48 hours. Guaranteed."
+                description="Get your evaluated copies back within 24-36 working hours. Guaranteed."
               />
             </div>
             <div data-aos="fade-up" data-aos-delay="400" className="h-full">
@@ -236,17 +171,18 @@ const LandingPage = () => {
                     <PricingCard 
                       title={plan.title}
                       description={plan.description}
-                      price={plan.price}
+                      price={plan.displayPrice}
                       period={plan.period}
                       billingNote={plan.billingNote}
                       buttonText={plan.buttonText}
                       link={plan.link}
-                      features={plan.features}
+                      features={plan.features as any}
                       isPopular={plan.isPopular}
                       customStyles={plan.isPopular 
                         ? "bg-white dark:bg-gray-900 border-2 border-indigo-500 dark:border-indigo-400 shadow-2xl shadow-indigo-200 dark:shadow-indigo-900/20"
                         : "bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 shadow-lg"
                       }
+
                       buttonStyles={plan.isPopular 
                         ? "bg-indigo-600 text-white hover:bg-indigo-700 border-transparent"
                         : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
@@ -286,84 +222,21 @@ const LandingPage = () => {
 
           {/* Desktop Grid */}
           <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-             {/* Free Plan */}
-             <div data-aos="fade-up" data-aos-delay="100" className="h-full">
-               <PricingCard 
-                title="Free"
-                description="Try before you commit."
-                price="₹0"
-                period="/ lifetime"
-                billingNote="No Credit Card Required"
-                buttonText="Get Started"
-                features={[
-                  { text: '2 Submissions (Lifetime)', included: true },
-                  { text: 'Basic Feedback', included: true },
-                  { text: 'Model Answers', included: false },
-                  { text: 'Mentor Call', included: false }
-                ]}
-              />
-             </div>
-
-            {/* Starter Plan */}
-            <div data-aos="fade-up" data-aos-delay="200" className="h-full">
-              <PricingCard 
-                title="Starter"
-                description="Great for occasional evaluation."
-                price="₹999"
-                period="/ month"
-                billingNote="Billed Monthly"
-                buttonText="Get Started"
-                link="/login?plan=starter"
-                features={[
-                  { text: 'Unlimited Submissions', included: true },
-                  { text: 'Basic Feedback', included: true },
-                  { text: '24h Turnaround', included: true },
-                  { text: '2 calls per month', included: true }
-                ]}
-              />
-            </div>
-
-            {/* Pro Plan (Highlighted) */}
-            <div data-aos="fade-up" data-aos-delay="300" className="h-full">
-              <PricingCard 
-                title="Pro"
-                description="For serious aspirants."
-                price="₹2,499"
-                period="/ 3 months"
-                billingNote="Billed Quarterly"
-                buttonText="Get Started"
-                link="/login?plan=pro"
-                isPopular
-                features={[
-                  { text: 'Unlimited Submissions', included: true },
-                  { text: 'Detailed Feedback', included: true },
-                  { text: 'Model Answers', included: true },
-                  { text: '6 calls per 3 months', included: true }
-                ]}
-                customStyles="bg-white dark:bg-gray-900 border-2 border-indigo-500 dark:border-indigo-400 shadow-2xl shadow-indigo-200 dark:shadow-indigo-900/20 hover:shadow-indigo-300 ring-8 ring-indigo-100 dark:ring-indigo-900/30"
-                buttonStyles="bg-indigo-600 text-white hover:bg-indigo-700 border-transparent"
-              />
-            </div>
-
-            {/* Achiever Plan */}
-            <div data-aos="fade-up" data-aos-delay="400" className="h-full">
-              <PricingCard 
-                title="Achiever"
-                description="For rank holders."
-                price="₹4,999"
-                period="/ 6 months"
-                billingNote="Billed Biannually"
-                buttonText="Get Started"
-                link="/login?plan=achiever"
-                features={[
-                  { text: 'Unlimited Submissions', included: true },
-                  { text: 'Personal Mentor', included: true },
-                  { text: 'Daily Targets', included: true },
-                  { text: 'Live Evaluation', included: true },
-                  { text: '12 calls per 6 months', included: true }
-                ]}
-              />
-            </div>
+            {pricingPlans.map((plan) => (
+              <div key={plan.id} data-aos="fade-up" data-aos-delay="100" className="h-full">
+                <PricingCard 
+                  title={plan.title}
+                  description={plan.description}
+                  price={plan.displayPrice}
+                  period={plan.period}
+                  billingNote={plan.billingNote}
+                  buttonText={plan.buttonText}
+                  link={plan.link}
+                  features={plan.features as any}
+                  isPopular={plan.isPopular}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </section>

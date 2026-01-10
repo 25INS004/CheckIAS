@@ -114,9 +114,5 @@ If you have questions or comments about this Privacy Policy, please contact us a
 
 
 Email: support@checkias.com 
-
-
-Phone: +91-99999xxxxx
-
-
-Address:check IAS
+Phone: +91-7015823742
+Address: CheckIAS Office, Near Gol Chakar, Karol Bagh, New Delhi

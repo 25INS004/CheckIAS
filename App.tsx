@@ -19,6 +19,7 @@ import AdminSettings from './pages/admin/AdminSettings';
 import AdminGuidanceCalls from './pages/admin/AdminGuidanceCalls';
 import AdminSubmissions from './pages/admin/AdminSubmissions';
 import AdminCoupons from './pages/admin/AdminCoupons';
+import AdminPricing from './pages/admin/AdminPricing';
 import AdminInvoices from './pages/admin/AdminInvoices';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminForgotPassword from './pages/admin/AdminForgotPassword';
@@ -33,8 +34,16 @@ import PlansPage from './pages/PlansPage';
 import AboutUs from './pages/AboutUs';
 import TosPage from './pages/TosPage';
 import PrivacyPage from './pages/PrivacyPage';
+import RefundPolicyPage from './pages/RefundPolicyPage';
+import DebugPricing from './pages/DebugPricing';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
+
+// Detect if we're on the admin subdomain OR using ?admin=true for local development
+const isAdminSubdomain = 
+  window.location.hostname.startsWith('admin.') || 
+  new URLSearchParams(window.location.search).get('admin') === 'true' ||
+  window.location.hostname === 'admin.localhost';
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -45,6 +54,45 @@ const App: React.FC = () => {
     });
   }, []);
 
+  // If on admin subdomain, render only admin routes
+  if (isAdminSubdomain) {
+    return (
+      <AppProvider>
+        <ThemeProvider>
+          <UserProvider>
+            <ToastProvider>
+              <BrowserRouter>
+                <Routes>
+                  {/* Admin Auth Routes */}
+                  <Route path="/login" element={<AdminLogin />} />
+                  <Route path="/forgot-password" element={<AdminForgotPassword />} />
+
+                  {/* Admin Protected Routes */}
+                  <Route path="/" element={
+                    <ProtectedAdminRoute>
+                      <AdminLayout><Outlet /></AdminLayout>
+                    </ProtectedAdminRoute>
+                  }>
+                    <Route index element={<AdminOverview />} />
+                    <Route path="users" element={<UserManagement />} />
+                    <Route path="submissions" element={<AdminSubmissions />} />
+                    <Route path="tickets" element={<AdminTickets />} />
+                    <Route path="guidance-calls" element={<AdminGuidanceCalls />} />
+                    <Route path="coupons" element={<AdminCoupons />} />
+                    <Route path="pricing" element={<AdminPricing />} />
+                    <Route path="invoices" element={<AdminInvoices />} />
+                    <Route path="settings" element={<AdminSettings />} />
+                  </Route>
+                </Routes>
+              </BrowserRouter>
+            </ToastProvider>
+          </UserProvider>
+        </ThemeProvider>
+      </AppProvider>
+    );
+  }
+
+  // Main domain: render public + dashboard routes (no admin routes)
   return (
     <AppProvider>
       <ThemeProvider>
@@ -56,10 +104,7 @@ const App: React.FC = () => {
                 <Route path="/signup" element={<Register />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
-
-                {/* Admin Auth Routes (standalone, no layout) */}
-                <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
+                <Route path="/debug-pricing" element={<div className="pt-20"><DebugPricing /></div>} />
 
                 {/* Public Routes */}
                 <Route element={<PublicLayout><Outlet /></PublicLayout>}>
@@ -70,6 +115,7 @@ const App: React.FC = () => {
                 {/* Legal Pages (standalone, no layout) */}
                 <Route path="/terms-of-service" element={<TosPage />} />
                 <Route path="/privacy-policy" element={<PrivacyPage />} />
+                <Route path="/refund-policy" element={<RefundPolicyPage />} />
 
                 {/* Dashboard Routes (Protected) */}
                 <Route path="/dashboard" element={
@@ -84,22 +130,6 @@ const App: React.FC = () => {
                   <Route path="guidance-calls" element={<GuidanceCallsPage />} />
                   <Route path="plans" element={<PlansPage />} />
                   <Route path="settings/:tab?" element={<ProfileSettings />} />
-                </Route>
-
-                {/* Admin Routes (Protected - requires admin role) */}
-                <Route path="/admin" element={
-                  <ProtectedAdminRoute>
-                    <AdminLayout><Outlet /></AdminLayout>
-                  </ProtectedAdminRoute>
-                }>
-                  <Route index element={<AdminOverview />} />
-                  <Route path="users" element={<UserManagement />} />
-                  <Route path="submissions" element={<AdminSubmissions />} />
-                  <Route path="tickets" element={<AdminTickets />} />
-                  <Route path="guidance-calls" element={<AdminGuidanceCalls />} />
-                  <Route path="coupons" element={<AdminCoupons />} />
-                  <Route path="invoices" element={<AdminInvoices />} />
-                  <Route path="settings" element={<AdminSettings />} />
                 </Route>
               </Routes>
             </BrowserRouter>

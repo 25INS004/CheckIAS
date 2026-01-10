@@ -7,7 +7,7 @@ import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 const reviews = [
   {
     id: 1,
-    name: "Priya Sharma",
+    name: "Sitaram",
     role: "UPSC Aspirant",
     content: "The feedback on my essay paper was incredibly detailed. The mentor pointed out structural issues I had never noticed before.",
     rating: 5,
@@ -15,32 +15,32 @@ const reviews = [
   },
   {
     id: 2,
-    name: "Rahul Verma",
-    role: "State Services",
+    name: "Ajay",
+    role: "UPSC Aspirant",
     content: "Fastest evaluation service I've tried. Got my copies back in 18 hours with model answers. Highly recommended!",
     rating: 5,
     color: "text-emerald-500"
   },
   {
     id: 3,
-    name: "Anjali Gupta",
-    role: "UPSC 2023 Interview",
+    name: "Jagmohan",
+    role: "UPSC Aspirant",
     content: "The 1-on-1 mentorship calls were a game changer. They helped me refine my answer writing strategy significantly.",
     rating: 5,
     color: "text-purple-500"
   },
   {
     id: 4,
-    name: "Vikram Singh",
-    role: "Aspirant",
+    name: "Navneet",
+    role: "UPSC Aspirant",
     content: "Quality of evaluation is top-notch. They don't just give marks but actually tell you how to improve.",
     rating: 4,
     color: "text-orange-500"
   },
   {
     id: 5,
-    name: "Sneha Patel",
-    role: "Mains 2024",
+    name: "Anita Yadav",
+    role: "UPSC Aspirant",
     content: "CheckIAS has been my constant companion. The daily targets keep me disciplined and focused.",
     rating: 5,
     color: "text-pink-500"

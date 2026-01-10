@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Mail, Phone, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { MapPin, Mail, Phone, Youtube, Linkedin, Instagram } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 const Footer = () => {
@@ -30,7 +30,7 @@ const Footer = () => {
             <div className="mt-8 flex items-center gap-4">
                {/* Social Icons mapped dynamically */}
                {[
-                 { icon: Twitter, href: "https://twitter.com" },
+                 { icon: Youtube, href: "https://youtube.com" },
                  { icon: Linkedin, href: "https://linkedin.com" },
                  { icon: Instagram, href: "https://instagram.com" }
                ].map((social, idx) => (
@@ -120,7 +120,7 @@ const Footer = () => {
                   <MapPin className="w-5 h-5" />
                 </div>
                 <span className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mt-2">
-                  C-29, Patel Nagar, Ghaziabad, Uttar Pradesh, India, 201001
+                  CheckIAS Office, Near Gol Chakar, Karol Bagh, New Delhi
                 </span>
               </li>
               <li className="flex items-center gap-4">
@@ -135,8 +135,8 @@ const Footer = () => {
                  <div className="flex-shrink-0 w-10 h-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                    <Phone className="w-5 h-5" />
                  </div>
-                <a href="tel:+9199999xxxxx" className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm transition-colors font-medium">
-                  +91-99999xxxxx
+                <a href="tel:+917015823742" className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm transition-colors font-medium">
+                  +91-7015823742
                 </a>
               </li>
             </ul>
