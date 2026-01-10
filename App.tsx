@@ -35,6 +35,7 @@ import AboutUs from './pages/AboutUs';
 import TosPage from './pages/TosPage';
 import PrivacyPage from './pages/PrivacyPage';
 import RefundPolicyPage from './pages/RefundPolicyPage';
+import HelpCentre from './pages/HelpCentre';
 import DebugPricing from './pages/DebugPricing';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
@@ -116,6 +117,7 @@ const App: React.FC = () => {
                 <Route path="/terms-of-service" element={<TosPage />} />
                 <Route path="/privacy-policy" element={<PrivacyPage />} />
                 <Route path="/refund-policy" element={<RefundPolicyPage />} />
+                <Route path="/help-center" element={<HelpCentre />} />
 
                 {/* Dashboard Routes (Protected) */}
                 <Route path="/dashboard" element={

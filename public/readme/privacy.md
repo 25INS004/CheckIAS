@@ -1,5 +1,5 @@
 PRIVACY POLICY
-Last Updated: December 28, 2025
+Last Updated: January 10, 2025
 
 1. INTRODUCTION CheckIAS ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our answer copy checking services.
 
@@ -10,7 +10,7 @@ By creating an account or using our platform, you consent to the data practices 
 We collect information that you provide directly to us and information that is automatically generated during your use of the service.
 
 2.1. Personal Data When you register , update your profile , or request support, we collect personally identifiable information including:
-+4
+
 
 Identity Data: Full name.
 
@@ -20,7 +20,7 @@ Contact Data: Email address and mobile contact number.
 Credential Data: Passwords (stored in hashed format only).
 
 2.2. User Content We collect the data you upload for evaluation, specifically:
-+1
+
 
 Uploaded Files: Answer copies in PDF format.
 
@@ -35,7 +35,7 @@ Subscription plan details (validity and expiry dates).
 Payment status (Success/Failure).
 
 2.4. Technical Usage Data For security and auditing purposes, our servers automatically log:
-+1
+
 
 Internet Protocol (IP) address.
 
@@ -49,15 +49,15 @@ We use the collected data for the following specific purposes:
 
 
 Service Delivery: To facilitate the uploading, storage, and retrieval of your answer copies.
-+1
+
 
 
 Account Management: To manage your registration, login sessions, and subscription validity.
-+1
+
 
 
 Communication: To send mandatory emails regarding account verification , password resets , and subscription expiry reminders.
-+1
+
 
 
 Support: To schedule and facilitate support calls for Premium users.
@@ -72,7 +72,7 @@ We may share information with third-party service providers solely to perform th
 4.1. Third-Party Service Providers
 
 Razorpay: We use Razorpay for payment processing. Your financial information is processed directly by Razorpay in a PCI DSS compliant environment.
-+1
+
 
 
 Supabase: Our database and backend services are hosted on Supabase, which stores user data and authentication records.

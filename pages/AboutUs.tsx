@@ -156,7 +156,7 @@ const AboutUs = () => {
                 icon={<Target className="w-6 h-6 text-white" />}
                 iconBg="bg-blue-500"
                 title="Expert Mentors"
-                description="Your answer copies are reviewed by selected candidates and subject matter experts who understand exactly what UPSC expects. Every evaluator brings years of examination insight and pedagogical expertise."
+                description="Your answer copies are reviewed by mentors who have appeared in at least 2 UPSC Mains or 1 Interview. Every evaluator brings years of examination insight and pedagogical expertise to help you succeed."
               />
             </div>
             <div data-aos="fade-up" data-aos-delay="200" className="h-full">
