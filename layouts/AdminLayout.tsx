@@ -82,7 +82,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         title="CheckIAS" 
         icon={adminIcon}
         navItems={navItems}
-        basePath="/admin"
+        basePath="/"
         footer={userFooter}
       />
 
@@ -97,7 +97,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Menu className="w-6 h-6" />
           </button>
           <h1 className="text-lg font-semibold text-gray-900 dark:text-white md:ml-0 ml-4">
-            {navItems.find(i => i.path === location.pathname || (i.path !== '/admin' && location.pathname.startsWith(i.path)))?.name || 'Admin'}
+            {navItems.find(i => i.path === location.pathname || (i.path !== '/' && location.pathname.startsWith(i.path)))?.name || 'Admin'}
           </h1>
           
           <div className="flex items-center gap-4 ml-auto">

@@ -34,7 +34,7 @@ const AdminLogin = () => {
       );
 
       const data = await response.json();
-      console.log('Admin login response:', data);
+      // console.log('Admin login response:', data);
 
       if (!response.ok) {
         setError(data.error_description || data.msg || 'Invalid credentials');

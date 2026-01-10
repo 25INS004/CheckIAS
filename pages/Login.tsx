@@ -46,7 +46,7 @@ const Login = () => {
       );
 
       const data = await response.json();
-      console.log('Login response:', data);
+      // console.log('Login response:', data);
 
       if (!response.ok) {
         setError(data.error_description || data.msg || 'Invalid email or password');

@@ -233,7 +233,7 @@ const PlansPage = () => {
         })
       });
 
-      console.log('Invoice created:', invoiceNumber);
+      // console.log('Invoice created:', invoiceNumber);
     } catch (err) {
       console.error('Failed to create invoice:', err);
     }
@@ -261,7 +261,7 @@ const PlansPage = () => {
         planId: plan.id,
         amount: finalPrice * 100, // in paise
         onSuccess: async (response) => {
-          console.log('Payment success', response);
+          // console.log('Payment success', response);
           
           // Record coupon usage if applied
           if (appliedCoupon) {

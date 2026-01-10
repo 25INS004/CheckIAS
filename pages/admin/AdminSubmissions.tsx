@@ -81,8 +81,8 @@ const AdminSubmissions = () => {
       const { currentSession } = JSON.parse(token);
       const accessToken = currentSession?.access_token;
       
-      console.log('User Email from Token:', currentSession?.user?.email);
-      console.log('Attempting update for Submission ID:', submissionId);
+      // console.log('User Email from Token:', currentSession?.user?.email);
+      // console.log('Attempting update for Submission ID:', submissionId);
 
       // Generate unique filename: CheckIAS_Evaluated_[SubmissionID]_[Timestamp]_[RandomString].pdf
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
@@ -112,7 +112,7 @@ const AdminSubmissions = () => {
 
       // Get the public URL
       const checkedFileUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/admin-submissions/${filePath}`;
-      console.log('File uploaded. URL:', checkedFileUrl);
+      // console.log('File uploaded. URL:', checkedFileUrl);
 
       // Update submission record with the checked file URL, score, and status
       const updateRes = await fetch(
@@ -142,7 +142,7 @@ const AdminSubmissions = () => {
       }
 
       const updatedData = await updateRes.json();
-      console.log('Update Response Data:', updatedData);
+      // console.log('Update Response Data:', updatedData);
 
       if (!updatedData || updatedData.length === 0) {
          console.error('CRITICAL: Update succeeded but no rows were modified. This usually means RLS blocked the update.');
@@ -323,7 +323,7 @@ const AdminSubmissions = () => {
       
       // Filter submissions that have a file but no pages
       const toUpdate = submissions.filter(s => s.file_url && (!s.pages || s.pages === 0));
-      console.log(`Found ${toUpdate.length} submissions to sync.`);
+      // console.log(`Found ${toUpdate.length} submissions to sync.`);
       
       if (toUpdate.length === 0) {
         setToast({ message: 'All submissions already have page counts!', type: 'success' });
@@ -406,7 +406,7 @@ const AdminSubmissions = () => {
   };
 
   // Debug: log submissions to see what statuses exist
-  console.log('Submissions fetched:', submissions.length, 'Statuses:', submissions.map(s => s.status));
+  // console.log('Submissions fetched:', submissions.length, 'Statuses:', submissions.map(s => s.status));
 
   if (loading) {
     return (
