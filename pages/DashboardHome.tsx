@@ -244,9 +244,9 @@ const DashboardHome = () => {
                 <p className={`text-3xl font-bold ${submissionsLeft > 0 ? 'text-gray-900 dark:text-white' : 'text-red-600 dark:text-red-400'}`}>
                   {submissionsLeft}
                 </p>
-                <span className="text-sm text-gray-400">/ {totalSubmissions} total</span>
+                <span className="text-sm text-gray-400">/ 3 total</span>
               </div>
-              <p className="text-xs text-gray-400 mt-2">Resets in {daysLeft} days</p>
+              <p className="text-xs text-gray-400 mt-2">Lifetime limit</p>
             </>
           ) : (
             <>
@@ -274,47 +274,45 @@ const DashboardHome = () => {
 
         {/* 2. Guidance Calls */}
         <div className="relative group overflow-hidden bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all hover:border-black dark:hover:border-indigo-500">
-          {activePlan.toLowerCase() === 'free' && (
-            <a href="/pricing" className="absolute inset-0 z-20 bg-white/60 dark:bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer transition-opacity opacity-0 group-hover:opacity-100">
-              <div className="p-3 bg-indigo-600 rounded-full shadow-lg mb-2 transform scale-90 group-hover:scale-100 transition-transform">
-                <Lock className="w-6 h-6 text-white" />
-              </div>
-              <span className="font-semibold text-gray-900 dark:text-white">Upgrade to Unlock</span>
-            </a>
-          )}
-           
-          {activePlan.toLowerCase() === 'free' && (
-             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
-                 <Lock className="w-8 h-8 text-gray-400 dark:text-gray-600 mb-2" />
-                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Locked Feature</span>
-             </div>
-          )}
-
-          <div className={activePlan.toLowerCase() === 'free' ? 'blur-sm opacity-50' : ''}>
+          <div>
             <div className="flex items-center justify-between mb-1">
               <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Guidance Calls</span>
               <div className="p-2 bg-purple-50 dark:bg-gray-900 rounded-lg group-hover:bg-purple-100 dark:group-hover:bg-gray-800 transition-colors">
                 <Phone className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               </div>
             </div>
-            <div className="flex items-baseline gap-2 mb-3">
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">∞</p>
-              <span className="text-sm text-gray-400">Unlimited</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-yellow-300 dark:border-yellow-500/50 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400">
-                <span>Pending</span>
-                <span>{callsPending}</span>
-              </span>
-              <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-green-300 dark:border-green-500/50 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400">
-                <span>Completed</span>
-                <span>{callsCompletedThisMonth}</span>
-              </span>
-              <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400">
-                <span>Cancelled</span>
-                <span>{callsCancelled}</span>
-              </span>
-            </div>
+            {activePlan.toLowerCase() === 'free' ? (
+              <>
+                <div className="flex items-baseline gap-2 mb-3">
+                  <p className={`text-3xl font-bold ${guidanceCallsLeft > 0 ? 'text-gray-900 dark:text-white' : 'text-red-600 dark:text-red-400'}`}>
+                    {guidanceCallsLeft}
+                  </p>
+                  <span className="text-sm text-gray-400">/ 1 total</span>
+                </div>
+                <p className="text-xs text-gray-400">Lifetime limit</p>
+              </>
+            ) : (
+              <>
+                <div className="flex items-baseline gap-2 mb-3">
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">∞</p>
+                  <span className="text-sm text-gray-400">Unlimited</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-yellow-300 dark:border-yellow-500/50 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400">
+                    <span>Pending</span>
+                    <span>{callsPending}</span>
+                  </span>
+                  <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-green-300 dark:border-green-500/50 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400">
+                    <span>Completed</span>
+                    <span>{callsCompletedThisMonth}</span>
+                  </span>
+                  <span className="flex items-center justify-between gap-4 px-3 py-1.5 text-xs font-medium rounded-lg border border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400">
+                    <span>Cancelled</span>
+                    <span>{callsCancelled}</span>
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -346,23 +344,7 @@ const DashboardHome = () => {
 
         {/* 4. Days Left - Billing Cycle */}
         <div className="relative group overflow-hidden bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all hover:border-black dark:hover:border-indigo-500">
-          {activePlan.toLowerCase() === 'free' && (
-            <a href="/pricing" className="absolute inset-0 z-20 bg-white/60 dark:bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer transition-opacity opacity-0 group-hover:opacity-100">
-              <div className="p-3 bg-indigo-600 rounded-full shadow-lg mb-2 transform scale-90 group-hover:scale-100 transition-transform">
-                <Lock className="w-6 h-6 text-white" />
-              </div>
-              <span className="font-semibold text-gray-900 dark:text-white">Upgrade to Unlock</span>
-            </a>
-          )}
-           
-          {activePlan.toLowerCase() === 'free' && (
-             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
-                 <Lock className="w-8 h-8 text-gray-400 dark:text-gray-600 mb-2" />
-                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Locked Feature</span>
-             </div>
-          )}
-
-          <div className={activePlan.toLowerCase() === 'free' ? 'blur-sm opacity-50' : ''}>
+          <div>
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Billing Cycle</span>
               <div className="p-2 bg-orange-50 dark:bg-gray-900 rounded-lg group-hover:bg-orange-100 dark:group-hover:bg-gray-800 transition-colors">

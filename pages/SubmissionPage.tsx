@@ -43,8 +43,8 @@ const SubmissionPage = () => {
   const [isSubjectOpen, setIsSubjectOpen] = useState(false);
   const [isYearOpen, setIsYearOpen] = useState(false);
 
-  // FR-SUB 04: Premium users have unlimited submissions
-  const hasCredits = isUnlimited || submissionsRemaining > 0;
+  // All users can submit regardless of limits - admin will follow up personally
+  const hasCredits = true;
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
