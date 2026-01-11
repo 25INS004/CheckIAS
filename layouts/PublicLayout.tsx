@@ -48,7 +48,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       {/* Redesigned Header - Centered Layout */}
       <nav data-aos="fade-down" className="border-b border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-black/50 backdrop-blur-md sticky top-0 z-50 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-20 flex justify-between lg:grid lg:grid-cols-3 items-center">
+          <div className="h-20 flex justify-between items-center">
             
             {/* Left: Logo */}
             <div className="flex justify-start items-center">
@@ -58,14 +58,14 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                   alt="CheckIAS Logo"
                   className="h-14 w-auto rounded-xl"
                 />
-                <span className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">
+                <span className="hidden sm:inline text-2xl font-black tracking-tight text-gray-900 dark:text-white">
                   CHECKIAS
                 </span>
               </Link>
             </div>
 
             {/* Center: Navigation */}
-            <div className="hidden lg:flex justify-center">
+            <div className="hidden lg:flex justify-center flex-1 mx-4">
               <nav className="flex gap-2">
                 {navLinks.map((link) => (
                   <a
@@ -98,6 +98,14 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                 >
                   About us
                 </Link>
+                <a
+                  href="https://admin.checkias.com/login"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium px-4 py-2 rounded-full transition-all whitespace-nowrap text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
+                >
+                  Career
+                </a>
               </nav>
             </div>
             
@@ -161,6 +169,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <a href="/#features" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-base font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all">Features</a>
             <a href="/#pricing" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-base font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all">Pricing</a>
             <Link to="/about" onClick={() => { setIsMobileMenuOpen(false); window.scrollTo(0, 0); }} className="block px-4 py-3 rounded-lg text-base font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all">About us</Link>
+            <a href="https://admin.checkias.com/login" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-base font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all">Career</a>
           </div>
 
           <div className="p-4 border-t border-gray-100 dark:border-gray-800 shrink-0">
