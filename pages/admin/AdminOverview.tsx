@@ -89,10 +89,13 @@ const AdminOverview = () => {
 
       // Fetch all profiles
       const profilesRes = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/profiles?select=id,plan,created_at,plan_started_at`,
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/profiles?select=id,plan,role,created_at,plan_started_at`,
         { headers }
       );
-      const profiles = await profilesRes.json();
+      const profilesData = await profilesRes.json();
+      
+      // Filter out admin users from stats
+      const profiles = profilesData.filter((p: any) => p.role !== 'admin');
 
       // Count users by plan
       const freeUsers = profiles.filter((p: any) => p.plan === 'free').length;

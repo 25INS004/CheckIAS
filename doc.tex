@@ -1,0 +1,1401 @@
+% ============================================================================
+%                       CheckIAS - Technical Documentation
+% ============================================================================
+% A Comprehensive Technical Overview of the CheckIAS Answer Evaluation
+% Platform for UPSC Civil Services Examination Preparation
+% ============================================================================
+
+\documentclass[12pt,a4paper]{article}
+
+% ============================================================================
+%                              PACKAGES
+% ============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[table]{xcolor} % Loaded with table option for \rowcolor
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{parskip}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xurl}
+\usepackage{dirtree}
+\usepackage{fontawesome5}
+\newcommand{\DTcomment}[1]{\dotfill\textrm{#1}}
+
+% ============================================================================
+%                             PAGE SETUP
+% ============================================================================
+\geometry{
+    left=2cm,
+    right=2cm,
+    top=2.5cm,
+    bottom=2.5cm
+}
+
+% ============================================================================
+%                           COLOR DEFINITIONS
+% ============================================================================
+\definecolor{primarycolor}{RGB}{79, 70, 229}
+\definecolor{secondarycolor}{RGB}{99, 102, 241}
+\definecolor{accentcolor}{RGB}{16, 185, 129}
+\definecolor{codebackground}{RGB}{246, 248, 250}
+\definecolor{codeborder}{RGB}{225, 228, 232}
+\definecolor{tableheader}{RGB}{230, 230, 250}
+\definecolor{darkbg}{RGB}{30, 30, 40}
+\definecolor{foldercolor}{RGB}{230, 126, 34}
+\definecolor{reactcolor}{RGB}{97, 218, 251}
+\definecolor{jscolor}{RGB}{247, 223, 30}
+\definecolor{tscolor}{RGB}{49, 120, 198}
+\definecolor{csscolor}{RGB}{38, 77, 228}
+\definecolor{htmlcolor}{RGB}{227, 79, 38}
+\definecolor{dockercolor}{RGB}{36, 150, 237}
+\definecolor{npmcolor}{RGB}{203, 56, 55}
+\definecolor{filecolor}{RGB}{149, 165, 166}
+
+\newcommand{\iconFolder}{\textcolor{foldercolor}{\faFolderOpen}}
+\newcommand{\iconFolderClosed}{\textcolor{foldercolor}{\faFolder}}
+\newcommand{\iconFile}{\textcolor{filecolor}{\faFile}}
+\newcommand{\iconReact}{\textcolor{reactcolor}{\faReact}}
+\newcommand{\iconJs}{\textcolor{jscolor}{\faJs}}
+\newcommand{\iconTs}{\textcolor{tscolor}{\faJs}}
+\newcommand{\iconCss}{\textcolor{csscolor}{\faCss3}}
+\newcommand{\iconHtml}{\textcolor{htmlcolor}{\faHtml5}}
+\newcommand{\iconDocker}{\textcolor{dockercolor}{\faDocker}}
+\newcommand{\iconNpm}{\textcolor{npmcolor}{\faNpm}}
+\newcommand{\iconCode}{\textcolor{filecolor}{\faCode}}
+\newcommand{\iconFileCode}{\textcolor{filecolor}{\faFileCode}}
+
+% ============================================================================
+%                          HYPERLINK SETUP
+% ============================================================================
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primarycolor,
+    urlcolor=secondarycolor,
+    citecolor=primarycolor,
+    pdftitle={CheckIAS Technical Documentation},
+    pdfauthor={CheckIAS Development Team}
+}
+
+% ============================================================================
+%                         CODE LISTING STYLE
+% ============================================================================
+\lstdefinestyle{codestyle}{
+    backgroundcolor=\color{codebackground},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    frame=single,
+    rulecolor=\color{codeborder},
+    xleftmargin=0.5em,
+    framexleftmargin=0.5em
+}
+\lstset{style=codestyle}
+
+% ============================================================================
+%                           HEADER & FOOTER
+% ============================================================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{primarycolor}{\textbf{CheckIAS}}}
+\fancyhead[R]{\textcolor{gray}{Technical Documentation}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.5pt}
+
+% ============================================================================
+%                          TITLE FORMATTING
+% ============================================================================
+\titleformat{\section}
+    {\normalfont\Large\bfseries\color{primarycolor}}
+    {\thesection}{1em}{}
+\titleformat{\subsection}
+    {\normalfont\large\bfseries\color{secondarycolor}}
+    {\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+    {\normalfont\normalsize\bfseries\color{gray}}
+    {\thesubsubsection}{1em}{}
+
+% ============================================================================
+%                          DOCUMENT BEGIN
+% ============================================================================
+\begin{document}
+
+% ============================================================================
+%                            TITLE PAGE
+% ============================================================================
+\begin{titlepage}
+    \centering
+    \vspace*{3cm}
+    
+    {\Huge\bfseries\textcolor{primarycolor}{CheckIAS}\par}
+    \vspace{0.8cm}
+    {\Large\textcolor{secondarycolor}{Technical Documentation}\par}
+    
+    \vspace{2cm}
+    
+    {\large\textbf{A Comprehensive Platform for UPSC Answer Evaluation}\par}
+    \vspace{0.3cm}
+    {\large Expert Guidance \& Personalized Mentorship\par}
+    
+    \vspace{2cm}
+    
+    \noindent\rule{0.6\textwidth}{0.5pt}
+    
+    \vspace{1.5cm}
+    
+    \begin{tabular}{rl}
+        \textbf{Version:} & 1.0.0 \\[0.3cm]
+        \textbf{Date:} & January 2026 \\[0.3cm]
+        \textbf{Platform:} & Web Application \\[0.3cm]
+        \textbf{Domain:} & \url{https://checkias.com} \\[0.3cm]
+        \textbf{Admin Panel:} & \url{https://admin.checkias.com}
+    \end{tabular}
+    
+    \vspace{2cm}
+    
+    \noindent\rule{0.6\textwidth}{0.5pt}
+    
+    \vspace{1cm}
+    
+    {\small\textcolor{gray}{This document provides a comprehensive technical overview of the CheckIAS platform, including architecture, features, API endpoints, and deployment guidelines.}\par}
+    
+\end{titlepage}
+
+% ============================================================================
+%                        TABLE OF CONTENTS
+% ============================================================================
+\tableofcontents
+\newpage
+
+% ============================================================================
+%                     SECTION 1: INTRODUCTION
+% ============================================================================
+\section{Introduction}
+
+\subsection{Overview}
+
+CheckIAS is a comprehensive web-based platform designed to assist UPSC Civil Services aspirants in their examination preparation journey. The platform provides:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Answer Evaluation Service}: Expert review and feedback on handwritten answer submissions
+    \item \textbf{Guidance Calls}: One-on-one mentorship sessions with experienced mentors
+    \item \textbf{Progress Tracking}: Detailed analytics and history of all submissions
+    \item \textbf{Subscription Plans}: Tiered pricing model for different user needs
+\end{itemize}
+
+\subsection{Target Audience}
+
+\begin{itemize}[leftmargin=*]
+    \item UPSC Civil Services (IAS/IPS/IFS) aspirants
+    \item Students preparing for GS (General Studies) papers
+    \item Candidates seeking personalized mentorship
+\end{itemize}
+
+% ============================================================================
+%                    SECTION 2: TECHNOLOGY STACK
+% ============================================================================
+\section{Technology Stack}
+
+\subsection{Frontend Framework}
+
+\begin{tabular}{@{}p{5cm}p{2.5cm}p{9cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Technology} & \textbf{Version} & \textbf{Purpose} \\
+    \midrule
+    React & 19.2.3 & Core UI library for building interactive user interfaces \\
+    \midrule
+    TypeScript & 5.8.2 & Static type checking and enhanced developer experience \\
+    \midrule
+    Vite & 6.2.0 & Next-generation frontend build tool and development server \\
+    \midrule
+    React Router DOM & 7.11.0 & Client-side routing and navigation \\
+    \midrule
+    Tailwind CSS & 4.1.18 & Utility-first CSS framework for styling \\
+    \midrule
+    Lucide React & 0.562.0 & Modern icon library with React components \\
+    \midrule
+    GSAP & 3.14.2 & Professional-grade animation library \\
+    \midrule
+    AOS & 2.3.4 & Animate On Scroll library for scroll animations \\
+    \midrule
+    Embla Carousel & 8.6.0 & Lightweight carousel/slider component \\
+    \midrule
+    Date-fns & 4.1.0 & Modern JavaScript date utility library \\
+    \midrule
+    React PDF Renderer & 4.3.2 & PDF generation for invoices and documents \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Backend \& Database (BaaS)}
+
+\begin{tabular}{@{}p{5cm}p{2.5cm}p{9cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Technology} & \textbf{Version} & \textbf{Purpose} \\
+    \midrule
+    Supabase & 2.89.0 & Backend-as-a-Service (PostgreSQL, Auth, Storage) \\
+    \midrule
+    PostgreSQL & - & Primary relational database (managed by Supabase) \\
+    \midrule
+    Supabase Auth & - & User authentication (email/password, OTP, OAuth) \\
+    \midrule
+    Supabase Storage & - & File storage for PDF submissions and avatars \\
+    \midrule
+    Edge Functions & - & Serverless functions for email notifications \\
+    \midrule
+    Row Level Security & - & Database-level access control policies \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Payment Gateway}
+
+\begin{tabular}{@{}p{5cm}p{2.5cm}p{9cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Technology} & \textbf{Version} & \textbf{Purpose} \\
+    \midrule
+    Razorpay & Latest & Payment processing for subscription plans \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Deployment \& Infrastructure}
+
+\begin{tabular}{@{}p{5cm}p{2.5cm}p{9cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Technology} & \textbf{Version} & \textbf{Purpose} \\
+    \midrule
+    Vercel & - & Primary hosting platform for frontend \\
+    \midrule
+    Docker & - & Containerization support (Dockerfile included) \\
+    \midrule
+    Nginx & - & Reverse proxy configuration for Docker deployment \\
+    \midrule
+    Resend & - & Transactional email service via Supabase Edge Functions \\
+    \bottomrule
+\end{tabular}
+
+% ============================================================================
+%                   SECTION 3: USER FEATURES
+% ============================================================================
+\section{User Features}
+
+\subsection{Authentication \& Account Management}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    User Registration & Email-based signup with password creation \\
+    \midrule
+    User Login & Secure authentication with "Remember Me" option \\
+    \midrule
+    OTP Verification & Email-based OTP for additional security \\
+    \midrule
+    Password Reset & Self-service forgot password flow via email \\
+    \midrule
+    Profile Management & Update name, phone, DOB, avatar, optional subject \\
+    \midrule
+    Profile Completion Modal & Prompts users to complete required profile fields \\
+    \midrule
+    Session Management & Automatic token refresh and expiry handling \\
+    \midrule
+    Logout & Clear session and redirect to home \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Dashboard \& Navigation}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    Dashboard Home & Overview with stats: submissions left, days remaining, plan info \\
+    \midrule
+    Sidebar Navigation & Quick access to all dashboard sections \\
+    \midrule
+    Plan Status Display & Current plan, validity period, remaining quotas \\
+    \midrule
+    Announcements & Important platform updates and notifications \\
+    \midrule
+    Dark Mode Support & Full dark theme across all components \\
+    \midrule
+    Responsive Design & Mobile-first design with tablet and desktop support \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Answer Submission System}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    File Upload & PDF upload with drag-and-drop support \\
+    \midrule
+    Paper Type Selection & GS Paper 1, 2, 3, 4 and Essay options \\
+    \midrule
+    Question Details & Question number and optional notes \\
+    \midrule
+    Upload Progress & Real-time progress indicator during upload \\
+    \midrule
+    Submission Limits & Plan-based submission quotas \\
+    \midrule
+    File Naming & Unique filenames: CheckIAS\_[UserID]\_[Timestamp].pdf \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Submission History \& Tracking}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    Submission List & Paginated view of all user submissions \\
+    \midrule
+    Status Tracking & Pending → Under Review → Evaluated \\
+    \midrule
+    Feedback View & Detailed mentor feedback after evaluation \\
+    \midrule
+    Score Display & Numerical score with total marks breakdown \\
+    \midrule
+    Evaluated File Download & Download checked answer sheet with annotations \\
+    \midrule
+    Status Badges & Color-coded status indicators \\
+    \midrule
+    Date Filtering & Filter submissions by date range \\
+    \midrule
+    Refresh Button & Manual refresh to check for updates \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Guidance Calls}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    Request Guidance Call & Book one-on-one mentorship sessions \\
+    \midrule
+    Date \& Time Selection & Interactive calendar with time picker \\
+    \midrule
+    Topic Selection & Choose call topic (strategy, answer writing, etc.) \\
+    \midrule
+    Description Field & Add detailed notes for the mentor \\
+    \midrule
+    Call Status Tracking & Requested → Scheduled → Completed \\
+    \midrule
+    Call Cancellation & Cancel pending calls before completion \\
+    \midrule
+    Call History & View all past and upcoming calls \\
+    \midrule
+    Mentor Notes & View notes added by mentor after call \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Subscription \& Payment}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    View Plans & Compare all available subscription plans \\
+    \midrule
+    Plan Details & Features, pricing, and duration for each plan \\
+    \midrule
+    Razorpay Integration & Secure payment processing \\
+    \midrule
+    Coupon Code Support & Apply discount codes during checkout \\
+    \midrule
+    Plan Upgrade & Upgrade from Free to paid plans \\
+    \midrule
+    Invoice Generation & Automatic PDF invoice creation \\
+    \midrule
+    Invoice History & View and download past invoices \\
+    \midrule
+    Payment Confirmation & Email notification upon successful payment \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Support \& Help}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    Create Support Ticket & Submit issues or queries \\
+    \midrule
+    Ticket Categories & Technical, Billing, General, Feedback \\
+    \midrule
+    Ticket Status Tracking & Open → In Progress → Resolved \\
+    \midrule
+    Help Center & FAQ and common questions \\
+    \midrule
+    Contact Information & Email and phone support details \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Static Pages}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Page} & \textbf{Description} \\
+    \midrule
+    Landing Page & Homepage with hero section, features, testimonials \\
+    \midrule
+    About Us & Company information and mission \\
+    \midrule
+    Terms of Service & Legal terms and conditions \\
+    \midrule
+    Privacy Policy & Data privacy and protection policy \\
+    \midrule
+    Refund Policy & Refund terms and conditions \\
+    \bottomrule
+\end{tabular}
+
+% ============================================================================
+%                   SECTION 4: ADMIN FEATURES
+% ============================================================================
+\section{Admin Features}
+
+\subsection{Admin Authentication}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    Admin Login & Separate login at admin.checkias.com \\
+    \midrule
+    Role-Based Access & Only users with role='admin' can access \\
+    \midrule
+    Protected Routes & Automatic redirect for unauthorized users \\
+    \midrule
+    Admin Password Reset & Self-service password recovery \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Dashboard Overview}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    Statistics Summary & Total users, submissions, revenue metrics \\
+    \midrule
+    Recent Activity & Latest submissions and user registrations \\
+    \midrule
+    Quick Actions & Direct links to common admin tasks \\
+    \midrule
+    System Health & Platform status indicators \\
+    \bottomrule
+\end{tabular}
+
+\subsection{User Management}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    View All Users & Paginated list of all registered users \\
+    \midrule
+    User Search & Search by name, email, or phone \\
+    \midrule
+    User Details & View complete user profile and activity \\
+    \midrule
+    Edit User Plan & Upgrade/downgrade user subscription \\
+    \midrule
+    User Role Management & Assign admin or user roles \\
+    \midrule
+    User Statistics & Submissions count, plan history \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Submission Management}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    View All Submissions & Complete list with filters \\
+    \midrule
+    Status Filter & Filter by Pending, Under Review, Evaluated \\
+    \midrule
+    Download Original & Download user's submitted PDF \\
+    \midrule
+    Upload Evaluated Copy & Upload checked answer sheet \\
+    \midrule
+    Add Score & Enter numerical score (marks obtained/total) \\
+    \midrule
+    Add Feedback & Write detailed textual feedback \\
+    \midrule
+    Change Status & Update submission status \\
+    \midrule
+    Bulk Actions & Process multiple submissions \\
+    \midrule
+    Date Range Filter & Filter submissions by submission date \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Guidance Call Management}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    View All Calls & List of all guidance call requests \\
+    \midrule
+    Status Filter & Filter by Requested, Scheduled, Completed \\
+    \midrule
+    Schedule Call & Confirm call with date and time \\
+    \midrule
+    Add Notes & Record call notes and feedback \\
+    \midrule
+    Mark Complete & Change status to completed \\
+    \midrule
+    Cancel Call & Cancel with optional reason \\
+    \midrule
+    User Details & View user info for scheduled call \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Support Ticket Management}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    View All Tickets & Complete list of support requests \\
+    \midrule
+    Status Filter & Filter by Open, In Progress, Resolved \\
+    \midrule
+    Priority Filter & Filter by priority level \\
+    \midrule
+    Respond to Ticket & Add admin response \\
+    \midrule
+    Change Status & Update ticket status \\
+    \midrule
+    Assign Ticket & Assign to specific admin \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Pricing Management}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    View All Plans & List all subscription plans \\
+    \midrule
+    Edit Plan Details & Modify title, description, features \\
+    \midrule
+    Update Pricing & Change plan price \\
+    \midrule
+    Set Popular Flag & Mark a plan as "Most Popular" \\
+    \midrule
+    Enable/Disable Plans & Activate or deactivate plans \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Coupon Management}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    Create Coupon & Add new discount codes \\
+    \midrule
+    Coupon Types & Percentage or fixed amount discount \\
+    \midrule
+    Usage Limits & Set maximum usage count \\
+    \midrule
+    Expiry Date & Set coupon validity period \\
+    \midrule
+    Plan-Specific Coupons & Restrict to specific plans \\
+    \midrule
+    View Usage Stats & Track coupon redemptions \\
+    \midrule
+    Deactivate Coupon & Disable active coupons \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Invoice Management}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    View All Invoices & Complete payment history \\
+    \midrule
+    Invoice Search & Search by user, date, or transaction ID \\
+    \midrule
+    Download Invoice & Generate PDF invoice \\
+    \midrule
+    Payment Details & View Razorpay transaction details \\
+    \midrule
+    Revenue Reports & Aggregate revenue statistics \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Admin Settings}
+
+\begin{tabular}{@{}p{6cm}p{10cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Description} \\
+    \midrule
+    Profile Settings & Update admin name, email, password \\
+    \midrule
+    System Announcements & Create platform-wide announcements \\
+    \midrule
+    Notification Settings & Configure email notification preferences \\
+    \bottomrule
+\end{tabular}
+
+% ============================================================================
+%               SECTION 5: API ENDPOINTS (SUPABASE REST)
+% ============================================================================
+\section{API Endpoints}
+
+All API endpoints are served via \textbf{Supabase REST API} at the base URL:
+
+\begin{lstlisting}
+https://{PROJECT_ID}.supabase.co/rest/v1/
+\end{lstlisting}
+
+\subsection{Authentication Headers}
+
+All authenticated requests require:
+
+\begin{lstlisting}
+Headers:
+  apikey: {SUPABASE_ANON_KEY}
+  Authorization: Bearer {ACCESS_TOKEN}
+  Content-Type: application/json
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+%                      5.1 AUTHENTICATION ENDPOINTS
+% ----------------------------------------------------------------------------
+\subsection{Authentication Endpoints}
+
+\textbf{Base URL:} \texttt{/auth/v1/}
+
+\begin{tabular}{@{}p{1.5cm}p{9.4cm}p{5.5cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+    \midrule
+    POST & \texttt{/auth/v1/signup} & Register new user with email and password \\
+    \midrule
+    POST & \url{/auth/v1/token?grant_type=password} & Login with email and password \\
+    \midrule
+    POST & \texttt{/auth/v1/logout} & Sign out and invalidate session \\
+    \midrule
+    POST & \texttt{/auth/v1/recover} & Send password reset email \\
+    \midrule
+    PUT & \texttt{/auth/v1/user} & Update user password \\
+    \midrule
+    GET & \texttt{/auth/v1/user} & Get current authenticated user \\
+    \midrule
+    POST & \texttt{/auth/v1/otp} & Generate and send OTP to email \\
+    \midrule
+    POST & \texttt{/auth/v1/verify} & Verify OTP code \\
+    \bottomrule
+\end{tabular}
+
+% ----------------------------------------------------------------------------
+%                      5.2 PROFILE ENDPOINTS
+% ----------------------------------------------------------------------------
+\subsection{Profile Endpoints}
+
+\textbf{Base URL:} \texttt{/rest/v1/profiles}
+
+\begin{tabular}{@{}p{1.5cm}p{9.4cm}p{5.5cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+    \midrule
+    GET & \texttt{?id=eq.\{userid\}} & Get user profile by ID \\
+    \midrule
+    GET & \texttt{?select=*} & Get all profiles (Admin only) \\
+    \midrule
+    PATCH & \texttt{?id=eq.\{userid\}} & Update user profile \\
+    \midrule
+    GET & \texttt{?email=ilike.*\{query\}*} & Search profiles by email \\
+    \midrule
+    GET & \texttt{?role=eq.admin} & Get all admin profiles \\
+    \bottomrule
+\end{tabular}
+
+\vspace{0.5cm}
+\textbf{Profile Schema:}
+\begin{lstlisting}
+{
+  "id": "uuid",
+  "email": "string",
+  "full_name": "string",
+  "phone": "string",
+  "year_of_attempt": "string",
+  "optional_subject": "string",
+  "dob": "date",
+  "avatar_url": "string",
+  "language": "string",
+  "plan": "free | starter | pro | achiever",
+  "plan_started_at": "timestamp",
+  "role": "user | admin",
+  "created_at": "timestamp"
+}
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+%                      5.3 SUBMISSION ENDPOINTS
+% ----------------------------------------------------------------------------
+\subsection{Submission Endpoints}
+
+\textbf{Base URL:} \texttt{/rest/v1/submissions}
+
+\begin{tabular}{@{}p{1.5cm}p{9.4cm}p{5.5cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+    \midrule
+    GET & \texttt{?select=*\&order=created\_at.desc} & Get all submissions (sorted by date) \\
+    \midrule
+    GET & \texttt{?user\_id=eq.\{id\}} & Get submissions for specific user \\
+    \midrule
+    GET & \texttt{?status=eq.pending} & Filter by status \\
+    \midrule
+    POST & \texttt{/} & Create new submission \\
+    \midrule
+    PATCH & \texttt{?id=eq.\{id\}} & Update submission (status, feedback) \\
+    \midrule
+    DELETE & \texttt{?id=eq.\{id\}} & Delete submission (Admin only) \\
+    \bottomrule
+\end{tabular}
+
+\vspace{0.5cm}
+\textbf{Submission Schema:}
+\begin{lstlisting}
+{
+  "id": "uuid",
+  "user_id": "uuid (FK to profiles)",
+  "paper_type": "string (GS1, GS2, GS3, GS4, Essay)",
+  "question_number": "string",
+  "file_url": "string (public URL to uploaded PDF)",
+  "file_name": "string",
+  "status": "pending | reviewing | completed",
+  "feedback": "text (null until evaluated)",
+  "score": "integer (null until evaluated)",
+  "score_total": "integer",
+  "pages": "integer",
+  "checked_file_url": "string (evaluated copy URL)",
+  "reviewed_at": "timestamp",
+  "created_at": "timestamp"
+}
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+%                    5.4 GUIDANCE CALLS ENDPOINTS
+% ----------------------------------------------------------------------------
+\subsection{Guidance Call Endpoints}
+
+\textbf{Base URL:} \texttt{/rest/v1/guidance\_calls}
+
+\begin{tabular}{@{}p{1.5cm}p{9.4cm}p{5.5cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+    \midrule
+    GET & \texttt{?select=*\&order=created\_at.desc} & Get all guidance calls \\
+    \midrule
+    GET & \texttt{?user\_id=eq.\{id\}} & Get calls for specific user \\
+    \midrule
+    GET & \texttt{?status=eq.Requested} & Filter by status \\
+    \midrule
+    POST & \texttt{/} & Create new call request \\
+    \midrule
+    PATCH & \texttt{?id=eq.\{id\}} & Update call (status, notes) \\
+    \midrule
+    DELETE & \texttt{?id=eq.\{id\}} & Delete call request \\
+    \bottomrule
+\end{tabular}
+
+\vspace{0.5cm}
+\textbf{Guidance Call Schema:}
+\begin{lstlisting}
+{
+  "id": "uuid",
+  "user_id": "uuid (FK to profiles)",
+  "requested_date": "date",
+  "requested_time": "time",
+  "topic": "string",
+  "description": "text",
+  "status": "Requested | Scheduled | Completed | Cancelled",
+  "notes": "text (mentor notes)",
+  "created_at": "timestamp"
+}
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+%                    5.5 PRICING PLANS ENDPOINTS
+% ----------------------------------------------------------------------------
+\subsection{Pricing Plans Endpoints}
+
+\textbf{Base URL:} \texttt{/rest/v1/pricing\_plans}
+
+\begin{tabular}{@{}p{1.5cm}p{9.4cm}p{5.5cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+    \midrule
+    GET & \texttt{?select=*\&order=price.asc} & Get all pricing plans \\
+    \midrule
+    GET & \texttt{?id=eq.\{planId\}} & Get specific plan \\
+    \midrule
+    PATCH & \texttt{?id=eq.\{id\}} & Update plan details (Admin) \\
+    \midrule
+    POST & \texttt{/} & Create new plan (Admin) \\
+    \bottomrule
+\end{tabular}
+
+\vspace{0.5cm}
+\textbf{Pricing Plan Schema:}
+\begin{lstlisting}
+{
+  "id": "string (free, starter, pro, achiever)",
+  "title": "string",
+  "description": "text",
+  "price": "numeric",
+  "display_price": "string",
+  "period": "string",
+  "billing_note": "string",
+  "button_text": "string",
+  "is_popular": "boolean",
+  "features": "jsonb (array of feature strings)"
+}
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+%                      5.6 COUPONS ENDPOINTS
+% ----------------------------------------------------------------------------
+\subsection{Coupon Endpoints}
+
+\textbf{Base URL:} \texttt{/rest/v1/coupons}
+
+\begin{tabular}{@{}p{1.5cm}p{9.4cm}p{5.5cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+    \midrule
+    GET & \texttt{?select=*} & Get all coupons (Admin) \\
+    \midrule
+    GET & \texttt{?code=eq.\{code\}} & Validate coupon code \\
+    \midrule
+    POST & \texttt{/} & Create new coupon (Admin) \\
+    \midrule
+    PATCH & \texttt{?id=eq.\{id\}} & Update coupon (Admin) \\
+    \midrule
+    DELETE & \texttt{?id=eq.\{id\}} & Delete coupon (Admin) \\
+    \bottomrule
+\end{tabular}
+
+\vspace{0.5cm}
+\textbf{Coupon Schema:}
+\begin{lstlisting}
+{
+  "id": "uuid",
+  "code": "string (unique)",
+  "discount_type": "percentage | fixed",
+  "discount_value": "numeric",
+  "max_uses": "integer",
+  "current_uses": "integer",
+  "valid_from": "timestamp",
+  "valid_until": "timestamp",
+  "applicable_plans": "jsonb (array of plan ids)",
+  "is_active": "boolean",
+  "created_at": "timestamp"
+}
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+%                      5.7 INVOICES ENDPOINTS
+% ----------------------------------------------------------------------------
+\subsection{Invoice Endpoints}
+
+\textbf{Base URL:} \texttt{/rest/v1/invoices}
+
+\begin{tabular}{@{}p{1.5cm}p{9.4cm}p{5.5cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+    \midrule
+    GET & \texttt{?user\_id=eq.\{id\}\&order=...} & Get user invoices \\
+    \midrule
+    GET & \texttt{?select=*} & Get all invoices (Admin) \\
+    \midrule
+    POST & \texttt{/} & Create new invoice \\
+    \midrule
+    GET & \texttt{?id=eq.\{id\}} & Get specific invoice \\
+    \bottomrule
+\end{tabular}
+
+\vspace{0.5cm}
+\textbf{Invoice Schema:}
+\begin{lstlisting}
+{
+  "id": "uuid",
+  "user_id": "uuid (FK to profiles)",
+  "plan_id": "string",
+  "amount": "numeric",
+  "currency": "string (INR)",
+  "razorpay_payment_id": "string",
+  "razorpay_order_id": "string",
+  "status": "paid | pending | failed",
+  "coupon_code": "string (optional)",
+  "discount_amount": "numeric",
+  "created_at": "timestamp"
+}
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+%                    5.8 SUPPORT TICKETS ENDPOINTS
+% ----------------------------------------------------------------------------
+\subsection{Support Ticket Endpoints}
+
+\textbf{Base URL:} \texttt{/rest/v1/tickets}
+
+\begin{tabular}{@{}p{1.5cm}p{9.4cm}p{5.5cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+    \midrule
+    GET & \texttt{?user\_id=eq.\{id\}} & Get user's support tickets \\
+    \midrule
+    GET & \texttt{?select=*} & Get all tickets (Admin) \\
+    \midrule
+    GET & \texttt{?status=eq.open} & Filter by status \\
+    \midrule
+    POST & \texttt{/} & Create new ticket \\
+    \midrule
+    PATCH & \texttt{?id=eq.\{id\}} & Update ticket (status, response) \\
+    \bottomrule
+\end{tabular}
+
+\vspace{0.5cm}
+\textbf{Ticket Schema:}
+\begin{lstlisting}
+{
+  "id": "uuid",
+  "user_id": "uuid (FK to profiles)",
+  "subject": "string",
+  "category": "technical | billing | general | feedback",
+  "description": "text",
+  "status": "open | in_progress | resolved | closed",
+  "priority": "low | medium | high",
+  "admin_response": "text",
+  "assigned_to": "uuid (FK to admin profile)",
+  "created_at": "timestamp",
+  "updated_at": "timestamp"
+}
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+%                      5.9 STORAGE ENDPOINTS
+% ----------------------------------------------------------------------------
+\subsection{File Storage Endpoints}
+
+\textbf{Base URL:} \texttt{/storage/v1/}
+
+\begin{tabular}{@{}p{1.5cm}p{9.4cm}p{5.5cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+    \midrule
+    POST & \texttt{/object/\{bucket\}/\{path\}} & Upload file to storage \\
+    \midrule
+    GET & \texttt{/object/public/\{bucket\}/\{path\}} & Get public file URL \\
+    \midrule
+    DELETE & \texttt{/object/\{bucket\}/\{path\}} & Delete file from storage \\
+    \midrule
+    GET & \texttt{/object/list/\{bucket\}} & List files in bucket \\
+    \bottomrule
+\end{tabular}
+
+\vspace{0.5cm}
+\textbf{Storage Buckets:}
+\begin{itemize}[leftmargin=*]
+    \item \texttt{submissions} -- User submitted answer PDFs
+    \item \texttt{avatars} -- User profile pictures
+    \item \texttt{evaluated} -- Evaluated answer sheets with annotations
+\end{itemize}
+
+% ============================================================================
+%                   SECTION 6: DATABASE SCHEMA
+% ============================================================================
+\section{Database Schema}
+
+\subsection{Entity Relationship Overview}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{db_chart.png}
+    \caption{Database Entity Relationship Diagram}
+    \label{fig:db_schema}
+\end{figure}
+
+\begin{lstlisting}
+profiles (1) ----< (N) submissions
+profiles (1) ----< (N) guidance_calls
+profiles (1) ----< (N) invoices
+profiles (1) ----< (N) tickets
+pricing_plans (independent)
+coupons (independent)
+\end{lstlisting}
+
+\subsection{Primary Tables}
+
+\begin{tabular}{@{}p{4cm}p{12cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Table} & \textbf{Description} \\
+    \midrule
+    profiles & User accounts with personal information and plan details \\
+    \midrule
+    submissions & Answer sheet submissions with evaluation data \\
+    \midrule
+    guidance\_calls & Mentorship call requests and scheduling \\
+    \midrule
+    pricing\_plans & Subscription plan configurations \\
+    \midrule
+    coupons & Discount codes and promotional offers \\
+    \midrule
+    invoices & Payment records and transaction history \\
+    \midrule
+    tickets & Support requests and issue tracking \\
+    \bottomrule
+\end{tabular}
+
+\subsection{Row Level Security (RLS) Policies}
+
+\begin{lstlisting}
+-- Users can only read/update their own profile
+CREATE POLICY "Users can view own profile" ON profiles
+  FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Users can update own profile" ON profiles
+  FOR UPDATE USING (auth.uid() = id);
+
+-- Users can only access their own submissions
+CREATE POLICY "Users can view own submissions" ON submissions
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- Admins can view all records
+CREATE POLICY "Admins can view all" ON submissions
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+\end{lstlisting}
+
+% ============================================================================
+%                    SECTION 7: PROJECT STRUCTURE
+% ============================================================================
+\section{Project Structure}
+
+\dirtree{%
+.1 \iconFolder\ checkIAS/.
+.2 \iconHtml\ index.html \DTcomment{Entry HTML file}.
+.2 \iconReact\ index.tsx \DTcomment{React entry point}.
+.2 \iconCss\ index.css \DTcomment{Global styles}.
+.2 \iconReact\ App.tsx \DTcomment{Main app with routing}.
+.2 \iconJs\ vite.config.ts \DTcomment{Vite configuration}.
+.2 \iconJs\ tailwind.config.js \DTcomment{Tailwind CSS config}.
+.2 \iconTs\ tsconfig.json \DTcomment{TypeScript config}.
+.2 \iconNpm\ package.json \DTcomment{Dependencies}.
+.2 \iconDocker\ Dockerfile \DTcomment{Docker build config}.
+.2 \iconDocker\ docker-compose.yml \DTcomment{Docker Compose}.
+.2 \iconFileCode\ vercel.json \DTcomment{Vercel deployment}.
+.2 \iconFolderClosed\ components/ \DTcomment{Reusable UI components}.
+.3 \iconReact\ Sidebar.tsx.
+.3 \iconReact\ Footer.tsx.
+.3 \iconReact\ ProtectedRoute.tsx.
+.3 \iconReact\ ProtectedAdminRoute.tsx.
+.3 \iconReact\ DatePicker.tsx.
+.3 \iconReact\ TimePicker.tsx.
+.3 \iconReact\ StatusBadge.tsx.
+.3 \iconReact\ Pagination.tsx.
+.3 \iconReact\ Toast.tsx.
+.3 \iconReact\ InvoicePDF.tsx.
+.3 \iconReact\ ProfileCompletionModal.tsx.
+.3 \iconReact\ ConfirmationModal.tsx.
+.3 \iconReact\ CallDetailsModal.tsx.
+.3 \iconReact\ NotesModal.tsx.
+.2 \iconFolderClosed\ pages/ \DTcomment{Page components}.
+.3 \iconReact\ LandingPage.tsx.
+.3 \iconReact\ Login.tsx.
+.3 \iconReact\ Register.tsx.
+.3 \iconReact\ ForgotPassword.tsx.
+.3 \iconReact\ DashboardHome.tsx.
+.3 \iconReact\ SubmissionPage.tsx.
+.3 \iconReact\ HistoryPage.tsx.
+.3 \iconReact\ GuidanceCallsPage.tsx.
+.3 \iconReact\ PlansPage.tsx.
+.3 \iconReact\ SupportPage.tsx.
+.3 \iconReact\ ProfileSettings.tsx.
+.3 \iconReact\ InvoicesPage.tsx.
+.3 \iconReact\ AboutUs.tsx.
+.3 \iconReact\ TosPage.tsx.
+.3 \iconReact\ PrivacyPage.tsx.
+.3 \iconReact\ RefundPolicyPage.tsx.
+.3 \iconReact\ HelpCentre.tsx.
+.3 \iconFolderClosed\ admin/ \DTcomment{Admin pages}.
+.4 \iconReact\ AdminOverview.tsx.
+.4 \iconReact\ AdminLogin.tsx.
+.4 \iconReact\ AdminForgotPassword.tsx.
+.4 \iconReact\ UserManagement.tsx.
+.4 \iconReact\ AdminSubmissions.tsx.
+.4 \iconReact\ AdminGuidanceCalls.tsx.
+.4 \iconReact\ AdminTickets.tsx.
+.4 \iconReact\ AdminPricing.tsx.
+.4 \iconReact\ AdminCoupons.tsx.
+.4 \iconReact\ AdminInvoices.tsx.
+.4 \iconReact\ AdminSettings.tsx.
+.2 \iconFolderClosed\ context/ \DTcomment{React Context}.
+.3 \iconReact\ AppProvider.tsx.
+.3 \iconReact\ AuthContext.tsx.
+.3 \iconReact\ UserContext.tsx.
+.3 \iconReact\ ThemeContext.tsx.
+.3 \iconReact\ ToastContext.tsx.
+.2 \iconFolderClosed\ hooks/ \DTcomment{Custom hooks}.
+.3 \iconTs\ useSubmissions.ts.
+.3 \iconTs\ useGuidanceCalls.ts.
+.3 \iconTs\ useProfile.ts.
+.3 \iconTs\ useFileUpload.ts.
+.3 \iconTs\ usePayment.ts.
+.3 \iconTs\ usePricing.ts.
+.3 \iconTs\ useAutoRefresh.ts.
+.3 \iconTs\ useToggle.ts.
+.2 \iconFolderClosed\ layouts/ \DTcomment{Layouts}.
+.3 \iconReact\ PublicLayout.tsx.
+.3 \iconReact\ DashboardLayout.tsx.
+.3 \iconReact\ AdminLayout.tsx.
+.2 \iconFolderClosed\ lib/ \DTcomment{Libraries}.
+.3 \iconTs\ supabase.ts.
+.3 \iconTs\ otp.ts.
+.2 \iconFolderClosed\ config/ \DTcomment{Config}.
+.3 \iconFileCode\ pricing.ts.
+.2 \iconFolderClosed\ utils/ \DTcomment{Utilities}.
+.3 \iconTs\ helpers.ts.
+.2 \iconFolderClosed\ nginx/ \DTcomment{Nginx (Docker)}.
+.3 \iconFileCode\ default.conf.
+}
+
+% ============================================================================
+%                    SECTION 8: ENVIRONMENT VARIABLES
+% ============================================================================
+\section{Environment Variables}
+
+\begin{lstlisting}
+# Supabase Configuration
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+
+# Razorpay Configuration
+VITE_RAZORPAY_KEY_ID=rzp_live_xxxxxxxx
+
+# Application Settings
+VITE_APP_URL=https://checkias.com
+VITE_ADMIN_URL=https://admin.checkias.com
+\end{lstlisting}
+
+% ============================================================================
+%                      SECTION 9: DEPLOYMENT
+% ============================================================================
+\section{Deployment}
+
+\subsection{Production Deployment (Vercel)}
+
+\begin{enumerate}[leftmargin=*]
+    \item Connect repository to Vercel
+    \item Configure environment variables
+    \item Set build command: \texttt{npm run build}
+    \item Set output directory: \texttt{dist}
+    \item Configure domain: \texttt{checkias.com}
+    \item Configure admin subdomain: \texttt{admin.checkias.com}
+\end{enumerate}
+
+\subsection{Docker Deployment}
+
+\begin{lstlisting}
+# Build the image
+docker build -t checkias .
+
+# Run with docker-compose
+docker-compose up -d
+\end{lstlisting}
+
+\subsection{Local Development}
+
+\begin{lstlisting}
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+\end{lstlisting}
+
+% ============================================================================
+%                        APPENDIX
+% ============================================================================
+\newpage
+\appendix
+\section{Subscription Plan Details}
+
+\subsection{Plan Comparison}
+
+\begin{tabular}{@{}p{3.5cm}p{3.2cm}p{3.2cm}p{3.2cm}p{3.2cm}@{}}
+    \toprule
+    \rowcolor{tableheader}
+    \textbf{Feature} & \textbf{Free} & \textbf{Starter} & \textbf{Pro} & \textbf{Achiever} \\
+    \midrule
+    \textbf{Price} & \rupee 0 & \rupee 999 & \rupee 2,499 & \rupee 3,999 \\
+    \midrule
+    \textbf{Duration} & Lifetime & 1 Month & 3 Months & 6 Months \\
+    \midrule
+    \textbf{Billing} & --- & Monthly & Quarterly & Biannually \\
+    \midrule
+    \textbf{Submissions} & 3 (lifetime) & 3 GS + 1 Optional or 75 Q & Unlimited & Unlimited \\
+    \midrule
+    \textbf{Mentorship Calls} & 1 (lifetime) & 2 per week & 2 per week & 2 per week \\
+    \midrule
+    \textbf{Detailed Feedback} & \checkmark & \checkmark & \checkmark & \checkmark \\
+    \midrule
+    \textbf{Turnaround Time} & --- & 18 hours & 18 hours & 18 hours \\
+    \midrule
+    \textbf{Model Answers} & --- & \checkmark & \checkmark & \checkmark \\
+    \midrule
+    \textbf{Ticket Solution} & --- & 24 hours & 24 hours & 24 hours \\
+    \bottomrule
+\end{tabular}
+
+\newcommand{\rupee}{\textrm{\textnormal{\fontfamily{lmr}\selectfont\textregistered}}}
+
+\subsection{Plan Descriptions}
+
+\textbf{Free Plan} -- \textit{Try before you commit}
+\begin{itemize}[leftmargin=*]
+    \item 3 Submissions (lifetime)
+    \item 1 Mentor Call (lifetime)
+    \item Detailed Feedback
+    \item No credit card required
+\end{itemize}
+
+\textbf{Starter Plan} -- \textit{Great for occasional evaluation} -- Rs. 999/month
+\begin{itemize}[leftmargin=*]
+    \item 3 GS Papers + 1 Optional or 75 Questions
+    \item 2 Mentorship Calls per Week
+    \item Detailed Feedback
+    \item 18h Turnaround
+    \item Model Answer (Low Score Questions)
+    \item Ticket Solution within 24 Hours
+\end{itemize}
+
+\textbf{Pro Plan (Most Popular)} -- \textit{For serious aspirants} -- Rs. 2,499/3 months
+\begin{itemize}[leftmargin=*]
+    \item Unlimited Submissions
+    \item 2 Mentorship Calls per Week
+    \item Detailed Feedback
+    \item 18h Turnaround
+    \item Model Answer (Low Score Questions)
+    \item Ticket Solution within 24 Hours
+\end{itemize}
+
+\textbf{Achiever Plan} -- \textit{For rank holders} -- Rs. 3,999/6 months
+\begin{itemize}[leftmargin=*]
+    \item Unlimited Submissions
+    \item 2 Mentorship Calls per Week
+    \item Detailed Feedback
+    \item 18h Turnaround
+    \item Model Answer (Low Score Questions)
+    \item Ticket Solution within 24 Hours
+\end{itemize}
+
+\section{Status Workflow Diagrams}
+
+\subsection{Submission Status Flow}
+\begin{lstlisting}
+Pending --> Under Review --> Evaluated
+              |
+              v
+          (Admin adds feedback, score, evaluated PDF)
+\end{lstlisting}
+
+\subsection{Guidance Call Status Flow}
+\begin{lstlisting}
+Requested --> Scheduled --> Completed
+    |             |
+    v             v
+Cancelled    Cancelled
+\end{lstlisting}
+
+\subsection{Support Ticket Status Flow}
+\begin{lstlisting}
+Open --> In Progress --> Resolved --> Closed
+           |
+           v
+        (Admin responds)
+\end{lstlisting}
+
+% ============================================================================
+%                        DOCUMENT END
+% ============================================================================
+\vfill
+\begin{center}
+    \textcolor{gray}{\rule{0.5\textwidth}{0.5pt}}\\
+    \vspace{0.5cm}
+    \textbf{\textcolor{primarycolor}{CheckIAS}} | Technical Documentation v1.0.0\\
+    \textcolor{gray}{\copyright{} 2026 CheckIAS. All rights reserved.}
+\end{center}
+
+\end{document}

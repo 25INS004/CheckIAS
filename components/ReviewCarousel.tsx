@@ -31,7 +31,7 @@ const reviews = [
   },
   {
     id: 4,
-    name: "Navneet",
+    name: "Pankaj",
     role: "UPSC Aspirant",
     content: "Quality of evaluation is top-notch. They don't just give marks but actually tell you how to improve.",
     rating: 4,

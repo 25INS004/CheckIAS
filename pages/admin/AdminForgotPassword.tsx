@@ -197,7 +197,7 @@ const AdminForgotPassword = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full text-sm text-white outline-none bg-transparent placeholder-gray-500"
-                      placeholder="admin@checkias.com"
+                      placeholder="js6447168@gmail.com"
                     />
                   </div>
                 </div>

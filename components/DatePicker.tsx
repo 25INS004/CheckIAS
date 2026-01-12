@@ -23,6 +23,14 @@ const DatePicker: React.FC<DatePickerProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date | null>(value ? new Date(value) : null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const [view, setView] = useState<'days' | 'years'>('days');
+  const [yearRangeStart, setYearRangeStart] = useState(new Date().getFullYear() - 5); // Show 12 years centered around current
+
+  // Update year range when current month changes (e.g. from props)
+  useEffect(() => {
+    setYearRangeStart(currentMonth.getFullYear() - 5);
+  }, [currentMonth]);
+
   useEffect(() => {
     if (value) {
       setSelectedDate(new Date(value));
@@ -36,6 +44,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        setView('days'); // Reset view on close
       }
     };
 
@@ -68,63 +77,139 @@ const DatePicker: React.FC<DatePickerProps> = ({
     setIsOpen(false);
   };
 
+  const handleYearClick = (year: number) => {
+    setCurrentMonth(new Date(year, currentMonth.getMonth(), 1));
+    setView('days');
+  };
+
   const clearDate = (e: React.MouseEvent) => {
     e.stopPropagation();
     onChange('');
     setSelectedDate(null);
   };
 
-  const nextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+  const next = () => {
+    if (view === 'days') {
+      setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+    } else {
+      setYearRangeStart(prev => prev + 12);
+    }
   };
 
-  const prevMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+  const prev = () => {
+    if (view === 'days') {
+      setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+    } else {
+      setYearRangeStart(prev => prev - 12);
+    }
   };
 
   const goToToday = () => {
     const today = new Date();
     setCurrentMonth(today);
-    // Don't select, just navigate
+    setView('days');
+    setYearRangeStart(today.getFullYear() - 5);
   };
 
-  const { days, firstDay } = getDaysInMonth(currentMonth);
-  const today = new Date();
-  
-  // Generate calendar grid
-  const daysArray = [];
-  for (let i = 0; i < firstDay; i++) {
-    daysArray.push(<div key={`empty-${i}`} className="h-8 w-8" />);
-  }
-  for (let d = 1; d <= days; d++) {
-    const dateToCheck = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), d);
-    const isSelected = selectedDate && 
-      dateToCheck.getDate() === selectedDate.getDate() && 
-      dateToCheck.getMonth() === selectedDate.getMonth() && 
-      dateToCheck.getFullYear() === selectedDate.getFullYear();
-    
-    const isToday = 
-      dateToCheck.getDate() === today.getDate() && 
-      dateToCheck.getMonth() === today.getMonth() && 
-      dateToCheck.getFullYear() === today.getFullYear();
+  const toggleView = () => {
+    setView(v => v === 'days' ? 'years' : 'days');
+  };
 
-    daysArray.push(
-      <button
-        key={d}
-        onClick={() => handleDateClick(d)}
-        className={`h-8 w-8 rounded-lg flex items-center justify-center text-sm transition-colors
-          ${isSelected 
-            ? 'bg-indigo-600 text-white font-medium shadow-sm' 
-            : isToday 
-              ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/50' 
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-          }
-        `}
-      >
-        {d}
-      </button>
+  // Render Days Grid
+  const renderDays = () => {
+    const { days, firstDay } = getDaysInMonth(currentMonth);
+    const today = new Date();
+    const daysArray = [];
+
+    // Calendar Headers
+    const headers = (
+      <div className="grid grid-cols-7 mb-2">
+        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+          <div key={day} className="h-8 flex items-center justify-center text-xs font-medium text-gray-400 dark:text-gray-500">
+            {day}
+          </div>
+        ))}
+      </div>
     );
-  }
+
+    for (let i = 0; i < firstDay; i++) {
+      daysArray.push(<div key={`empty-${i}`} className="h-8 w-8" />);
+    }
+    for (let d = 1; d <= days; d++) {
+      const dateToCheck = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), d);
+      const isSelected = selectedDate && 
+        dateToCheck.getDate() === selectedDate.getDate() && 
+        dateToCheck.getMonth() === selectedDate.getMonth() && 
+        dateToCheck.getFullYear() === selectedDate.getFullYear();
+      
+      const isToday = 
+        dateToCheck.getDate() === today.getDate() && 
+        dateToCheck.getMonth() === today.getMonth() && 
+        dateToCheck.getFullYear() === today.getFullYear();
+
+      daysArray.push(
+        <button
+          key={d}
+          onClick={() => handleDateClick(d)}
+          className={`h-8 w-8 rounded-lg flex items-center justify-center text-sm transition-colors
+            ${isSelected 
+              ? 'bg-indigo-600 text-white font-medium shadow-sm' 
+              : isToday 
+                ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/50' 
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+            }
+          `}
+        >
+          {d}
+        </button>
+      );
+    }
+
+    return (
+      <>
+        {headers}
+        <div className="grid grid-cols-7 gap-1">
+          {daysArray}
+        </div>
+      </>
+    );
+  };
+
+  // Render Years Grid
+  const renderYears = () => {
+    const years = [];
+    const currentYear = new Date().getFullYear();
+    const selectedYear = selectedDate?.getFullYear();
+
+    for (let i = 0; i < 12; i++) {
+      const year = yearRangeStart + i;
+      const isSelected = selectedYear === year;
+      const isCurrent = currentYear === year;
+
+      years.push(
+        <button
+          key={year}
+          onClick={() => handleYearClick(year)}
+          className={`h-10 rounded-lg flex items-center justify-center text-sm transition-colors
+            ${isSelected 
+              ? 'bg-indigo-600 text-white font-medium shadow-sm' 
+              : isCurrent
+                ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/50'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+            }
+          `}
+        >
+          {year}
+        </button>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-3 gap-2 py-2">
+        {years}
+      </div>
+    );
+  };
 
   return (
     <div className={`relative ${className}`} ref={containerRef}>
@@ -164,33 +249,30 @@ const DatePicker: React.FC<DatePickerProps> = ({
         <div className="absolute top-full left-0 mt-2 z-50 p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl w-[280px] animate-in fade-in zoom-in-95 duration-100">
           <div className="flex items-center justify-between mb-4">
             <button 
-              onClick={prevMonth}
+              onClick={prev}
               className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-gray-600 dark:text-gray-400 transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <span className="text-sm font-semibold text-gray-900 dark:text-white">
-              {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-            </span>
             <button 
-              onClick={nextMonth}
+              onClick={toggleView}
+              className="text-sm font-semibold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded-md transition-colors flex items-center gap-1"
+            >
+              {view === 'days' 
+                ? `${months[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`
+                : `${yearRangeStart} - ${yearRangeStart + 11}`
+              }
+              <ChevronDown className={`w-3 h-3 text-gray-500 transition-transform ${view === 'years' ? 'rotate-180' : ''}`} />
+            </button>
+            <button 
+              onClick={next}
               className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-gray-600 dark:text-gray-400 transition-colors"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="grid grid-cols-7 mb-2">
-            {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-              <div key={day} className="h-8 flex items-center justify-center text-xs font-medium text-gray-400 dark:text-gray-500">
-                {day}
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-7 gap-1">
-            {daysArray}
-          </div>
+          {view === 'days' ? renderDays() : renderYears()}
 
           <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex justify-end">
             <button 

@@ -68,7 +68,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
       <div className="flex-1 min-w-0 text-left">
         <p className="text-sm font-medium text-slate-900 dark:text-white truncate">Admin User</p>
-        <p className="text-xs text-slate-500 dark:text-gray-500 truncate">admin@checkias.com</p>
+        <p className="text-xs text-slate-500 dark:text-gray-500 truncate">js6447168@gmail.com</p>
       </div>
       <LogOut className="w-4 h-4 text-slate-400 group-hover:text-red-600 dark:text-slate-500 dark:group-hover:text-red-400 transition-colors" />
     </button>
