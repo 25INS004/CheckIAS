@@ -278,20 +278,15 @@ const PlansPage = () => {
             response.razorpay_payment_id
           );
           
-          const { success, error } = await updateProfile({ 
-            plan: plan.id as any,
-            plan_started_at: new Date().toISOString()
-          });
-          
-          if (success) {
-            updateUser({ plan: plan.id as any });
-            toast.success(`Successfully upgraded to ${plan.title}!`);
-            setAppliedCoupon(null);
-            setCouponCode('');
-          } else {
-            console.error('Profile update failed:', error);
-            toast.error('Payment successful but failed to update subscription. Please contact support with Payment ID: ' + response.razorpay_payment_id);
-          }
+          // Note: Profile update is now handled by verify-payment Edge Function
+          // Just update local state
+          updateUser({ plan: plan.id as any });
+          toast.success(`Successfully upgraded to ${plan.title}!`);
+          setAppliedCoupon(null);
+          setCouponCode('');
+        },
+        onError: (errorMessage) => {
+          toast.error(errorMessage);
         }
       });
     } catch (err) {
