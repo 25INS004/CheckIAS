@@ -94,6 +94,13 @@ const AdminOverview = () => {
       );
       const profilesData = await profilesRes.json();
       
+      // Fetch all invoices for accurate revenue
+      const invoicesRes = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/invoices?select=amount,final_amount,plan_purchased,invoice_date`,
+        { headers }
+      );
+      const invoicesData = await invoicesRes.json();
+      
       // Filter out admin users from stats
       const profiles = profilesData.filter((p: any) => p.role !== 'admin');
 
@@ -104,15 +111,27 @@ const AdminOverview = () => {
       const achieverUsers = profiles.filter((p: any) => p.plan === 'achiever').length;
       const totalUsers = profiles.length;
 
-      // Calculate revenue
+      // Calculate revenue from REAL INVOICES
       const revenueByPlan = {
-        starter: starterUsers * PLAN_PRICES.starter,
-        pro: proUsers * PLAN_PRICES.pro,
-        achiever: achieverUsers * PLAN_PRICES.achiever,
+        starter: 0,
+        pro: 0,
+        achiever: 0,
       };
-      const totalRevenue = revenueByPlan.starter + revenueByPlan.pro + revenueByPlan.achiever;
+      
+      let totalRevenue = 0;
+      
+      if (Array.isArray(invoicesData)) {
+        invoicesData.forEach((inv: any) => {
+          totalRevenue += inv.final_amount || 0;
+          
+          const plan = inv.plan_purchased?.toLowerCase();
+          if (plan === 'starter') revenueByPlan.starter += inv.final_amount || 0;
+          else if (plan === 'pro') revenueByPlan.pro += inv.final_amount || 0;
+          else if (plan === 'achiever') revenueByPlan.achiever += inv.final_amount || 0;
+        });
+      }
 
-      // Calculate monthly revenue from plan_started_at (or created_at as fallback)
+      // Calculate monthly revenue from INVOICES
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const now = new Date();
       const last6Months: { month: string; revenue: number; starter: number; pro: number; achiever: number }[] = [];
@@ -124,19 +143,23 @@ const AdminOverview = () => {
         
         let starterRev = 0, proRev = 0, achieverRev = 0;
         
-        profiles.forEach((p: any) => {
-          // Use plan_started_at if available, otherwise use created_at
-          const dateField = p.plan_started_at || p.created_at;
-          if (dateField && p.plan !== 'free') {
-            const startDate = new Date(dateField);
-            const startMonthKey = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}`;
-            if (startMonthKey === monthKey) {
-              if (p.plan === 'starter') starterRev += PLAN_PRICES.starter;
-              if (p.plan === 'pro') proRev += PLAN_PRICES.pro;
-              if (p.plan === 'achiever') achieverRev += PLAN_PRICES.achiever;
+        if (Array.isArray(invoicesData)) {
+          invoicesData.forEach((inv: any) => {
+            if (!inv.invoice_date) return;
+            
+            const invDate = new Date(inv.invoice_date);
+            const invMonthKey = `${invDate.getFullYear()}-${String(invDate.getMonth() + 1).padStart(2, '0')}`;
+            
+            if (invMonthKey === monthKey) {
+              const amount = inv.final_amount || 0;
+              const plan = inv.plan_purchased?.toLowerCase();
+              
+              if (plan === 'starter') starterRev += amount;
+              else if (plan === 'pro') proRev += amount;
+              else if (plan === 'achiever') achieverRev += amount;
             }
-          }
-        });
+          });
+        }
         
         last6Months.push({
           month: monthName,
