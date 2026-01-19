@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
@@ -41,8 +42,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 
 // Detect if we're on the admin subdomain OR using ?admin=true for local development
-const isAdminSubdomain = 
-  window.location.hostname.startsWith('admin.') || 
+const isAdminSubdomain =
+  window.location.hostname.startsWith('admin.') ||
   new URLSearchParams(window.location.search).get('admin') === 'true' ||
   window.location.hostname === 'admin.localhost';
 
@@ -95,50 +96,52 @@ const App: React.FC = () => {
 
   // Main domain: render public + dashboard routes (no admin routes)
   return (
-    <AppProvider>
-      <ThemeProvider>
-        <UserProvider>
-          <ToastProvider>
-            <BrowserRouter>
-              <Routes>
-                {/* Auth Routes (standalone, no layout) */}
-                <Route path="/signup" element={<Register />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/debug-pricing" element={<div className="pt-20"><DebugPricing /></div>} />
+    <HelmetProvider>
+      <AppProvider>
+        <ThemeProvider>
+          <UserProvider>
+            <ToastProvider>
+              <BrowserRouter>
+                <Routes>
+                  {/* Auth Routes (standalone, no layout) */}
+                  <Route path="/signup" element={<Register />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/debug-pricing" element={<div className="pt-20"><DebugPricing /></div>} />
 
-                {/* Public Routes */}
-                <Route element={<PublicLayout><Outlet /></PublicLayout>}>
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/about" element={<AboutUs />} />
-                </Route>
+                  {/* Public Routes */}
+                  <Route element={<PublicLayout><Outlet /></PublicLayout>}>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/about" element={<AboutUs />} />
+                  </Route>
 
-                {/* Legal Pages (standalone, no layout) */}
-                <Route path="/terms-of-service" element={<TosPage />} />
-                <Route path="/privacy-policy" element={<PrivacyPage />} />
-                <Route path="/refund-policy" element={<RefundPolicyPage />} />
-                <Route path="/help-center" element={<HelpCentre />} />
+                  {/* Legal Pages (standalone, no layout) */}
+                  <Route path="/terms-of-service" element={<TosPage />} />
+                  <Route path="/privacy-policy" element={<PrivacyPage />} />
+                  <Route path="/refund-policy" element={<RefundPolicyPage />} />
+                  <Route path="/help-center" element={<HelpCentre />} />
 
-                {/* Dashboard Routes (Protected) */}
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <DashboardLayout><Outlet /></DashboardLayout>
-                  </ProtectedRoute>
-                }>
-                  <Route index element={<DashboardHome />} />
-                  <Route path="submit" element={<SubmissionPage />} />
-                  <Route path="history" element={<HistoryPage />} />
-                  <Route path="support" element={<SupportPage />} />
-                  <Route path="guidance-calls" element={<GuidanceCallsPage />} />
-                  <Route path="plans" element={<PlansPage />} />
-                  <Route path="settings/:tab?" element={<ProfileSettings />} />
-                </Route>
-              </Routes>
-            </BrowserRouter>
-          </ToastProvider>
-        </UserProvider>
-      </ThemeProvider>
-    </AppProvider>
+                  {/* Dashboard Routes (Protected) */}
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                      <DashboardLayout><Outlet /></DashboardLayout>
+                    </ProtectedRoute>
+                  }>
+                    <Route index element={<DashboardHome />} />
+                    <Route path="submit" element={<SubmissionPage />} />
+                    <Route path="history" element={<HistoryPage />} />
+                    <Route path="support" element={<SupportPage />} />
+                    <Route path="guidance-calls" element={<GuidanceCallsPage />} />
+                    <Route path="plans" element={<PlansPage />} />
+                    <Route path="settings/:tab?" element={<ProfileSettings />} />
+                  </Route>
+                </Routes>
+              </BrowserRouter>
+            </ToastProvider>
+          </UserProvider>
+        </ThemeProvider>
+      </AppProvider>
+    </HelmetProvider>
   );
 };
 

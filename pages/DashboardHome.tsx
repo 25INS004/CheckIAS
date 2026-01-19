@@ -10,11 +10,12 @@ import { usePayment } from '../hooks/usePayment';
 import { useProfile } from '../hooks/useProfile';
 import { supabase } from '../lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
+import Seo from '../components/Seo';
 
 const DashboardHome = () => {
   const { user, updateUser, refreshUser } = useUser();
   const [announcement, setAnnouncement] = useState<string | null>(null);
-  
+
   // Helper to get access token
   const getAccessToken = () => {
     try {
@@ -29,12 +30,12 @@ const DashboardHome = () => {
     }
     return null;
   };
-  
+
   const fetchAnnouncement = React.useCallback(async () => {
     try {
       const token = getAccessToken();
       if (!token) return;
-      
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/announcements?is_active=eq.true&order=created_at.desc&limit=1`,
         {
@@ -64,7 +65,7 @@ const DashboardHome = () => {
 
   // Auto-refresh announcements every 3 seconds
   useAutoRefresh(fetchAnnouncement);
-  
+
   const { toast } = useToast();
   const navigate = useNavigate();
   const { openPaymentModal } = usePayment();
@@ -76,7 +77,7 @@ const DashboardHome = () => {
       if (pendingPlan && user) {
         // Clear it immediately to prevent re-trigger
         sessionStorage.removeItem('pendingPlan');
-        
+
         // Map plan IDs to amounts (in paise)
         const PLAN_DETAILS: Record<string, number> = {
           starter: 99900,
@@ -85,30 +86,30 @@ const DashboardHome = () => {
         };
 
         const amount = PLAN_DETAILS[pendingPlan];
-        
+
         if (amount && user.plan !== pendingPlan) {
-            // Small delay to ensure UI renders
-            setTimeout(() => {
-                openPaymentModal({
-                    planId: pendingPlan,
-                    amount,
-                    onSuccess: async (response) => {
-                        // console.log('Auto-upgrade success', response);
-                        const { success } = await updateProfile({ 
-                          plan: pendingPlan as any,
-                          plan_started_at: new Date().toISOString()
-                        });
-                        if (success) {
-                            updateUser({ plan: pendingPlan as any });
-                            toast.success(`Welcome to ${pendingPlan}! Your account has been upgraded.`);
-                        }
-                    }
+          // Small delay to ensure UI renders
+          setTimeout(() => {
+            openPaymentModal({
+              planId: pendingPlan,
+              amount,
+              onSuccess: async (response) => {
+                // console.log('Auto-upgrade success', response);
+                const { success } = await updateProfile({
+                  plan: pendingPlan as any,
+                  plan_started_at: new Date().toISOString()
                 });
-            }, 500);
+                if (success) {
+                  updateUser({ plan: pendingPlan as any });
+                  toast.success(`Welcome to ${pendingPlan}! Your account has been upgraded.`);
+                }
+              }
+            });
+          }, 500);
         }
       }
     };
-    
+
     checkPendingPlan();
     checkPendingPlan();
   }, [user]);
@@ -118,47 +119,47 @@ const DashboardHome = () => {
   const [loadingActivity, setLoadingActivity] = React.useState(true);
 
   const fetchActivity = React.useCallback(async (background = false) => {
-      if (!user) return;
-      if (!background) setLoadingActivity(true);
-      
-      try {
-        const token = localStorage.getItem('supabase.auth.token') || sessionStorage.getItem('supabase.auth.token');
-        if (!token) throw new Error('No auth token found');
+    if (!user) return;
+    if (!background) setLoadingActivity(true);
 
-        const { currentSession } = JSON.parse(token);
-        const accessToken = currentSession?.access_token;
-        
-        const headers = {
-          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${accessToken}`,
-        };
+    try {
+      const token = localStorage.getItem('supabase.auth.token') || sessionStorage.getItem('supabase.auth.token');
+      if (!token) throw new Error('No auth token found');
 
-        const [submissionsRes, ticketsRes, callsRes] = await Promise.all([
-          fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/submissions?user_id=eq.${user.id}&select=id,paper_type,status,created_at&order=created_at.desc&limit=3`, { headers }),
-          fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/support_tickets?user_id=eq.${user.id}&select=id,subject,status,created_at&order=created_at.desc&limit=3`, { headers }),
-          fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/guidance_calls?user_id=eq.${user.id}&select=id,topic,status,created_at&order=created_at.desc&limit=3`, { headers })
-        ]);
+      const { currentSession } = JSON.parse(token);
+      const accessToken = currentSession?.access_token;
 
-        const [submissionsData, ticketsData, callsData] = await Promise.all([
-           submissionsRes.ok ? submissionsRes.json() : [],
-           ticketsRes.ok ? ticketsRes.json() : [],
-           callsRes.ok ? callsRes.json() : []
-        ]);
+      const headers = {
+        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${accessToken}`,
+      };
 
-        const combined = [
-          ...(submissionsData || []).map((i: any) => ({ ...i, type: 'submission', title: i.paper_type, icon: FileText, color: 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400' })),
-          ...(ticketsData || []).map((i: any) => ({ ...i, type: 'ticket', title: i.subject, icon: Megaphone, color: 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' })),
-          ...(callsData || []).map((i: any) => ({ ...i, type: 'call', title: i.topic, icon: Clock, color: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400' }))
-        ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-         .slice(0, 3);
-         
-        setRecentActivity(combined);
-      } catch (err) {
-        console.error('Error fetching activity:', err);
-      } finally {
-        if (!background) setLoadingActivity(false);
-      }
-    }, [user]);
+      const [submissionsRes, ticketsRes, callsRes] = await Promise.all([
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/submissions?user_id=eq.${user.id}&select=id,paper_type,status,created_at&order=created_at.desc&limit=3`, { headers }),
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/support_tickets?user_id=eq.${user.id}&select=id,subject,status,created_at&order=created_at.desc&limit=3`, { headers }),
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/guidance_calls?user_id=eq.${user.id}&select=id,topic,status,created_at&order=created_at.desc&limit=3`, { headers })
+      ]);
+
+      const [submissionsData, ticketsData, callsData] = await Promise.all([
+        submissionsRes.ok ? submissionsRes.json() : [],
+        ticketsRes.ok ? ticketsRes.json() : [],
+        callsRes.ok ? callsRes.json() : []
+      ]);
+
+      const combined = [
+        ...(submissionsData || []).map((i: any) => ({ ...i, type: 'submission', title: i.paper_type, icon: FileText, color: 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400' })),
+        ...(ticketsData || []).map((i: any) => ({ ...i, type: 'ticket', title: i.subject, icon: Megaphone, color: 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' })),
+        ...(callsData || []).map((i: any) => ({ ...i, type: 'call', title: i.topic, icon: Clock, color: 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400' }))
+      ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 3);
+
+      setRecentActivity(combined);
+    } catch (err) {
+      console.error('Error fetching activity:', err);
+    } finally {
+      if (!background) setLoadingActivity(false);
+    }
+  }, [user]);
 
   React.useEffect(() => {
     fetchActivity();
@@ -193,19 +194,19 @@ const DashboardHome = () => {
       supabase.removeChannel(channel);
     };
   }, [user, refreshUser, fetchActivity]);
-  
+
   if (!user) return null;
 
-  const { 
-    submissionsLeft, 
+  const {
+    submissionsLeft,
     totalSubmissions,
     submissionsCompleted,
     submissionsPending,
     submissionsUnderReview,
-    plan: activePlan, 
-    daysLeft, 
-    guidanceCallsLeft, 
-    totalGuidanceCalls, 
+    plan: activePlan,
+    daysLeft,
+    guidanceCallsLeft,
+    totalGuidanceCalls,
     callsCompletedThisMonth,
     callsCancelled,
     callsPending,
@@ -214,6 +215,7 @@ const DashboardHome = () => {
 
   return (
     <div className="space-y-6">
+      <Seo title="Dashboard" />
       {/* Broadcast Banner */}
       {announcement && (
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 flex items-start gap-3">
@@ -237,7 +239,7 @@ const DashboardHome = () => {
               <FileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             </div>
           </div>
-          
+
           {activePlan.toLowerCase() === 'free' ? (
             <>
               <div className="flex items-baseline gap-2">
@@ -333,8 +335,8 @@ const DashboardHome = () => {
           <p className="text-xs text-gray-400 mt-2">
             {activePlan.toLowerCase() === 'free' ? 'Upgrade for more features' : `Valid until ${validUntil || '...'}`}
           </p>
-          <Link 
-            to="/dashboard/plans" 
+          <Link
+            to="/dashboard/plans"
             className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
           >
             <Crown className="w-3.5 h-3.5" />
@@ -368,8 +370,8 @@ const DashboardHome = () => {
       <div className="bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
         <div className="grid md:grid-cols-2 gap-4">
-          <a 
-            href="/dashboard/submit" 
+          <a
+            href="/dashboard/submit"
             className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-all group"
           >
             <div className="p-2 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg group-hover:bg-indigo-200 dark:group-hover:bg-indigo-900/60 transition-colors">
@@ -380,8 +382,8 @@ const DashboardHome = () => {
               <p className="text-sm text-gray-500 dark:text-gray-400">Upload a new answer copy</p>
             </div>
           </a>
-          <a 
-            href="/dashboard/history" 
+          <a
+            href="/dashboard/history"
             className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all group"
           >
             <div className="p-2 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg group-hover:bg-indigo-200 dark:group-hover:bg-indigo-900/60 transition-colors">

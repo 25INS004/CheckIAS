@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Check, X, KeyRound, Send, RefreshCw, ArrowLeft, ArrowRight } from 'lucide-react';
 import { sendOtp, verifyOtp } from '../lib/otp';
+import Seo from '../components/Seo';
 
 const Register = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Step Management (1=Email, 2=OTP, 3=Password)
   const [step, setStep] = useState(1);
-  
+
   // Form State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -47,14 +48,14 @@ const Register = () => {
       setError('Please enter a valid email address.');
       return;
     }
-    
+
     setError('');
     setIsSendingOtp(true);
-    
+
     const result = await sendOtp(email, 'signup');
-    
+
     setIsSendingOtp(false);
-    
+
     if (result.success) {
       setStep(2); // Move to OTP step
       setOtp('');
@@ -69,14 +70,14 @@ const Register = () => {
       setOtpError('Please enter a 6-digit OTP');
       return;
     }
-    
+
     setOtpError('');
     setIsVerifyingOtp(true);
-    
+
     const result = await verifyOtp(email, otp, 'signup');
-    
+
     setIsVerifyingOtp(false);
-    
+
     if (result.valid) {
       setStep(3); // Move to Password step
     } else {
@@ -126,19 +127,17 @@ const Register = () => {
     <div className="flex items-center justify-center gap-2 mb-6">
       {[1, 2, 3].map((s) => (
         <React.Fragment key={s}>
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
-            step > s 
-              ? 'bg-green-500 text-white' 
-              : step === s 
-              ? 'bg-indigo-600 text-white' 
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${step > s
+            ? 'bg-green-500 text-white'
+            : step === s
+              ? 'bg-indigo-600 text-white'
               : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-          }`}>
+            }`}>
             {step > s ? <Check className="w-4 h-4" /> : s}
           </div>
           {s < 3 && (
-            <div className={`w-12 h-1 rounded transition-all ${
-              step > s ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
-            }`} />
+            <div className={`w-12 h-1 rounded transition-all ${step > s ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
+              }`} />
           )}
         </React.Fragment>
       ))}
@@ -147,6 +146,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center px-4 py-12 transition-colors duration-200">
+      <Seo title="Register" description="Create an account on CheckIAS to start your UPSC answer evaluation journey." />
       {/* Back Button */}
       <button
         onClick={() => step > 1 ? setStep(step - 1) : navigate(-1)}
@@ -183,7 +183,7 @@ const Register = () => {
 
           <div className="p-8">
             <StepIndicator />
-            
+
             {/* Error Message */}
             {error && (
               <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm mb-5">
@@ -198,7 +198,7 @@ const Register = () => {
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Enter Your Email</h2>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">We'll send you a verification code</p>
                 </div>
-                
+
                 <div className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-800 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100 dark:focus-within:ring-indigo-900/30 transition-all bg-gray-50 dark:bg-black/50">
                   <Mail className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
                   <div className="flex-1">
@@ -241,12 +241,11 @@ const Register = () => {
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Verify Your Email</h2>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Enter the 6-digit code sent to <span className="font-medium text-indigo-600 dark:text-indigo-400">{email}</span></p>
                 </div>
-                
-                <div className={`flex items-center gap-3 p-4 rounded-xl border transition-all bg-gray-50 dark:bg-black/50 ${
-                  otpError 
-                    ? 'border-red-400 ring-2 ring-red-100 dark:ring-red-900/30'
-                    : 'border-gray-200 dark:border-gray-800 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100'
-                }`}>
+
+                <div className={`flex items-center gap-3 p-4 rounded-xl border transition-all bg-gray-50 dark:bg-black/50 ${otpError
+                  ? 'border-red-400 ring-2 ring-red-100 dark:ring-red-900/30'
+                  : 'border-gray-200 dark:border-gray-800 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100'
+                  }`}>
                   <KeyRound className={`w-5 h-5 ${otpError ? 'text-red-500' : 'text-indigo-500 dark:text-indigo-400'}`} />
                   <div className="flex-1">
                     <label className="block text-xs text-gray-400 dark:text-gray-500 mb-0.5">Verification Code</label>
@@ -318,7 +317,7 @@ const Register = () => {
                       placeholder="••••••••••"
                     />
                   </div>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
@@ -344,13 +343,12 @@ const Register = () => {
                 </div>
 
                 {/* Confirm Password */}
-                <div className={`flex items-center gap-3 p-4 rounded-xl border focus-within:ring-2 transition-all bg-gray-50 dark:bg-black/50 ${
-                  confirmPassword.length > 0 
-                    ? passwordsMatch 
-                      ? 'border-green-500 focus-within:ring-green-100 dark:focus-within:ring-green-900/30' 
-                      : 'border-red-400 focus-within:ring-red-100 dark:focus-within:ring-red-900/30'
-                    : 'border-gray-200 dark:border-gray-800 focus-within:border-indigo-500 focus-within:ring-indigo-100 dark:focus-within:ring-indigo-900/30'
-                }`}>
+                <div className={`flex items-center gap-3 p-4 rounded-xl border focus-within:ring-2 transition-all bg-gray-50 dark:bg-black/50 ${confirmPassword.length > 0
+                  ? passwordsMatch
+                    ? 'border-green-500 focus-within:ring-green-100 dark:focus-within:ring-green-900/30'
+                    : 'border-red-400 focus-within:ring-red-100 dark:focus-within:ring-red-900/30'
+                  : 'border-gray-200 dark:border-gray-800 focus-within:border-indigo-500 focus-within:ring-indigo-100 dark:focus-within:ring-indigo-900/30'
+                  }`}>
                   <Lock className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
                   <div className="flex-1">
                     <label className="block text-xs text-gray-400 dark:text-gray-500 mb-0.5">Confirm Password</label>
@@ -363,7 +361,7 @@ const Register = () => {
                       placeholder="••••••••••"
                     />
                   </div>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"

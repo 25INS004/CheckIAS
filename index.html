@@ -1,34 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CheckIAS - UPSC Answer Evaluation & Mentorship</title>
-    <meta name="description" content="CheckIAS provides expert UPSC answer evaluation, personalized mentorship, and guidance calls to help you ace your civil services exam." />
-    
-    <!-- Favicons for browsers and Google -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/images/logo-dark.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/images/logo-dark.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-dark.png" />
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              brand: {
-                primary: "#4f46e5", // Indigo-600
-                secondary: "#64748b", // Slate-500
-                bg: "#f8fafc", // Slate-50
-              },
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CheckIAS - UPSC Answer Evaluation & Mentorship</title>
+  <meta name="description"
+    content="CheckIAS provides expert UPSC answer evaluation, personalized mentorship, and guidance calls to help you ace your civil services exam." />
+
+  <!-- Favicons for browsers and Google -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/logo-dark.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/logo-dark.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-dark.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://checkias.com/" />
+  <meta property="og:title" content="CheckIAS - UPSC Answer Evaluation & Mentorship" />
+  <meta property="og:description"
+    content="CheckIAS provides expert UPSC answer evaluation, personalized mentorship, and guidance calls to help you ace your civil services exam." />
+  <meta property="og:image" content="/images/logo-dark.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://checkias.com/" />
+  <meta property="twitter:title" content="CheckIAS - UPSC Answer Evaluation & Mentorship" />
+  <meta property="twitter:description"
+    content="CheckIAS provides expert UPSC answer evaluation, personalized mentorship, and guidance calls to help you ace your civil services exam." />
+  <meta property="twitter:image" content="/images/logo-dark.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              primary: "#4f46e5", // Indigo-600
+              secondary: "#64748b", // Slate-500
+              bg: "#f8fafc", // Slate-50
             },
           },
         },
-      };
-    </script>
-    <script type="importmap">
+      },
+    };
+  </script>
+  <script type="importmap">
       {
         "imports": {
           "react/": "https://esm.sh/react@^19.2.3/",
@@ -39,17 +57,19 @@
         }
       }
     </script>
-    <link rel="stylesheet" href="/index.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        if (window.pdfjsLib) {
-          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        }
-      });
-    </script>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
+  <link rel="stylesheet" href="/index.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+    });
+  </script>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
 </html>
