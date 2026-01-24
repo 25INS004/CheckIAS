@@ -9,6 +9,30 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// --- AUTH SYNCHRONIZATION FIX ---
+// The app uses a custom object in localStorage ('supabase.auth.token') 
+// which differs from the standard Supabase SDK storage pattern.
+// We must manually sync the session to ensure 'supabase' client calls are authenticated.
+(async () => {
+  if (typeof window === 'undefined') return;
+
+  const stored = localStorage.getItem('supabase.auth.token') || sessionStorage.getItem('supabase.auth.token');
+  if (stored) {
+    try {
+      const { currentSession } = JSON.parse(stored);
+      if (currentSession?.access_token && currentSession?.refresh_token) {
+        // Hydrate the SDK with the existing valid session
+        await supabase.auth.setSession({
+          access_token: currentSession.access_token,
+          refresh_token: currentSession.refresh_token,
+        });
+      }
+    } catch (e) {
+      console.warn('Manual auth sync failed:', e);
+    }
+  }
+})();
+
 // Types for database tables
 export interface Profile {
   id: string;

@@ -17,6 +17,7 @@ const GuidanceCallsPage = () => {
   const { openPaymentModal } = usePayment();
   const { calls: myCalls, loading: callsLoading, createCall, updateCall, fetchCalls } = useGuidanceCalls();
 
+  /* COMMENTED OUT: Free user lock - temporarily removed
   if (user?.plan === 'free') {
     return (
       <div className="max-w-4xl mx-auto space-y-6">
@@ -49,6 +50,7 @@ const GuidanceCallsPage = () => {
       </div>
     );
   }
+  */
   
   // Call State
   const [callDetails, setCallDetails] = useState({

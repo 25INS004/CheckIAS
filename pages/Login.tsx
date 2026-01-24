@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, RefreshCw, ArrowLeft } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { supabase } from '../lib/supabase';
+import Seo from '../components/Seo';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ const Login = () => {
       // Store session based on Remember Me setting
       if (data.access_token) {
         // Calculate expiry: 90 days if Remember Me, otherwise use token's natural expiry
-        const expiresAt = rememberMe 
+        const expiresAt = rememberMe
           ? Math.floor(Date.now() / 1000) + (90 * 24 * 60 * 60) // 90 days
           : data.expires_at;
 
@@ -69,9 +70,9 @@ const Login = () => {
           token_type: data.token_type,
           user: data.user,
         };
-        
+
         const sessionData = JSON.stringify({ currentSession: session, rememberMe });
-        
+
         if (rememberMe) {
           // Persist in localStorage for 90 days
           localStorage.setItem('supabase.auth.token', sessionData);
@@ -81,9 +82,9 @@ const Login = () => {
           // Also remove any old localStorage session
           localStorage.removeItem('supabase.auth.token');
         }
-        
+
         console.log('Session stored, refreshing user...');
-        
+
         // Refresh user context to pick up the new session
         await refreshUser();
         console.log('User refreshed, navigating to dashboard...');
@@ -100,6 +101,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center px-4 py-12 transition-colors duration-200">
+      <Seo title="Login" description="Login to CheckIAS to access your dashboard, submit answers, and view evaluations." />
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
@@ -182,7 +184,7 @@ const Login = () => {
                     placeholder="••••••••••"
                   />
                 </div>
-                <button 
+                <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"

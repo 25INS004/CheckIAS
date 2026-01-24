@@ -106,7 +106,7 @@ const AdminLogin = () => {
       }
 
       setIsLoading(false);
-      navigate('/admin');
+      navigate('/');
     } catch (err: any) {
       console.error('Admin login error:', err);
       setError(err.message || 'Login failed. Please try again.');

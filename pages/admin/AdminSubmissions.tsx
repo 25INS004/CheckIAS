@@ -371,8 +371,22 @@ const AdminSubmissions = () => {
     }
   };
 
+  // Helper to check if a submission matches the selected status filter
+  const matchesStatusFilter = (sub: Submission, filter: string): boolean => {
+    if (filter === 'All') return true;
+    const status = sub.status?.toLowerCase() || '';
+    
+    if (filter === 'Pending') {
+      return status === 'pending' || status === 'draft' || status === 'submitted' || status === 'open';
+    }
+    if (filter === 'Evaluated') {
+      return status === 'evaluated' || status === 'reviewed' || status === 'completed' || status === 'done';
+    }
+    return status === filter.toLowerCase();
+  };
+
   const filteredSubmissions = submissions.filter(sub => 
-    (filterStatus === 'All' || sub.status === filterStatus) &&
+    matchesStatusFilter(sub, filterStatus) &&
     (filterPlan === 'All' || sub.user_plan === filterPlan) &&
     (sub.user_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
      sub.user_email.toLowerCase().includes(searchTerm.toLowerCase()) ||

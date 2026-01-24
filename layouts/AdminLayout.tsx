@@ -11,7 +11,8 @@ import {
   Phone,
   FileText,
   Tag,
-  Receipt
+  Receipt,
+  IndianRupee
 } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import Sidebar from '../components/Sidebar';
@@ -50,6 +51,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Guidance Calls', icon: Phone, path: '/guidance-calls' },
     { name: 'Support Tickets', icon: MessageSquare, path: '/tickets' },
     { name: 'Coupons', icon: Tag, path: '/coupons' },
+    { name: 'Pricing', icon: IndianRupee, path: '/pricing' },
     { name: 'Invoices', icon: Receipt, path: '/invoices' },
     { name: 'Settings', icon: Settings, path: '/settings' },
   ];
@@ -57,16 +59,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const adminIcon = <Shield className="h-5 w-5 text-white" />;
 
   const userFooter = (
-    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-900 transition-colors cursor-pointer">
+    <button 
+      onClick={handleSignOut}
+      className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-900 transition-colors cursor-pointer group"
+    >
       <div className="h-9 w-9 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center text-red-700 dark:text-red-300 font-semibold text-sm border border-red-200 dark:border-red-900">
         AD
       </div>
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 text-left">
         <p className="text-sm font-medium text-slate-900 dark:text-white truncate">Admin User</p>
-        <p className="text-xs text-slate-500 dark:text-gray-500 truncate">admin@checkias.com</p>
+        <p className="text-xs text-slate-500 dark:text-gray-500 truncate">js6447168@gmail.com</p>
       </div>
-      <LogOut className="w-4 h-4 text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400" />
-    </div>
+      <LogOut className="w-4 h-4 text-slate-400 group-hover:text-red-600 dark:text-slate-500 dark:group-hover:text-red-400 transition-colors" />
+    </button>
   );
 
   return (

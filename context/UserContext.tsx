@@ -41,9 +41,9 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// Plan-specific limits
+// Plan-specific limits (aligned with pricing config)
 const planLimits = {
-  free: { submissions: 1, guidanceCalls: 0, days: 0 },
+  free: { submissions: 3, guidanceCalls: 1, days: 0 },     // 3 submissions, 1 call (lifetime)
   starter: { submissions: 999, guidanceCalls: 999, days: 30 },   // 1 month
   pro: { submissions: 999, guidanceCalls: 999, days: 90 },       // 3 months
   achiever: { submissions: 999, guidanceCalls: 999, days: 180 }, // 6 months
@@ -228,7 +228,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const limits = planLimits[plan];
       
       const submissionsLeft = plan === 'free' 
-        ? Math.max(0, 1 - submissionCount) 
+        ? Math.max(0, limits.submissions - submissionCount) // Free: 3 submissions
         : 999;
 
       const guidanceCallsLeft = Math.max(0, limits.guidanceCalls - guidanceCallsCount);

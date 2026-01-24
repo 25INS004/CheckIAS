@@ -1,5 +1,5 @@
 TERMS OF SERVICE
-Last Updated: December 28, 2025
+Last Updated: January 10, 2025
 
 1. AGREEMENT TO TERMS
 
@@ -25,12 +25,9 @@ Last Updated: December 28, 2025
 
 3.2. File Requirements: All answer copy submissions must strictly adhere to the following technical specifications:
 
-
 Format: Portable Document Format (PDF) only.
 
-
 Size Limit: Maximum file size of 20MB per submission.
-
 
 Metadata: Submissions must be tagged with the correct Subject, Year, and Paper Code.
 
@@ -40,17 +37,23 @@ Metadata: Submissions must be tagged with the correct Subject, Year, and Paper C
 
 3.5. Content Retention: You acknowledge that submitted answer copies are available for download from your dashboard for a period of ninety (90) days from the date of submission. We do not guarantee the retention of data beyond this period.
 
+3.6. Submission Integrity: You may not submit answer copies repeatedly or in a spam-like manner. Each submission must be a genuine, complete answer copy intended for legitimate evaluation. Submissions that appear to be test uploads, incomplete drafts, or duplicate content may be rejected without refund of submission credits.
+
+3.7. Handwriting Consistency: All answer copies submitted under your account must be written in the same handwriting. This is to ensure that the work being evaluated is genuinely yours. Submissions with inconsistent handwriting across documents may be flagged for review, and accounts found to be submitting work on behalf of multiple individuals will be subject to immediate termination without refund.
+
 4. SUBSCRIPTIONS AND PAYMENTS
 
-4.1. Subscription Plans: We offer the following fixed-term subscription plans:
+4.1. Subscription Plans: We offer the following subscription plans:
 
-Plan A: 1 Month Validity
+Free Plan: Lifetime access with 3 submissions and 1 mentor call (no payment required).
 
-Plan B: 3 Months Validity
+Starter Plan (₹999/month): 3 GS Papers + 1 Optional or 75 Questions, 2 mentorship calls per week, 18h turnaround.
 
-Plan C: 6 Months Validity 
+Pro Plan (₹2,499/3 months): Unlimited submissions, 2 mentorship calls per week, 18h turnaround.
 
-4.2. Payment Processing: All financial transactions are processed through our third-party payment gateway, Razorpay. By making a purchase, you agree to be bound by Razorpay’s terms and conditions in addition to these Terms.
+Achiever Plan (₹4,999/6 months): Unlimited submissions, 2 mentorship calls per week, 18h turnaround, priority support.
+
+4.2. Payment Processing: All financial transactions are processed through our third-party payment gateway, Razorpay. By making a purchase, you agree to be bound by Razorpay's terms and conditions in addition to these Terms.
 
 4.3. No Auto-Renewal: Subscriptions do not automatically renew. It is your sole responsibility to manually renew your plan before the expiry date to avoid service interruption.
 
@@ -60,15 +63,17 @@ Plan C: 6 Months Validity
 
 5. SUPPORT SERVICES
 
-5.1. Eligibility: Technical support via email is available to all users. However, "Request a Call" functionality is a restricted feature available exclusively to Premium Tier subscribers.
+5.1. Eligibility: Technical support via email is available to all users. Mentor call functionality is available to all paid subscribers (Starter, Pro, Achiever plans).
 
-5.2. Call Quotas: Premium users are subject to strict call quotas based on their subscription tier:
+5.2. Mentor Call Quotas: Users are entitled to mentorship calls based on their subscription:
 
-Plan A: Maximum 2 calls per month.
+Free Plan: 1 mentor call (lifetime).
 
-Plan B: Maximum 6 calls per 3 months.
+Starter Plan: 2 mentorship calls per week during subscription validity.
 
-Plan C: Maximum 12 calls per 6 months.
+Pro Plan: 2 mentorship calls per week during subscription validity.
+
+Achiever Plan: 2 mentorship calls per week during subscription validity.
 
 5.3. Availability: Support calls must be scheduled within the operating hours of 9:00 AM to 6:00 PM IST.
 
@@ -106,7 +111,6 @@ Visiting the Site, sending us emails, and completing online forms constitute ele
 
 In order to resolve a complaint regarding the Site or to receive further information regarding use of the Site, please contact us at:
 
-
-Support Email: support@checkias.com 
-Phone: +91-99999xxxxx
-Mailing Address: chek........
+Email: support@checkias.com
+Phone: +91-7015823742
+Address: CheckIAS Office, Near Gol Chakar, Karol Bagh, New Delhi

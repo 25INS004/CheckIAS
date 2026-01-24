@@ -21,75 +21,11 @@ interface Coupon {
   is_active: boolean;
 }
 
-const FEATURES = {
-  free: [
-    { text: '1 Trial Submission', included: true },
-    { text: 'Basic Feedback', included: true },
-    { text: 'Model Answers', included: false },
-    { text: 'Mentor Call', included: false }
-  ],
-  starter: [
-    { text: 'Unlimited Submissions', included: true },
-    { text: 'Basic Feedback', included: true },
-    { text: '24h Turnaround', included: true },
-    { text: 'Unlimited calls', included: true }
-  ],
-  pro: [
-    { text: 'Unlimited Submissions', included: true },
-    { text: 'Detailed Feedback', included: true },
-    { text: 'Model Answers', included: true },
-    { text: 'Unlimited calls', included: true }
-  ],
-  achiever: [
-    { text: 'Unlimited Submissions', included: true },
-    { text: 'Personal Mentor', included: true },
-    { text: 'Daily Targets', included: true },
-    { text: 'Live Evaluation', included: true },
-    { text: 'Unlimited calls', included: true }
-  ]
-};
-
-const PLANS = [
-  {
-    id: 'free',
-    title: 'Free',
-    description: 'Try before you commit.',
-    price: 0,
-    displayPrice: '₹0',
-    period: '/ lifetime',
-    features: FEATURES.free
-  },
-  {
-    id: 'starter',
-    title: 'Starter',
-    description: 'Great for occasional evaluation.',
-    price: 999,
-    displayPrice: '₹999',
-    period: '/ month',
-    features: FEATURES.starter
-  },
-  {
-    id: 'pro',
-    title: 'Pro',
-    description: 'For serious aspirants.',
-    price: 2499,
-    displayPrice: '₹2,499',
-    period: '/ 3 months',
-    isPopular: true,
-    features: FEATURES.pro
-  },
-  {
-    id: 'achiever',
-    title: 'Achiever',
-    description: 'For rank holders.',
-    price: 4999,
-    displayPrice: '₹4,999',
-    period: '/ 6 months',
-    features: FEATURES.achiever
-  }
-];
+// import { PRICING_FEATURES as FEATURES, PRICING_PLANS as PLANS } from '../config/pricing';
+import { usePricing } from '../hooks/usePricing';
 
 const PlansPage = () => {
+  const { plans: PLANS, loading: pricingLoading } = usePricing();
   const { user, updateUser } = useUser();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -342,20 +278,15 @@ const PlansPage = () => {
             response.razorpay_payment_id
           );
           
-          const { success, error } = await updateProfile({ 
-            plan: plan.id as any,
-            plan_started_at: new Date().toISOString()
-          });
-          
-          if (success) {
-            updateUser({ plan: plan.id as any });
-            toast.success(`Successfully upgraded to ${plan.title}!`);
-            setAppliedCoupon(null);
-            setCouponCode('');
-          } else {
-            console.error('Profile update failed:', error);
-            toast.error('Payment successful but failed to update subscription. Please contact support with Payment ID: ' + response.razorpay_payment_id);
-          }
+          // Note: Profile update is now handled by verify-payment Edge Function
+          // Just update local state
+          updateUser({ plan: plan.id as any });
+          toast.success(`Successfully upgraded to ${plan.title}!`);
+          setAppliedCoupon(null);
+          setCouponCode('');
+        },
+        onError: (errorMessage) => {
+          toast.error(errorMessage);
         }
       });
     } catch (err) {

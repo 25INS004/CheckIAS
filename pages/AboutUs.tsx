@@ -117,7 +117,7 @@ const AboutUs = () => {
         <WavyBottomEdge fillColor="fill-gray-50 dark:fill-gray-900" />
       </section>
 
-      {/* Stats Section */}
+      {/* Stats Section - COMMENTED OUT: claims need verification
       <section className="relative pt-16 pb-32 bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -138,9 +138,9 @@ const AboutUs = () => {
           </div>
         </div>
         
-        {/* Wavy bottom edge */}
         <WavyBottomEdge fillColor="fill-white dark:fill-black" />
       </section>
+      */}
 
       {/* What We Offer Section */}
       <section className="relative pt-16 pb-32 bg-white dark:bg-black transition-colors duration-200">
@@ -156,7 +156,7 @@ const AboutUs = () => {
                 icon={<Target className="w-6 h-6 text-white" />}
                 iconBg="bg-blue-500"
                 title="Expert Mentors"
-                description="Your answer copies are reviewed by selected candidates and subject matter experts who understand exactly what UPSC expects. Every evaluator brings years of examination insight and pedagogical expertise."
+                description="Your answer copies are reviewed by mentors who have appeared in at least 2 UPSC Mains or 1 Interview. Every evaluator brings years of examination insight and pedagogical expertise to help you succeed."
               />
             </div>
             <div data-aos="fade-up" data-aos-delay="200" className="h-full">

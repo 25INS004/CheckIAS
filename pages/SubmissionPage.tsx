@@ -43,8 +43,8 @@ const SubmissionPage = () => {
   const [isSubjectOpen, setIsSubjectOpen] = useState(false);
   const [isYearOpen, setIsYearOpen] = useState(false);
 
-  // FR-SUB 04: Premium users have unlimited submissions
-  const hasCredits = isUnlimited || submissionsRemaining > 0;
+  // All users can submit regardless of limits - admin will follow up personally
+  const hasCredits = true;
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -167,7 +167,7 @@ const SubmissionPage = () => {
         <p className="text-gray-500 dark:text-gray-400 mt-1">Upload your answer copy for expert evaluation</p>
       </div>
 
-      {/* FR-SUB 05: Mock Upgrade Prompt for Free users limit */}
+      {/* FR-SUB 05: Mock Upgrade Prompt for Free users limit - COMMENTED OUT
       {!hasCredits && (
         <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/40 dark:to-purple-900/40 border border-indigo-100 dark:border-indigo-800 rounded-xl p-6 flex items-start gap-4 mb-8 relative overflow-hidden">
           <div className="p-3 bg-white dark:bg-gray-950 rounded-lg shadow-sm z-10">
@@ -185,12 +185,12 @@ const SubmissionPage = () => {
               Upgrade to Premium
             </Link>
           </div>
-          {/* Decorative Background */}
           <div className="absolute -top-12 -right-12 w-48 h-48 bg-indigo-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
         </div>
       )}
+      */}
 
-      <form onSubmit={handleSubmit} className={`space-y-6 ${!hasCredits ? 'opacity-50 pointer-events-none filter blur-sm select-none' : ''}`}>
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Metadata Form */}
         <div className="bg-white dark:bg-gray-950 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Submission Details</h2>
@@ -307,9 +307,9 @@ const SubmissionPage = () => {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={!hasCredits || !isFormValid || isSubmitting || uploading}
+          disabled={!isFormValid || isSubmitting || uploading}
           className={`w-full py-4 rounded-xl font-semibold text-white transition-all flex items-center justify-center gap-2 ${
-            hasCredits && isFormValid && !isSubmitting && !uploading
+            isFormValid && !isSubmitting && !uploading
               ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer shadow-lg shadow-indigo-200'
               : 'bg-gray-400 cursor-not-allowed'
           }`}
@@ -319,10 +319,8 @@ const SubmissionPage = () => {
               <Loader2 className="w-5 h-5 animate-spin" />
               {uploading ? 'Uploading PDF...' : 'Saving submission...'}
             </>
-          ) : hasCredits ? (
-            'Submit for Evaluation'
           ) : (
-            'Upgrade to Continue'
+            'Submit for Evaluation'
           )}
         </button>
 
