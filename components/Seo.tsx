@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useTheme } from '../context/ThemeContext';
 
 interface SeoProps {
   title?: string;
@@ -16,9 +17,12 @@ const Seo: React.FC<SeoProps> = ({
   description,
   name = 'CheckIAS',
   type = 'website',
-  image = '/images/logo-dark.png',
+  image,
   url = window.location.href,
 }) => {
+  const { theme } = useTheme();
+  const defaultImage = theme === 'dark' ? '/images/logo-dark.png' : '/images/logo-light.png';
+  const finalImage = image || defaultImage;
   const siteTitle = title ? `${title} | CheckIAS` : 'CheckIAS - UPSC Answer Evaluation & Mentorship';
   const metaDescription = description || 'CheckIAS provides expert UPSC answer evaluation, personalized mentorship, and guidance calls to help you ace your civil services exam.';
 
@@ -33,7 +37,7 @@ const Seo: React.FC<SeoProps> = ({
       <meta property="og:site_name" content={name} />
       <meta property="og:title" content={siteTitle} />
       <meta property="og:description" content={metaDescription} />
-      <meta property="og:image" content={image} />
+      <meta property="og:image" content={finalImage} />
       <meta property="og:url" content={url} />
 
       {/* Twitter tags */}
@@ -41,7 +45,7 @@ const Seo: React.FC<SeoProps> = ({
       <meta name="twitter:creator" content={name} />
       <meta name="twitter:title" content={siteTitle} />
       <meta name="twitter:description" content={metaDescription} />
-      <meta name="twitter:image" content={image} />
+      <meta name="twitter:image" content={finalImage} />
     </Helmet>
   );
 };

@@ -5,17 +5,17 @@ import { useTheme } from '../context/ThemeContext';
 
 const Footer = () => {
   const { theme } = useTheme();
-  
+
   return (
     <footer data-aos="fade-up" className="bg-white dark:bg-black border-t border-gray-100 dark:border-gray-900 transition-colors duration-200">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-8">
-          
+
           {/* Brand Column (Span 2 on mobile, 4 on desktop) */}
           <div className="col-span-2 lg:col-span-4">
             <Link to="/" className="inline-flex items-center gap-3">
-              <img 
+              <img
                 src={theme === 'dark' ? '/images/logo-dark.png' : '/images/logo-light.png'}
                 alt="CheckIAS Logo"
                 className="h-16 w-auto rounded-xl"
@@ -28,23 +28,23 @@ const Footer = () => {
               Empowering UPSC aspirants with expert evaluation, detailed analytics, and personalized mentorship to crack the Civil Services Examination.
             </p>
             <div className="mt-8 flex items-center gap-4">
-               {/* Social Icons mapped dynamically */}
-               {[
-                 { icon: Youtube, href: "https://youtube.com" },
-                 { icon: Linkedin, href: "https://linkedin.com" },
-                 { icon: Instagram, href: "https://instagram.com" }
-               ].map((social, idx) => (
-                 <a 
-                   key={idx}
-                   href={social.href}
-                   target="_blank" 
-                   rel="noopener noreferrer"
-                   className="w-10 h-10 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-full text-gray-500 dark:text-gray-400 hover:text-white hover:bg-indigo-600 dark:hover:bg-[#1B1F42] transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-1"
-                   aria-label={`Visit our ${idx === 0 ? 'Twitter' : idx === 1 ? 'LinkedIn' : 'Instagram'} page`}
-                 >
-                   <social.icon className="w-4 h-4" />
-                 </a>
-               ))}
+              {/* Social Icons mapped dynamically */}
+              {[
+                { icon: Youtube, href: "https://youtube.com" },
+                { icon: Linkedin, href: "https://linkedin.com" },
+                { icon: Instagram, href: "https://instagram.com" }
+              ].map((social, idx) => (
+                <a
+                  key={idx}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-full text-gray-500 dark:text-gray-400 hover:text-white hover:bg-indigo-600 dark:hover:bg-[#1B1F42] transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-1"
+                  aria-label={`Visit our ${idx === 0 ? 'Twitter' : idx === 1 ? 'LinkedIn' : 'Instagram'} page`}
+                >
+                  <social.icon className="w-4 h-4" />
+                </a>
+              ))}
             </div>
           </div>
 
@@ -55,31 +55,31 @@ const Footer = () => {
             </h4>
             <ul className="space-y-4">
               <li>
-                <a 
-                  href="/#hero" 
+                <a
+                  href="/#hero"
                   className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-medium transition-colors"
                 >
                   Home
                 </a>
               </li>
               <li>
-                <a 
-                  href="/#features" 
+                <a
+                  href="/#features"
                   className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-medium transition-colors"
                 >
                   Features
                 </a>
               </li>
               <li>
-                <a 
-                  href="/#pricing" 
+                <a
+                  href="/#pricing"
                   className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-medium transition-colors"
                 >
                   Pricing
                 </a>
               </li>
               <li>
-                <Link 
+                <Link
                   to="/about"
                   onClick={() => window.scrollTo(0, 0)}
                   className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-medium transition-colors"
@@ -92,14 +92,14 @@ const Footer = () => {
 
           {/* Resources Links (Span 1 on mobile, 2 on desktop) */}
           <div className="col-span-1 lg:col-span-2">
-             <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-6">
+            <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-6">
               Resources
             </h4>
             <ul className="space-y-4">
               {['Help Center', 'Privacy Policy', 'Terms of Service', 'Refund Policy'].map((item) => (
                 <li key={item}>
-                  <Link 
-                    to={`/${item.toLowerCase().replaceAll(' ', '-')}`} 
+                  <Link
+                    to={`/${item.toLowerCase().replaceAll(' ', '-')}`}
                     className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-medium transition-colors"
                   >
                     {item}
@@ -125,16 +125,16 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-4">
                 <div className="flex-shrink-0 w-10 h-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                   <Mail className="w-5 h-5" />
+                  <Mail className="w-5 h-5" />
                 </div>
                 <a href="mailto:support@checkias.com" className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm transition-colors font-medium">
                   support@checkias.com
                 </a>
               </li>
               <li className="flex items-center gap-4">
-                 <div className="flex-shrink-0 w-10 h-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                   <Phone className="w-5 h-5" />
-                 </div>
+                <div className="flex-shrink-0 w-10 h-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                  <Phone className="w-5 h-5" />
+                </div>
                 <a href="tel:+917015823742" className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm transition-colors font-medium">
                   +91-7015823742
                 </a>
