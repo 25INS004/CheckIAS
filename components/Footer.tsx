@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Mail, Phone, Youtube, Linkedin, Instagram } from 'lucide-react';
+import { MapPin, Mail, Phone, Youtube, Instagram, Send } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 const Footer = () => {
@@ -30,9 +30,9 @@ const Footer = () => {
             <div className="mt-8 flex items-center gap-4">
               {/* Social Icons mapped dynamically */}
               {[
-                { icon: Youtube, href: "https://youtube.com" },
-                { icon: Linkedin, href: "https://linkedin.com" },
-                { icon: Instagram, href: "https://instagram.com" }
+                { icon: Send, href: "https://t.me/Check_IAS", label: "Telegram" },
+                { icon: Youtube, href: "https://youtube.com/@checkias", label: "YouTube" },
+                { icon: Instagram, href: "https://instagram.com/checkias", label: "Instagram" }
               ].map((social, idx) => (
                 <a
                   key={idx}
@@ -40,7 +40,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-full text-gray-500 dark:text-gray-400 hover:text-white hover:bg-indigo-600 dark:hover:bg-[#1B1F42] transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-1"
-                  aria-label={`Visit our ${idx === 0 ? 'Twitter' : idx === 1 ? 'LinkedIn' : 'Instagram'} page`}
+                  aria-label={`Visit our ${social.label} page`}
                 >
                   <social.icon className="w-4 h-4" />
                 </a>
@@ -122,6 +122,14 @@ const Footer = () => {
                 <span className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mt-2">
                   CheckIAS Office, Near Gol Chakar, Karol Bagh, New Delhi
                 </span>
+              </li>
+              <li className="flex items-center gap-4">
+                <div className="flex-shrink-0 w-10 h-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                  <Send className="w-5 h-5" />
+                </div>
+                <a href="https://t.me/Check_IAS" target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm transition-colors font-medium">
+                  Telegram: @Check_IAS
+                </a>
               </li>
               <li className="flex items-center gap-4">
                 <div className="flex-shrink-0 w-10 h-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400">
