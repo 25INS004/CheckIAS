@@ -23,3 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+
+# Fix
+*.aux
+*.out
+*.fdb_latexmk
+*.synctex.gz
+*.fls
