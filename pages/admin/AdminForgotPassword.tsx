@@ -23,6 +23,18 @@ const AdminForgotPassword = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [otpError, setOtpError] = useState('');
+  const [countdown, setCountdown] = useState(0);
+
+  // Countdown timer effect
+  React.useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [countdown]);
 
   // Validation
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -49,6 +61,7 @@ const AdminForgotPassword = () => {
     if (result.success) {
       setStep(2);
       setOtp('');
+      setCountdown(30); // Start 30s countdown
     } else {
       setError(result.error || 'Failed to send OTP');
     }
@@ -121,10 +134,10 @@ const AdminForgotPassword = () => {
       {[1, 2, 3].map((s) => (
         <React.Fragment key={s}>
           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${step > s
-              ? 'bg-green-500 text-white'
-              : step === s
-                ? 'bg-red-600 text-white'
-                : 'bg-gray-700 text-gray-500'
+            ? 'bg-green-500 text-white'
+            : step === s
+              ? 'bg-red-600 text-white'
+              : 'bg-gray-700 text-gray-500'
             }`}>
             {step > s ? <Check className="w-4 h-4" /> : s}
           </div>
@@ -231,8 +244,8 @@ const AdminForgotPassword = () => {
                 </div>
 
                 <div className={`flex items-center gap-3 p-4 rounded-xl border transition-all bg-gray-900/50 ${otpError
-                    ? 'border-red-400 ring-2 ring-red-900/30'
-                    : 'border-gray-700 focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-900/30'
+                  ? 'border-red-400 ring-2 ring-red-900/30'
+                  : 'border-gray-700 focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-900/30'
                   }`}>
                   <KeyRound className={`w-5 h-5 ${otpError ? 'text-red-400' : 'text-red-500'}`} />
                   <div className="flex-1">
@@ -274,11 +287,11 @@ const AdminForgotPassword = () => {
                 <button
                   type="button"
                   onClick={handleSendOtp}
-                  disabled={isSendingOtp}
-                  className="w-full py-2.5 text-sm text-gray-400 hover:text-red-400 transition-colors flex items-center justify-center gap-2"
+                  disabled={isSendingOtp || countdown > 0}
+                  className="w-full py-2.5 text-sm text-gray-400 hover:text-red-400 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4" />
-                  {isSendingOtp ? 'Sending...' : 'Resend OTP'}
+                  {isSendingOtp ? 'Sending...' : countdown > 0 ? `Resend OTP in ${countdown}s` : 'Resend OTP'}
                 </button>
               </div>
             )}
@@ -331,10 +344,10 @@ const AdminForgotPassword = () => {
 
                 {/* Confirm Password */}
                 <div className={`flex items-center gap-3 p-4 rounded-xl border focus-within:ring-2 transition-all bg-gray-900/50 ${confirmPassword.length > 0
-                    ? passwordsMatch
-                      ? 'border-green-500 focus-within:ring-green-900/30'
-                      : 'border-red-400 focus-within:ring-red-900/30'
-                    : 'border-gray-700 focus-within:border-red-500 focus-within:ring-red-900/30'
+                  ? passwordsMatch
+                    ? 'border-green-500 focus-within:ring-green-900/30'
+                    : 'border-red-400 focus-within:ring-red-900/30'
+                  : 'border-gray-700 focus-within:border-red-500 focus-within:ring-red-900/30'
                   }`}>
                   <Lock className="w-5 h-5 text-red-500" />
                   <div className="flex-1">

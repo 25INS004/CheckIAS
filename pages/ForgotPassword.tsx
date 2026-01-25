@@ -5,10 +5,10 @@ import { sendOtp, verifyOtp } from '../lib/otp';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  
+
   // Step Management (1=Email, 2=OTP, 3=Password)
   const [step, setStep] = useState(1);
-  
+
   // Form State
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -23,6 +23,18 @@ const ForgotPassword = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [otpError, setOtpError] = useState('');
+  const [countdown, setCountdown] = useState(0);
+
+  // Countdown timer effect
+  React.useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [countdown]);
 
   // Validation
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -37,17 +49,18 @@ const ForgotPassword = () => {
       setError('Please enter a valid email address.');
       return;
     }
-    
+
     setError('');
     setIsSendingOtp(true);
-    
+
     const result = await sendOtp(email, 'password_reset');
-    
+
     setIsSendingOtp(false);
-    
+
     if (result.success) {
       setStep(2);
       setOtp('');
+      setCountdown(30); // Start 30s countdown
     } else {
       setError(result.error || 'Failed to send OTP');
     }
@@ -59,14 +72,14 @@ const ForgotPassword = () => {
       setOtpError('Please enter a 6-digit OTP');
       return;
     }
-    
+
     setOtpError('');
     setIsVerifyingOtp(true);
-    
+
     const result = await verifyOtp(email, otp, 'password_reset');
-    
+
     setIsVerifyingOtp(false);
-    
+
     if (result.valid) {
       setStep(3);
     } else {
@@ -91,9 +104,9 @@ const ForgotPassword = () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             email,
-            new_password: newPassword 
+            new_password: newPassword
           }),
         }
       );
@@ -119,19 +132,17 @@ const ForgotPassword = () => {
     <div className="flex items-center justify-center gap-2 mb-6">
       {[1, 2, 3].map((s) => (
         <React.Fragment key={s}>
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
-            step > s 
-              ? 'bg-green-500 text-white' 
-              : step === s 
-              ? 'bg-indigo-600 text-white' 
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-          }`}>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${step > s
+              ? 'bg-green-500 text-white'
+              : step === s
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+            }`}>
             {step > s ? <Check className="w-4 h-4" /> : s}
           </div>
           {s < 3 && (
-            <div className={`w-12 h-1 rounded transition-all ${
-              step > s ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
-            }`} />
+            <div className={`w-12 h-1 rounded transition-all ${step > s ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
+              }`} />
           )}
         </React.Fragment>
       ))}
@@ -170,7 +181,7 @@ const ForgotPassword = () => {
 
           <div className="p-8">
             <StepIndicator />
-            
+
             {/* Error Message */}
             {error && (
               <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm mb-5">
@@ -224,12 +235,11 @@ const ForgotPassword = () => {
                     Enter the 6-digit code sent to <span className="font-medium text-indigo-600 dark:text-indigo-400">{email}</span>
                   </p>
                 </div>
-                
-                <div className={`flex items-center gap-3 p-4 rounded-xl border transition-all bg-gray-50 dark:bg-black/50 ${
-                  otpError 
+
+                <div className={`flex items-center gap-3 p-4 rounded-xl border transition-all bg-gray-50 dark:bg-black/50 ${otpError
                     ? 'border-red-400 ring-2 ring-red-100 dark:ring-red-900/30'
                     : 'border-gray-200 dark:border-gray-800 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100'
-                }`}>
+                  }`}>
                   <KeyRound className={`w-5 h-5 ${otpError ? 'text-red-500' : 'text-indigo-500 dark:text-indigo-400'}`} />
                   <div className="flex-1">
                     <label className="block text-xs text-gray-400 dark:text-gray-500 mb-0.5">Verification Code</label>
@@ -270,11 +280,11 @@ const ForgotPassword = () => {
                 <button
                   type="button"
                   onClick={handleSendOtp}
-                  disabled={isSendingOtp}
-                  className="w-full py-2.5 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center justify-center gap-2"
+                  disabled={isSendingOtp || countdown > 0}
+                  className="w-full py-2.5 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4" />
-                  {isSendingOtp ? 'Sending...' : 'Resend OTP'}
+                  {isSendingOtp ? 'Sending...' : countdown > 0 ? `Resend OTP in ${countdown}s` : 'Resend OTP'}
                 </button>
               </div>
             )}
@@ -296,7 +306,7 @@ const ForgotPassword = () => {
                       placeholder="••••••••••"
                     />
                   </div>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
                     className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
@@ -322,13 +332,12 @@ const ForgotPassword = () => {
                 </div>
 
                 {/* Confirm Password */}
-                <div className={`flex items-center gap-3 p-4 rounded-xl border focus-within:ring-2 transition-all bg-gray-50 dark:bg-black/50 ${
-                  confirmPassword.length > 0 
-                    ? passwordsMatch 
-                      ? 'border-green-500 focus-within:ring-green-100 dark:focus-within:ring-green-900/30' 
+                <div className={`flex items-center gap-3 p-4 rounded-xl border focus-within:ring-2 transition-all bg-gray-50 dark:bg-black/50 ${confirmPassword.length > 0
+                    ? passwordsMatch
+                      ? 'border-green-500 focus-within:ring-green-100 dark:focus-within:ring-green-900/30'
                       : 'border-red-400 focus-within:ring-red-100 dark:focus-within:ring-red-900/30'
                     : 'border-gray-200 dark:border-gray-800 focus-within:border-indigo-500 focus-within:ring-indigo-100 dark:focus-within:ring-indigo-900/30'
-                }`}>
+                  }`}>
                   <Lock className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
                   <div className="flex-1">
                     <label className="block text-xs text-gray-400 dark:text-gray-500 mb-0.5">Confirm Password</label>
@@ -341,7 +350,7 @@ const ForgotPassword = () => {
                       placeholder="••••••••••"
                     />
                   </div>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
@@ -371,8 +380,8 @@ const ForgotPassword = () => {
 
           {/* Back to Login */}
           <div className="p-4 border-t border-gray-100 dark:border-gray-700">
-            <Link 
-              to="/login" 
+            <Link
+              to="/login"
               className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />

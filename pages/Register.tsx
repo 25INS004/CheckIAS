@@ -26,6 +26,18 @@ const Register = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [otpError, setOtpError] = useState('');
+  const [countdown, setCountdown] = useState(0);
+
+  // Countdown timer effect
+  React.useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [countdown]);
 
   React.useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -59,6 +71,7 @@ const Register = () => {
     if (result.success) {
       setStep(2); // Move to OTP step
       setOtp('');
+      setCountdown(30); // Start 30s countdown
     } else {
       setError(result.error || 'Failed to send OTP');
     }
@@ -286,11 +299,11 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={handleSendOtp}
-                  disabled={isSendingOtp}
-                  className="w-full py-2.5 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center justify-center gap-2"
+                  disabled={isSendingOtp || countdown > 0}
+                  className="w-full py-2.5 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4" />
-                  {isSendingOtp ? 'Sending...' : 'Resend OTP'}
+                  {isSendingOtp ? 'Sending...' : countdown > 0 ? `Resend OTP in ${countdown}s` : 'Resend OTP'}
                 </button>
               </div>
             )}
