@@ -5,10 +5,10 @@ import { sendOtp, verifyOtp } from '../../lib/otp';
 
 const AdminForgotPassword = () => {
   const navigate = useNavigate();
-  
+
   // Step Management (1=Email, 2=OTP, 3=Password)
   const [step, setStep] = useState(1);
-  
+
   // Form State
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -38,14 +38,14 @@ const AdminForgotPassword = () => {
       setError('Please enter a valid email address.');
       return;
     }
-    
+
     setError('');
     setIsSendingOtp(true);
-    
+
     const result = await sendOtp(email, 'password_reset');
-    
+
     setIsSendingOtp(false);
-    
+
     if (result.success) {
       setStep(2);
       setOtp('');
@@ -60,14 +60,14 @@ const AdminForgotPassword = () => {
       setOtpError('Please enter a 6-digit OTP');
       return;
     }
-    
+
     setOtpError('');
     setIsVerifyingOtp(true);
-    
+
     const result = await verifyOtp(email, otp, 'password_reset');
-    
+
     setIsVerifyingOtp(false);
-    
+
     if (result.valid) {
       setStep(3);
     } else {
@@ -92,9 +92,9 @@ const AdminForgotPassword = () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             email,
-            new_password: newPassword 
+            new_password: newPassword
           }),
         }
       );
@@ -120,19 +120,17 @@ const AdminForgotPassword = () => {
     <div className="flex items-center justify-center gap-2 mb-6">
       {[1, 2, 3].map((s) => (
         <React.Fragment key={s}>
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
-            step > s 
-              ? 'bg-green-500 text-white' 
-              : step === s 
-              ? 'bg-red-600 text-white' 
-              : 'bg-gray-700 text-gray-500'
-          }`}>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${step > s
+              ? 'bg-green-500 text-white'
+              : step === s
+                ? 'bg-red-600 text-white'
+                : 'bg-gray-700 text-gray-500'
+            }`}>
             {step > s ? <Check className="w-4 h-4" /> : s}
           </div>
           {s < 3 && (
-            <div className={`w-12 h-1 rounded transition-all ${
-              step > s ? 'bg-green-500' : 'bg-gray-700'
-            }`} />
+            <div className={`w-12 h-1 rounded transition-all ${step > s ? 'bg-green-500' : 'bg-gray-700'
+              }`} />
           )}
         </React.Fragment>
       ))}
@@ -177,7 +175,7 @@ const AdminForgotPassword = () => {
 
           <div className="p-8">
             <StepIndicator />
-            
+
             {/* Error Message */}
             {error && (
               <div className="p-3 bg-red-900/30 border border-red-800 rounded-lg text-red-400 text-sm mb-5">
@@ -197,7 +195,7 @@ const AdminForgotPassword = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full text-sm text-white outline-none bg-transparent placeholder-gray-500"
-                      placeholder="js6447168@gmail.com"
+                      placeholder="admin@checkias.com"
                     />
                   </div>
                 </div>
@@ -231,12 +229,11 @@ const AdminForgotPassword = () => {
                     Enter the 6-digit code sent to <span className="font-medium text-red-400">{email}</span>
                   </p>
                 </div>
-                
-                <div className={`flex items-center gap-3 p-4 rounded-xl border transition-all bg-gray-900/50 ${
-                  otpError 
+
+                <div className={`flex items-center gap-3 p-4 rounded-xl border transition-all bg-gray-900/50 ${otpError
                     ? 'border-red-400 ring-2 ring-red-900/30'
                     : 'border-gray-700 focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-900/30'
-                }`}>
+                  }`}>
                   <KeyRound className={`w-5 h-5 ${otpError ? 'text-red-400' : 'text-red-500'}`} />
                   <div className="flex-1">
                     <label className="block text-xs text-gray-500 mb-0.5">Verification Code</label>
@@ -303,7 +300,7 @@ const AdminForgotPassword = () => {
                       placeholder="••••••••••"
                     />
                   </div>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
                     className="text-gray-500 hover:text-gray-300"
@@ -333,13 +330,12 @@ const AdminForgotPassword = () => {
                 </div>
 
                 {/* Confirm Password */}
-                <div className={`flex items-center gap-3 p-4 rounded-xl border focus-within:ring-2 transition-all bg-gray-900/50 ${
-                  confirmPassword.length > 0 
-                    ? passwordsMatch 
-                      ? 'border-green-500 focus-within:ring-green-900/30' 
+                <div className={`flex items-center gap-3 p-4 rounded-xl border focus-within:ring-2 transition-all bg-gray-900/50 ${confirmPassword.length > 0
+                    ? passwordsMatch
+                      ? 'border-green-500 focus-within:ring-green-900/30'
                       : 'border-red-400 focus-within:ring-red-900/30'
                     : 'border-gray-700 focus-within:border-red-500 focus-within:ring-red-900/30'
-                }`}>
+                  }`}>
                   <Lock className="w-5 h-5 text-red-500" />
                   <div className="flex-1">
                     <label className="block text-xs text-gray-500 mb-0.5">Confirm Password</label>
@@ -352,7 +348,7 @@ const AdminForgotPassword = () => {
                       placeholder="••••••••••"
                     />
                   </div>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="text-gray-500 hover:text-gray-300"
@@ -382,8 +378,8 @@ const AdminForgotPassword = () => {
 
           {/* Back to Admin Login */}
           <div className="p-4 border-t border-gray-700">
-            <Link 
-              to="/login" 
+            <Link
+              to="/login"
               className="flex items-center justify-center gap-2 text-sm text-gray-400 hover:text-red-400 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />

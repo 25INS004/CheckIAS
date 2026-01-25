@@ -9,13 +9,13 @@ export default function AdminSettings() {
   const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  
+
   const [adminProfile, setAdminProfile] = useState({
     name: 'Admin User',
-    email: 'js6447168@gmail.com',
+    email: 'admin@checkias.com',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
   });
-  
+
   const [notifications, setNotifications] = useState({
     newUsers: true,
     submissions: true
@@ -52,11 +52,10 @@ export default function AdminSettings() {
       <div className="flex gap-4 border-b border-gray-200 dark:border-gray-800">
         <button
           onClick={() => setActiveTab('profile')}
-          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${
-            activeTab === 'profile' 
-              ? 'text-indigo-600 dark:text-indigo-400' 
+          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${activeTab === 'profile'
+              ? 'text-indigo-600 dark:text-indigo-400'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-          }`}
+            }`}
         >
           Profile Details
           {activeTab === 'profile' && (
@@ -65,11 +64,10 @@ export default function AdminSettings() {
         </button>
         <button
           onClick={() => setActiveTab('security')}
-          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${
-            activeTab === 'security' 
-              ? 'text-indigo-600 dark:text-indigo-400' 
+          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${activeTab === 'security'
+              ? 'text-indigo-600 dark:text-indigo-400'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-          }`}
+            }`}
         >
           Security & Notifications
           {activeTab === 'security' && (
@@ -85,18 +83,18 @@ export default function AdminSettings() {
             {/* Avatar Section */}
             <div className="flex items-center gap-6 pb-6 border-b border-gray-100 dark:border-gray-800">
               <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                <img 
-                  src={adminProfile.avatar} 
-                  alt="Profile" 
+                <img
+                  src={adminProfile.avatar}
+                  alt="Profile"
                   className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-950 shadow-sm group-hover:opacity-75 transition-opacity"
                 />
                 <button type="button" className="absolute bottom-0 right-0 p-1.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-full text-gray-500 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm transition-colors">
                   <Camera className="w-4 h-4" />
                 </button>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  className="hidden" 
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
                   accept="image/*"
                   onChange={handleFileChange}
                 />
@@ -169,7 +167,7 @@ export default function AdminSettings() {
                   Securely update your password by receiving a reset link via email.
                 </p>
               </div>
-              
+
               <button
                 onClick={() => navigate('/forgot-password')}
                 className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-all"
