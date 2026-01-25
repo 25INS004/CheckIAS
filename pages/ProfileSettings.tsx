@@ -16,7 +16,7 @@ const ProfileSettings = () => {
   const { user, refreshUser, updateUser } = useUser();
   const { updateProfile, updating } = useProfile();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  
+
   const [loading, setLoading] = useState(false);
 
   // Helper to get token
@@ -27,7 +27,7 @@ const ProfileSettings = () => {
         sessionData = sessionStorage.getItem('supabase.auth.token');
       }
       if (!sessionData) return null;
-      
+
       const { currentSession } = JSON.parse(sessionData);
       return currentSession?.access_token || null;
     } catch (e) {
@@ -37,7 +37,7 @@ const ProfileSettings = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const activeTab = tab || 'profile';
-  
+
   const [isYearOpen, setIsYearOpen] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
 
@@ -66,7 +66,7 @@ const ProfileSettings = () => {
         yearOfAttempt: user.yearOfAttempt || '', // Using yearOfAttempt from UserContext
         dob: user.dob || '', // Using dob from UserContext
         // language might need to be added to UserContext or fetched if stored
-        avatarUrl:  (user as any).avatarUrl || '' // If user context has it, else it will be fetched via profile normally? 
+        avatarUrl: (user as any).avatarUrl || '' // If user context has it, else it will be fetched via profile normally? 
         // Actually UserContext doesn't have it yet. It comes from profile fetch but UserContext filters fields. 
         // For now, we rely on existing logic, but we might want to fetch valid avatar from somewhere if not in user object.
         // Or we assume the user object layout in UserContext will be updated. 
@@ -82,7 +82,7 @@ const ProfileSettings = () => {
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!profile.phone.trim()) {
       setErrorMessage('Phone number is required');
       return;
@@ -103,7 +103,7 @@ const ProfileSettings = () => {
 
     if (success) {
       setSuccessMessage('Profile updated successfully!');
-      
+
       updateUser({
         name: profile.fullName,
         phone: profile.phone,
@@ -111,12 +111,12 @@ const ProfileSettings = () => {
         yearOfAttempt: profile.yearOfAttempt,
         dob: profile.dob
       });
-      
+
       setTimeout(() => setSuccessMessage(''), 3000);
     } else {
       setErrorMessage(error || 'Failed to update profile');
     }
-    
+
     setLoading(false);
   };
 
@@ -182,10 +182,10 @@ const ProfileSettings = () => {
       }
 
       const avatarUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/profile-picture/${filePath}`;
-      
+
       // Update profile with new URL
       const { success, error } = await updateProfile({ avatar_url: avatarUrl });
-      
+
       if (success) {
         setProfile(prev => ({ ...prev, avatarUrl }));
         updateUser({ avatarUrl }); // Update global user context immediately
@@ -211,11 +211,10 @@ const ProfileSettings = () => {
       <div className="flex gap-4 border-b border-gray-200 dark:border-gray-800">
         <button
           onClick={() => navigate('/dashboard/settings/profile')}
-          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${
-            activeTab === 'profile' 
-              ? 'text-indigo-600 dark:text-indigo-400' 
+          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${activeTab === 'profile'
+              ? 'text-indigo-600 dark:text-indigo-400'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-          }`}
+            }`}
         >
           Profile Details
           {activeTab === 'profile' && (
@@ -224,11 +223,10 @@ const ProfileSettings = () => {
         </button>
         <button
           onClick={() => navigate('/dashboard/settings/security')}
-          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${
-            activeTab === 'security' 
-              ? 'text-indigo-600 dark:text-indigo-400' 
+          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${activeTab === 'security'
+              ? 'text-indigo-600 dark:text-indigo-400'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-          }`}
+            }`}
         >
           Password & Security
           {activeTab === 'security' && (
@@ -237,11 +235,10 @@ const ProfileSettings = () => {
         </button>
         <button
           onClick={() => navigate('/dashboard/settings/support')}
-          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${
-            activeTab === 'support' 
-              ? 'text-indigo-600 dark:text-indigo-400' 
+          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${activeTab === 'support'
+              ? 'text-indigo-600 dark:text-indigo-400'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-          }`}
+            }`}
         >
           Support
           {activeTab === 'support' && (
@@ -250,11 +247,10 @@ const ProfileSettings = () => {
         </button>
         <button
           onClick={() => navigate('/dashboard/settings/updates')}
-          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${
-            activeTab === 'updates' 
-              ? 'text-indigo-600 dark:text-indigo-400' 
+          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${activeTab === 'updates'
+              ? 'text-indigo-600 dark:text-indigo-400'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-          }`}
+            }`}
         >
           Updates
           {activeTab === 'updates' && (
@@ -263,11 +259,10 @@ const ProfileSettings = () => {
         </button>
         <button
           onClick={() => navigate('/dashboard/settings/invoices')}
-          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${
-            activeTab === 'invoices' 
-              ? 'text-indigo-600 dark:text-indigo-400' 
+          className={`pb-4 px-2 text-sm font-medium transition-colors relative ${activeTab === 'invoices'
+              ? 'text-indigo-600 dark:text-indigo-400'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-          }`}
+            }`}
         >
           Invoices
           {activeTab === 'invoices' && (
@@ -279,7 +274,7 @@ const ProfileSettings = () => {
       {activeTab === 'profile' && (
         <div className="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6 sm:p-8 animate-fade-in">
 
-          
+
           <form onSubmit={handleProfileUpdate} className="space-y-6">
             {/* Avatar Section */}
             <div className="flex items-center gap-6 pb-6 border-b border-gray-100 dark:border-gray-800">
@@ -291,8 +286,8 @@ const ProfileSettings = () => {
                     profile.fullName.charAt(0)
                   )}
                 </div>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => fileInputRef.current?.click()}
                   className="absolute bottom-0 right-0 p-1.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-full text-gray-500 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm transition-colors"
                 >
@@ -325,33 +320,33 @@ const ProfileSettings = () => {
                     disabled
                     className="w-full pr-4 py-2.5 outline-none border-none focus:ring-0 text-gray-500 dark:text-gray-400 bg-transparent cursor-not-allowed"
                   />
-                   <div className="pr-3 flex-shrink-0">
+                  <div className="pr-3 flex-shrink-0">
                     <span className="text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-1 rounded-md border border-gray-200 dark:border-gray-700 whitespace-nowrap flex items-center gap-1">
                       <Lock className="w-3 h-3" />
                       Locked
                     </span>
-                   </div>
+                  </div>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email Address</label>
                 <div className="flex items-center w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 transition-all">
-                   <div className="p-3 text-gray-400">
-                     <Lock className="w-4 h-4" />
-                   </div>
+                  <div className="p-3 text-gray-400">
+                    <Lock className="w-4 h-4" />
+                  </div>
                   <input
                     type="email"
                     value={profile.email}
                     disabled
                     className="w-full pr-4 py-2.5 outline-none border-none focus:ring-0 text-gray-500 dark:text-gray-400 bg-transparent cursor-not-allowed"
                   />
-                   <div className="pr-3 flex-shrink-0">
+                  <div className="pr-3 flex-shrink-0">
                     <span className="text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-1 rounded-md border border-gray-200 dark:border-gray-700 whitespace-nowrap flex items-center gap-1">
                       <Lock className="w-3 h-3" />
                       Locked
                     </span>
-                   </div>
+                  </div>
                 </div>
               </div>
 
@@ -365,6 +360,7 @@ const ProfileSettings = () => {
                     type="tel"
                     value={profile.phone}
                     onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                    placeholder="+91 00000 00000"
                     className="w-full pr-4 py-2.5 outline-none border-none focus:ring-0 text-gray-900 dark:text-white bg-transparent"
                   />
                 </div>
@@ -394,22 +390,22 @@ const ProfileSettings = () => {
                     <span>{profile.yearOfAttempt || "Select Year"}</span>
                     <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isYearOpen ? 'rotate-180' : ''}`} />
                   </button>
-                  
+
                   <div className={`absolute top-full left-0 w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg z-20 overflow-hidden transition-all origin-top ${isYearOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-                  <div className="max-h-60 overflow-y-auto custom-scrollbar">
-                    {[2025, 2026, 2027, 2028, 2029, 2030].map((year) => (
-                      <button
-                        key={year}
-                        type="button"
-                        onClick={() => {
-                          setProfile({ ...profile, yearOfAttempt: year.toString() });
-                          setIsYearOpen(false);
-                        }}
-                        className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 ${profile.yearOfAttempt === year.toString() ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400' : 'text-gray-900 dark:text-white'}`}
-                      >
-                        {year}
-                      </button>
-                    ))}
+                    <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                      {[2025, 2026, 2027, 2028, 2029, 2030].map((year) => (
+                        <button
+                          key={year}
+                          type="button"
+                          onClick={() => {
+                            setProfile({ ...profile, yearOfAttempt: year.toString() });
+                            setIsYearOpen(false);
+                          }}
+                          className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 ${profile.yearOfAttempt === year.toString() ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400' : 'text-gray-900 dark:text-white'}`}
+                        >
+                          {year}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -436,7 +432,7 @@ const ProfileSettings = () => {
                     <span>{profile.language}</span>
                     <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isLanguageOpen ? 'rotate-180' : ''}`} />
                   </button>
-                  
+
                   <div className={`absolute top-full left-0 w-full mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg z-20 overflow-hidden transition-all origin-top ${isLanguageOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
                     {['English', 'Hindi'].map((lang) => (
                       <button
@@ -458,11 +454,10 @@ const ProfileSettings = () => {
 
 
             {(successMessage || errorMessage) && (
-              <div className={`p-4 rounded-xl flex items-center gap-3 ${
-                successMessage 
+              <div className={`p-4 rounded-xl flex items-center gap-3 ${successMessage
                   ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300'
                   : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'
-              }`}>
+                }`}>
                 {successMessage ? (
                   <CheckCircle className="w-5 h-5 flex-shrink-0" />
                 ) : (
@@ -493,13 +488,13 @@ const ProfileSettings = () => {
       {activeTab === 'security' && (
         <div className="bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6 sm:p-8 animate-fade-in">
           <div className="max-w-lg space-y-6">
-             <div>
+            <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Password</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 Securely update your password by receiving a reset link via email.
               </p>
             </div>
-            
+
             <button
               type="button"
               onClick={() => navigate('/forgot-password')}
@@ -534,7 +529,7 @@ const ProfileSettings = () => {
 
 // Updates Section Component
 const UpdatesSection = () => {
-  const [announcements, setAnnouncements] = React.useState<{id: string; message: string; created_at: string}[]>([]);
+  const [announcements, setAnnouncements] = React.useState<{ id: string; message: string; created_at: string }[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [updatesPage, setUpdatesPage] = React.useState(1);
   const ITEMS_PER_PAGE = 10;
@@ -564,7 +559,7 @@ const UpdatesSection = () => {
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         }
-        
+
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/announcements?select=*&order=created_at.desc`,
           { headers }
@@ -614,24 +609,24 @@ const UpdatesSection = () => {
               .slice(1)
               .slice((updatesPage - 1) * ITEMS_PER_PAGE, updatesPage * ITEMS_PER_PAGE)
               .map((ann) => (
-              <div key={ann.id} className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
-                    <Megaphone className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-gray-900 dark:text-white font-medium">{ann.message}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                      {new Date(ann.created_at).toLocaleDateString(undefined, {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </p>
+                <div key={ann.id} className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
+                      <Megaphone className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-gray-900 dark:text-white font-medium">{ann.message}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                        {new Date(ann.created_at).toLocaleDateString(undefined, {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
             <Pagination
               currentPage={updatesPage}
               totalPages={Math.ceil((announcements.length - 1) / ITEMS_PER_PAGE)}
@@ -749,7 +744,7 @@ const InvoicesSection = () => {
       <div className="p-6 border-b border-gray-100 dark:border-gray-800">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Payment Invoices</h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">View and download your payment invoices</p>
-        
+
         {/* Filters */}
         {invoices.length > 0 && (
           <div className="flex flex-wrap gap-3 mt-4">
@@ -763,18 +758,17 @@ const InvoicesSection = () => {
                 <span className="truncate">{filterPlan === 'All' ? 'All Plans' : filterPlan}</span>
                 <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isPlanDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
-              
+
               <div className={`absolute top-full left-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-10 overflow-hidden transition-all duration-200 origin-top ${isPlanDropdownOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
                 <div className="py-1">
                   {['All', 'Starter', 'Pro', 'Achiever'].map(plan => (
                     <button
                       key={plan}
                       onClick={() => { setFilterPlan(plan); setIsPlanDropdownOpen(false); }}
-                      className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                        filterPlan === plan 
-                          ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium' 
+                      className={`w-full text-left px-4 py-2 text-sm transition-colors ${filterPlan === plan
+                          ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium'
                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                      }`}
+                        }`}
                     >
                       {plan === 'All' ? 'All Plans' : plan}
                     </button>
@@ -782,7 +776,7 @@ const InvoicesSection = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Date From */}
             <div className="w-36">
               <DatePicker
@@ -791,7 +785,7 @@ const InvoicesSection = () => {
                 placeholder="From date"
               />
             </div>
-            
+
             {/* Date To */}
             <div className="w-36">
               <DatePicker
@@ -801,7 +795,7 @@ const InvoicesSection = () => {
                 min={dateFrom}
               />
             </div>
-            
+
             {/* Clear Filters */}
             {(filterPlan !== 'All' || dateFrom || dateTo) && (
               <button
@@ -814,7 +808,7 @@ const InvoicesSection = () => {
           </div>
         )}
       </div>
-      
+
       {loading ? (
         <div className="p-12 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mx-auto" />

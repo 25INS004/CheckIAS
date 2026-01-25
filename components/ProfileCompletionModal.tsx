@@ -114,7 +114,7 @@ const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ isOpen 
       optional_subject: profile.subject,
       dob: profile.dob || null,
     });
-    
+
     if (success) {
       // Update local state immediately so Settings page has correct data
       updateUser({
@@ -129,7 +129,7 @@ const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ isOpen 
       console.error('Profile save failed:', saveError);
       setError(saveError || 'Failed to save profile');
     }
-    
+
     setLoading(false);
   };
 
@@ -144,7 +144,7 @@ const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ isOpen 
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-      <div 
+      <div
         className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -193,7 +193,7 @@ const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ isOpen 
               required
               value={profile.phone}
               onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-              placeholder="+91 98765 43210"
+              placeholder="+91 00000 00000"
               className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
             />
           </div>
@@ -227,7 +227,7 @@ const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ isOpen 
                 <span className={profile.subject ? '' : 'text-gray-400'}>{profile.subject || 'Select Optional Subject'}</span>
                 <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isSubjectOpen ? 'rotate-180' : ''}`} />
               </button>
-              
+
               <div className={`absolute top-full left-0 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-20 overflow-hidden transition-all origin-top ${isSubjectOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
                 <div className="max-h-60 overflow-y-auto custom-scrollbar">
                   {Object.entries(OPTIONAL_SUBJECTS).map(([category, subjects]) => (
@@ -271,7 +271,7 @@ const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ isOpen 
                   <span className={profile.yearOfAttempt ? '' : 'text-gray-400'}>{profile.yearOfAttempt || 'Select'}</span>
                   <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isYearOpen ? 'rotate-180' : ''}`} />
                 </button>
-                
+
                 <div className={`absolute top-full left-0 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-20 overflow-hidden transition-all origin-top ${isYearOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
                   <div className="max-h-48 overflow-y-auto custom-scrollbar">
                     {years.map((year) => (
@@ -307,7 +307,7 @@ const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ isOpen 
                   <span>{profile.language}</span>
                   <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isLanguageOpen ? 'rotate-180' : ''}`} />
                 </button>
-                
+
                 <div className={`absolute top-full left-0 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-20 overflow-hidden transition-all origin-top ${isLanguageOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
                   {languages.map((lang) => (
                     <button
@@ -331,11 +331,10 @@ const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ isOpen 
           <button
             type="submit"
             disabled={!isFormValid || loading}
-            className={`w-full flex items-center justify-center gap-2 px-6 py-3.5 font-semibold rounded-xl transition-all shadow-lg ${
-              isFormValid 
-                ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-200 dark:shadow-none cursor-pointer' 
+            className={`w-full flex items-center justify-center gap-2 px-6 py-3.5 font-semibold rounded-xl transition-all shadow-lg ${isFormValid
+                ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-200 dark:shadow-none cursor-pointer'
                 : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-            }`}
+              }`}
           >
             {loading ? (
               <span>Saving...</span>
